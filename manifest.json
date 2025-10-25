@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.0",
+	"id": "chess-trainer",
+	"name": "Chess Trainer",
+	"version": "0.2.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Import PGN chess games and create interactive notes with playable boards and move analysis.",
+	"author": "Chess Trainer Team",
+	"authorUrl": "https://github.com/YasafVol/chess-trainer",
+	"fundingUrl": "https://github.com/YasafVol/chess-trainer",
 	"isDesktopOnly": false
 }

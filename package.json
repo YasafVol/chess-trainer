@@ -1,15 +1,24 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"name": "obsidian-chess-trainer",
+	"version": "0.2.0",
+	"description": "Import PGN chess games and create interactive notes with playable boards and move analysis.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"analyze": "npm run build && echo 'Bundle analysis completed during build'",
+		"test": "jest",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
-	"keywords": [],
-	"author": "",
+	"keywords": [
+		"obsidian",
+		"plugin",
+		"chess",
+		"pgn",
+		"games",
+		"training"
+	],
+	"author": "Chess Trainer Team",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "^16.11.6",

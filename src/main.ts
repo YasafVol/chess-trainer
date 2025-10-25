@@ -3,20 +3,20 @@
  * Imports PGN chess games and creates interactive notes with playable boards
  */
 
-import { sha1, shortHash } from './src/util/sha1';
-import { generateChessFilename, normalizeDate } from './src/util/filename';
-import { logInfo, logError, logDebug } from './src/util/logger';
-import { ImportModal } from './src/ui/ImportModal';
-import { validatePgn, extractHeaders } from './src/services/pgnValidator';
-import { upsert } from './src/adapters/NoteRepo';
+import { sha1, shortHash } from './util/sha1';
+import { generateChessFilename, normalizeDate } from './util/filename';
+import { logInfo, logError, logDebug } from './util/logger';
+import { ImportModal } from './ui/ImportModal';
+import { validatePgn, extractHeaders } from './services/pgnValidator';
+import { upsert } from './adapters/NoteRepo';
 
 // Import vendored dependencies
 // @ts-ignore - Bundled dependency
-import './src/deps/chessboard-element.js';
+import 'deps/chessboard-element.js';
 
 // Import chess.js for PGN parsing
 // @ts-ignore - Bundled dependency
-import { Chess } from './src/deps/chess.js.mjs';
+import Chess from 'deps/chess.js';
 
 export default class ChessTrainer {
 	app: any;
@@ -203,9 +203,7 @@ export default class ChessTrainer {
 
 			// Initialize game state
 			const game = new Chess();
-			try {
-				game.loadPgn(pgn);
-			} catch (error) {
+			if (!game.loadPgn(pgn, { sloppy: true })) {
 				el.appendChild(document.createTextNode('Failed to load PGN'));
 				return;
 			}
@@ -290,7 +288,7 @@ export default class ChessTrainer {
 			// Helper functions
 			const getFenAtPly = (game: any, history: any[], ply: number): string => {
 				const tempGame = new Chess();
-				tempGame.loadPgn(game.pgn());
+				tempGame.loadPgn(game.pgn(), { sloppy: true });
 				
 				for (let i = 0; i < ply; i++) {
 					tempGame.move(history[i]);

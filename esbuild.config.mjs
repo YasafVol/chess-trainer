@@ -39,6 +39,35 @@ const context = await esbuild.context({
 	treeShaking: true,
 	outfile: "main.js",
 	minify: prod,
+	metafile: true,
+	define: {
+		'process.env.NODE_ENV': prod ? '"production"' : '"development"',
+	},
+	plugins: [
+		{
+			name: 'bundle-analysis',
+			setup(build) {
+				build.onEnd((result) => {
+					if (result.metafile) {
+						console.log('\nBundle analysis:');
+						const outputs = result.metafile.outputs;
+						const mainBundle = outputs['main.js'];
+						if (mainBundle) {
+							const sizeKB = (mainBundle.bytes / 1024).toFixed(2);
+							console.log(`main.js: ${sizeKB} KB`);
+							
+							// Check if we're under the 300KB target
+							if (parseFloat(sizeKB) > 300) {
+								console.warn('⚠️  Bundle size exceeds 300KB target!');
+							} else {
+								console.log('✅ Bundle size within target');
+							}
+						}
+					}
+				});
+			},
+		},
+	],
 });
 
 if (prod) {

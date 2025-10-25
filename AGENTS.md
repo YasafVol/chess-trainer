@@ -1,6 +1,10 @@
-# Obsidian community plugin
+# Obsidian Chess Trainer
 
 ## Project overview
+
+- Current epic: `Spec/epic-chess-trainer-v0.md` (derived from `Spec/obsidian-chess-trainer-V0-note.md`).
+- Scope: Manual PGN paste → auto-generated note in `Chess/games/` with bundled `chess.js` + `chessboard-element` renderer.
+- Tooling: Retain npm + esbuild (`main.ts → main.js`); keep dependencies vendored, no runtime network access.
 
 - Target: Obsidian Community Plugin (TypeScript → bundled JavaScript).
 - Entry point: `main.ts` compiled to `main.js` and loaded by Obsidian.
@@ -158,6 +162,8 @@ Follow Obsidian's **Developer Policies** and **Plugin Guidelines**. In particula
 - Store or transmit vault contents unless essential and consented.
 
 ## Common tasks
+
+- Consult `Spec/epic-chess-trainer-v0.md` for milestone tasks and tracker.
 
 ### Organize code across multiple files
 
