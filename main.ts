@@ -3,6 +3,7 @@
  * Imports PGN chess games and creates interactive notes with playable boards
  */
 
+import { App, Plugin } from 'obsidian';
 import { sha1, shortHash } from './src/util/sha1';
 import { generateChessFilename, normalizeDate } from './src/util/filename';
 import { logInfo, logError, logDebug } from './src/util/logger';
@@ -18,11 +19,9 @@ import './src/deps/chessboard-element.js';
 // @ts-ignore - Bundled dependency
 import { Chess } from './src/deps/chess.js.mjs';
 
-export default class ChessTrainer {
-	app: any;
-
-	constructor(app: any) {
-		this.app = app;
+export default class ChessTrainer extends Plugin {
+	constructor(app: App) {
+		super(app);
 	}
 
 	async onload(): Promise<void> {
@@ -167,9 +166,41 @@ export default class ChessTrainer {
 	/**
 	 * Render chess board for PGN code block
 	 */
-	private async renderChessBoard(pgn: string, el: any): Promise<void> {
+	private async renderChessBoard(pgn: string, el: HTMLElement): Promise<void> {
 		try {
 			logDebug(`Rendering chess board for PGN (${pgn.length} characters)`);
+
+			// Initialize game state
+			const game = new Chess();
+			try {
+				game.loadPgn(pgn);
+			} catch (error) {
+				el.appendChild(document.createTextNode('Failed to load PGN'));
+				return;
+			}
+
+			const history = game.history({ verbose: true });
+			const totalPlies = history.length;
+
+			// Guard against very long games
+			if (totalPlies > 500) {
+				const warning = document.createElement('div');
+				warning.className = 'chess-warning';
+				warning.textContent = `Game has ${totalPlies} moves. Autoplay disabled for performance.`;
+				warning.style.cssText = 'color: orange; margin-bottom: 10px; font-style: italic;';
+				el.appendChild(warning);
+			}
+
+			// Precompute FEN positions for performance
+			const fenPositions: string[] = [];
+			const tempGame = new Chess();
+			tempGame.loadPgn(pgn);
+			fenPositions.push(tempGame.fen()); // Starting position
+
+			for (let i = 0; i < history.length; i++) {
+				tempGame.move(history[i]);
+				fenPositions.push(tempGame.fen());
+			}
 
 			// Create container
 			const container = document.createElement('div');
@@ -187,52 +218,40 @@ export default class ChessTrainer {
 			// Create controls container
 			const controlsEl = document.createElement('div');
 			controlsEl.className = 'chess-controls';
+			controlsEl.style.cssText = 'margin: 10px 0; display: flex; gap: 5px; flex-wrap: wrap;';
 			container.appendChild(controlsEl);
-
-			// Control buttons
-			const prevBtn = this.createButton(controlsEl, '‹', 'Previous move', () => navigateMove(-1));
-			const nextBtn = this.createButton(controlsEl, '›', 'Next move', () => navigateMove(1));
-			const resetBtn = this.createButton(controlsEl, '↺', 'Reset to start', () => resetPosition());
-			const playBtn = this.createButton(controlsEl, '▶', 'Play/Pause', () => toggleAutoplay());
-			const flipBtn = this.createButton(controlsEl, '⇅', 'Flip board', () => flipBoard());
 
 			// Create moves list container
 			const movesEl = document.createElement('div');
 			movesEl.className = 'chess-moves';
+			movesEl.style.cssText = 'margin-top: 10px; font-family: monospace; line-height: 1.4; max-height: 200px; overflow-y: auto;';
 			container.appendChild(movesEl);
 
-			// Initialize game state
-			const game = new Chess();
-			try {
-				game.loadPgn(pgn);
-			} catch (error) {
-				el.appendChild(document.createTextNode('Failed to load PGN'));
-				return;
-			}
-
-			const history = game.history({ verbose: true });
+			// State
 			let currentPly = 0;
 			let autoplayTimer: number | null = null;
 			let isPlaying = false;
 			let flipped = false;
+			const autoplayAllowed = totalPlies <= 500;
 
 			// Render functions
 			const render = () => {
-				// Set board position
-				boardEl.setPosition(getFenAtPly(game, history, currentPly), true);
+				// Set board position using precomputed FEN
+				boardEl.setPosition(fenPositions[currentPly], true);
 				
+				// Update board orientation
 				if (flipped) {
 					boardEl.setAttribute('orientation', (currentPly % 2 === 0) ? 'black' : 'white');
 				} else {
 					boardEl.removeAttribute('orientation');
 				}
 
-				// Update moves list
+				// Update moves list with current move highlighting
 				const movesText = history.map((move: any, index: number) => {
 					const moveNumber = Math.floor(index / 2) + 1;
 					const isWhite = index % 2 === 0;
 					
-					if (isCurrentMove(index, currentPly)) {
+					if (index === currentPly) {
 						return `[${move.san}]`;
 					}
 					
@@ -244,7 +263,7 @@ export default class ChessTrainer {
 
 			// Control functions
 			const navigateMove = (direction: number) => {
-				currentPly = Math.max(0, Math.min(history.length, currentPly + direction));
+				currentPly = Math.max(0, Math.min(totalPlies, currentPly + direction));
 				render();
 			};
 
@@ -255,11 +274,16 @@ export default class ChessTrainer {
 					clearInterval(autoplayTimer);
 					autoplayTimer = null;
 				}
-				playBtn.textContent = '▶';
+				if (playBtn) playBtn.textContent = '▶';
 				render();
 			};
 
 			const toggleAutoplay = () => {
+				if (!autoplayAllowed) {
+					logError('Autoplay disabled for games with >500 moves');
+					return;
+				}
+
 				if (isPlaying) {
 					// Pause
 					isPlaying = false;
@@ -267,18 +291,21 @@ export default class ChessTrainer {
 						clearInterval(autoplayTimer);
 						autoplayTimer = null;
 					}
-					playBtn.textContent = '▶';
+					if (playBtn) playBtn.textContent = '▶';
 				} else {
 					// Play
 					isPlaying = true;
-					playBtn.textContent = '⏸';
+					if (playBtn) playBtn.textContent = '⏸';
 					autoplayTimer = window.setInterval(() => {
-						if (currentPly >= history.length - 1) {
+						if (currentPly >= totalPlies - 1) {
 							toggleAutoplay(); // Stop at end
 						} else {
 							navigateMove(1);
 						}
 					}, 500);
+					
+					// Register timer for cleanup
+					this.registerInterval(autoplayTimer);
 				}
 			};
 
@@ -287,39 +314,32 @@ export default class ChessTrainer {
 				render();
 			};
 
-			// Helper functions
-			const getFenAtPly = (game: any, history: any[], ply: number): string => {
-				const tempGame = new Chess();
-				tempGame.loadPgn(game.pgn());
-				
-				for (let i = 0; i < ply; i++) {
-					tempGame.move(history[i]);
-				}
-				
-				return tempGame.fen();
-			};
+			// Control buttons
+			const prevBtn = this.createButton(controlsEl, '‹', 'Previous move', () => navigateMove(-1));
+			const nextBtn = this.createButton(controlsEl, '›', 'Next move', () => navigateMove(1));
+			const resetBtn = this.createButton(controlsEl, '↺', 'Reset to start', resetPosition);
+			const playBtn = this.createButton(controlsEl, '▶', autoplayAllowed ? 'Play/Pause' : 'Autoplay disabled (too many moves)', toggleAutoplay);
+			const flipBtn = this.createButton(controlsEl, '⇅', 'Flip board', flipBoard);
 
-			const isCurrentMove = (index: number, currentPly: number): boolean => {
-				return index === currentPly;
-			};
+			// Disable autoplay button if not allowed
+			if (!autoplayAllowed) {
+				playBtn.disabled = true;
+				playBtn.style.opacity = '0.5';
+			}
 
 			// Initial render
 			render();
 
-			// Store state for cleanup
-			(el as any)._chessState = {
-				game,
-				history,
-				currentPly,
-				autoplayTimer,
-				isPlaying,
-				flipped,
-				cleanup: () => {
-					if (autoplayTimer) {
-						clearInterval(autoplayTimer);
-					}
+			// Register cleanup handler for when element is removed
+			const cleanup = () => {
+				if (autoplayTimer) {
+					clearInterval(autoplayTimer);
+					autoplayTimer = null;
 				}
 			};
+
+			// Store cleanup function
+			(el as any)._chessCleanup = cleanup;
 
 		} catch (error) {
 			logError('Failed to render chess board', error);
@@ -339,24 +359,4 @@ export default class ChessTrainer {
 		return button;
 	}
 
-	// Plugin interface methods (stubs for Obsidian)
-	addRibbonIcon(icon: string, title: string, callback: (evt: MouseEvent) => void): any {
-		return this.app.addRibbonIcon?.(icon, title, callback);
-	}
-
-	addCommand(command: any): void {
-		this.app.addCommand?.(command);
-	}
-
-	registerMarkdownCodeBlockProcessor(language: string, handler: (source: string, el: any) => void): void {
-		this.app.registerMarkdownCodeBlockProcessor?.(language, handler);
-	}
-
-	registerDomEvent(element: HTMLElement, event: string, callback: (evt: Event) => void): void {
-		this.app.registerDomEvent?.(element, event, callback);
-	}
-
-	registerInterval(id: number): void {
-		this.app.registerInterval?.(id);
-	}
 }

@@ -22,7 +22,7 @@ declare module 'obsidian' {
 		path: string;
 	}
 
-	export interface Plugin {
+	export class Plugin {
 		app: App;
 		addRibbonIcon(icon: string, title: string, callback: (evt: MouseEvent) => void): HTMLElement;
 		addCommand(command: Command): void;
@@ -31,6 +31,7 @@ declare module 'obsidian' {
 		registerInterval(id: number): void;
 		onload(): Promise<void>;
 		onunload(): void;
+		constructor(app: App);
 	}
 
 	export interface Command {

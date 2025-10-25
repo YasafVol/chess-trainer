@@ -125,3 +125,23 @@ Tasks:
 22. **Obsidian API changes**: rely on documented APIs only, monitor release notes, test against latest insider build.
 23. **User recovery**: keep modal open on failure, show inline errors, detect duplicate hashes and offer to open existing note.
 24. **Accessibility**: add aria-labels, focus states, keyboard shortcuts for controls, announce current move via ARIA live region.
+
+## Remediation Plan for Current Gaps
+Recent code review uncovered critical blockers that must be addressed before the epic can close. Track each as a dedicated story under the next sprint.
+
+1. **Lifecycle Integration Fix**
+   - Convert both `main.ts` entry points (`main.ts`, `src/main.ts`) to extend Obsidian’s `Plugin`.
+   - Remove manual `addRibbonIcon?` wrappers and register commands/processors via the inherited methods so Obsidian manages cleanup.
+   - Validate ribbon/command/markdown processor all appear once plugin reloads.
+2. **Renderer Performance & Cleanup**
+   - Precompute PGN positions (FEN list) once and reuse instead of reloading the entire PGN per move.
+   - Ensure autoplay timer pauses when reaching the end and store cleanup handler via the markdown processor’s `ctx.addCleanup`.
+   - Add guardrails for >500 plies (disable autoplay, show warning).
+3. **PGN Parsing Consistency**
+   - Load PGNs with `{ sloppy: true }` in both validation (`services/pgnValidator.ts`) and renderer to match the spec promise of “full PGN support”.
+   - Expand validator tests with Chess.com/Lichess samples containing comments/NAGs.
+4. **Deterministic Hashing**
+   - Replace the fallback SHA‑1 implementation with a real, vendored SHA‑1 (e.g., `sha.js` or `js-sha1`) so filename hashes remain unique and deduplication works offline.
+   - Add a unit test proving two distinct PGNs never collide through the fallback path.
+
+These fixes should be scheduled immediately; the plugin is non-functional without them.
