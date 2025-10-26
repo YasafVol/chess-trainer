@@ -12,13 +12,23 @@ import { validatePgn, extractHeaders } from './src/services/pgnValidator';
 import { upsert } from './src/adapters/NoteRepo';
 import { normalizePgnInput } from './src/util/pgn';
 
-// Import vendored dependencies
-// @ts-ignore - Bundled dependency
-import './src/deps/chessboard-element.js';
-
 // Import chess.js for PGN parsing
 // @ts-ignore - Bundled dependency
 import { Chess } from './src/deps/chess.js.mjs';
+
+let chessBoardReady = false;
+
+async function ensureChessBoardElement() {
+	if (chessBoardReady) {
+		return;
+	}
+	if (typeof customElements !== 'undefined' && customElements.get('chess-board')) {
+		chessBoardReady = true;
+		return;
+	}
+	await import('./src/deps/chessboard-element.js');
+	chessBoardReady = true;
+}
 
 export default class ChessTrainer extends Plugin {
 	constructor(app: App) {
@@ -27,6 +37,8 @@ export default class ChessTrainer extends Plugin {
 
 	async onload(): Promise<void> {
 		logInfo('Loading Chess Trainer plugin v0.2.0');
+
+		await ensureChessBoardElement();
 
 		// Add ribbon icon
 		this.addRibbonIcon('dice', 'Chess Trainer', (evt: MouseEvent) => {
