@@ -22,11 +22,15 @@ declare module 'obsidian' {
 		path: string;
 	}
 
+	export interface MarkdownPostProcessorContext {
+		addCleanup(callback: () => void): void;
+	}
+
 	export class Plugin {
 		app: App;
 		addRibbonIcon(icon: string, title: string, callback: (evt: MouseEvent) => void): HTMLElement;
 		addCommand(command: Command): void;
-		registerMarkdownCodeBlockProcessor(language: string, handler: (source: string, el: HTMLElement) => void): void;
+		registerMarkdownCodeBlockProcessor(language: string, handler: (source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => void): void;
 		registerDomEvent(element: HTMLElement, event: string, callback: (evt: Event) => void): void;
 		registerInterval(id: number): void;
 		onload(): Promise<void>;

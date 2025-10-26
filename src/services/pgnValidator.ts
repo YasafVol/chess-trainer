@@ -4,6 +4,7 @@
  */
 
 import { logPgnError } from '../util/logger';
+import { normalizePgnInput } from '../util/pgn';
 
 // Import chess.js - using dynamic import to handle bundling
 // @ts-ignore - Bundled dependency
@@ -19,6 +20,7 @@ export interface PgnValidationResult {
 	isValid: boolean;
 	error?: PgnValidationError;
 	warnings?: string[];
+	normalized?: string;
 }
 
 export interface PgnHeaders {
@@ -55,8 +57,8 @@ export function validatePgn(pgn: string): PgnValidationResult {
 		};
 	}
 
-	const trimmedPgn = pgn.trim();
-	if (trimmedPgn.length === 0) {
+	const normalizedPgn = normalizePgnInput(pgn);
+	if (normalizedPgn.length === 0) {
 		return {
 			isValid: false,
 			error: {
@@ -67,7 +69,7 @@ export function validatePgn(pgn: string): PgnValidationResult {
 	}
 
 	// Check for maximum length to prevent performance issues
-	const moveLines = trimmedPgn.split('\n').filter(line => {
+	const moveLines = normalizedPgn.split('\n').filter(line => {
 		const trimmed = line.trim();
 		return trimmed && !trimmed.startsWith('[') && !trimmed.startsWith('{');
 	});
@@ -85,13 +87,13 @@ export function validatePgn(pgn: string): PgnValidationResult {
 	try {
 		// Try to parse with chess.js
 		const game = new Chess();
-		game.loadPgn(trimmedPgn);
+		game.loadPgn(normalizedPgn);
 
 		// Additional validation
 		const warnings: string[] = [];
 
 		// Check for missing essential headers
-		const headers = extractHeaders(trimmedPgn);
+		const headers = extractHeaders(normalizedPgn);
 		if (!headers.White || !headers.Black) {
 			warnings.push('Missing player names in PGN headers');
 		}
@@ -118,7 +120,8 @@ export function validatePgn(pgn: string): PgnValidationResult {
 
 		return {
 			isValid: true,
-			warnings: warnings.length > 0 ? warnings : undefined
+			warnings: warnings.length > 0 ? warnings : undefined,
+			normalized: normalizedPgn
 		};
 
 	} catch (error) {
@@ -223,7 +226,7 @@ export function getGameStats(pgn: string): {
 		const hasVariations = pgn.includes('(') && pgn.includes(')');
 
 		// Estimate game time from headers
-		const headers = extractHeaders(pgn);
+	const headers = extractHeaders(normalizePgnInput(pgn));
 		let estimatedTime: string | undefined;
 		if (headers.TimeControl) {
 			const tc = headers.TimeControl;

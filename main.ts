@@ -3,13 +3,14 @@
  * Imports PGN chess games and creates interactive notes with playable boards
  */
 
-import { App, Plugin } from 'obsidian';
+import { App, MarkdownPostProcessorContext, Plugin } from 'obsidian';
 import { sha1, shortHash } from './src/util/sha1';
 import { generateChessFilename, normalizeDate } from './src/util/filename';
 import { logInfo, logError, logDebug } from './src/util/logger';
 import { ImportModal } from './src/ui/ImportModal';
 import { validatePgn, extractHeaders } from './src/services/pgnValidator';
 import { upsert } from './src/adapters/NoteRepo';
+import { normalizePgnInput } from './src/util/pgn';
 
 // Import vendored dependencies
 // @ts-ignore - Bundled dependency
@@ -48,8 +49,11 @@ export default class ChessTrainer extends Plugin {
 		});
 
 		// Register markdown processor for chess-pgn code blocks
-		this.registerMarkdownCodeBlockProcessor('chess-pgn', async (source: string, el: any) => {
-			await this.renderChessBoard(source, el);
+		this.registerMarkdownCodeBlockProcessor('chess-pgn', async (source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+			const cleanup = await this.renderChessBoard(source, el);
+			if (typeof cleanup === 'function') {
+				ctx.addCleanup(cleanup);
+			}
 		});
 
 		logInfo('Chess Trainer plugin loaded successfully');
@@ -88,17 +92,19 @@ export default class ChessTrainer extends Plugin {
 				logDebug(`PGN warnings: ${validationResult.warnings.join(', ')}`);
 			}
 
+			const normalizedPgn = validationResult.normalized ?? normalizePgnInput(pgn);
+
 			// Parse PGN headers
-			const headers = extractHeaders(pgn);
+			const headers = extractHeaders(normalizedPgn);
 			
 			// Generate hash for filename
-			const hash = await shortHash(pgn);
+			const hash = await shortHash(normalizedPgn);
 			
 			// Generate filename
 			const filename = generateChessFilename(headers, hash);
 			
 			// Create note content
-			const noteContent = await this.generateNoteContent(pgn, headers, hash);
+			const noteContent = await this.generateNoteContent(pgn.trim(), headers, hash);
 			
 			// Save note to vault
 			const result = await upsert(this.app.vault, `Chess/games/${filename}`, noteContent);
@@ -166,14 +172,15 @@ export default class ChessTrainer extends Plugin {
 	/**
 	 * Render chess board for PGN code block
 	 */
-	private async renderChessBoard(pgn: string, el: HTMLElement): Promise<void> {
+	private async renderChessBoard(pgn: string, el: HTMLElement): Promise<(() => void) | undefined> {
 		try {
 			logDebug(`Rendering chess board for PGN (${pgn.length} characters)`);
 
 			// Initialize game state
+			const normalizedPgn = normalizePgnInput(pgn);
 			const game = new Chess();
 			try {
-				game.loadPgn(pgn);
+				game.loadPgn(normalizedPgn);
 			} catch (error) {
 				el.appendChild(document.createTextNode('Failed to load PGN'));
 				return;
@@ -194,11 +201,9 @@ export default class ChessTrainer extends Plugin {
 			// Precompute FEN positions for performance
 			const fenPositions: string[] = [];
 			const tempGame = new Chess();
-			tempGame.loadPgn(pgn);
 			fenPositions.push(tempGame.fen()); // Starting position
-
-			for (let i = 0; i < history.length; i++) {
-				tempGame.move(history[i]);
+			for (const move of history) {
+				tempGame.move(move);
 				fenPositions.push(tempGame.fen());
 			}
 
@@ -251,7 +256,7 @@ export default class ChessTrainer extends Plugin {
 					const moveNumber = Math.floor(index / 2) + 1;
 					const isWhite = index % 2 === 0;
 					
-					if (index === currentPly) {
+					if (index === currentPly - 1) {
 						return `[${move.san}]`;
 					}
 					
@@ -338,12 +343,12 @@ export default class ChessTrainer extends Plugin {
 				}
 			};
 
-			// Store cleanup function
-			(el as any)._chessCleanup = cleanup;
+			return cleanup;
 
 		} catch (error) {
 			logError('Failed to render chess board', error);
 			el.appendChild(document.createTextNode('Failed to render chess board'));
+			return;
 		}
 	}
 

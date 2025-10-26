@@ -7,6 +7,32 @@
 // @ts-ignore - Bundled dependency
 import { sha1 as jsSha1 } from '../deps/sha1.js';
 
+async function subtleSha1(text: string): Promise<string | null> {
+	if (typeof crypto === 'undefined' || !crypto.subtle) {
+		return null;
+	}
+	try {
+		const encoder = new TextEncoder();
+		const data = encoder.encode(text);
+		const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+		const hashArray = Array.from(new Uint8Array(hashBuffer));
+		return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+	} catch {
+		return null;
+	}
+}
+
+function fallbackHash(text: string): string {
+	let hash = 0;
+	for (let i = 0; i < text.length; i++) {
+		const char = text.charCodeAt(i);
+		hash = ((hash << 5) - hash) + char;
+		hash = hash & hash; // Convert to 32-bit integer
+	}
+	const repeated = Math.abs(hash).toString(16).padStart(8, '0').repeat(5);
+	return repeated.substring(0, 40);
+}
+
 /**
  * Generate SHA-1 hash of the input text
  * Uses js-sha1 library for consistent, collision-resistant hashing
@@ -18,16 +44,13 @@ export async function sha1(text: string): Promise<string> {
 	try {
 		return jsSha1(text);
 	} catch (error) {
-		console.warn('SHA-1 hashing failed, using fallback:', error);
-		// Fallback to simple hash (rare case)
-		let hash = 0;
-		for (let i = 0; i < text.length; i++) {
-			const char = text.charCodeAt(i);
-			hash = ((hash << 5) - hash) + char;
-			hash = hash & hash; // Convert to 32-bit integer
+		console.warn('js-sha1 failed, attempting Web Crypto fallback:', error);
+		const cryptoHash = await subtleSha1(text);
+		if (cryptoHash) {
+			return cryptoHash;
 		}
-		const fallbackHash = Math.abs(hash).toString(16).padStart(8, '0').repeat(5);
-		return fallbackHash.substring(0, 40);
+		console.warn('Web Crypto SHA-1 unavailable, using deterministic fallback hash.');
+		return fallbackHash(text);
 	}
 }
 
