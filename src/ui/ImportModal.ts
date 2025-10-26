@@ -80,6 +80,7 @@ export class ImportModal extends Modal {
 		// Submit button
 		this.submitButton = document.createElement('button');
 		this.submitButton.textContent = 'Import';
+		this.submitButton.className = '';
 		this.submitButton.style.padding = '10px 20px';
 		this.submitButton.style.border = 'none';
 		this.submitButton.style.borderRadius = '4px';
