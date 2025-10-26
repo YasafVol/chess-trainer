@@ -111,11 +111,12 @@ export class ImportModal {
 		// Submit button
 		this.submitButton = document.createElement('button');
 		this.submitButton.textContent = 'Import';
-		this.submitButton.className = 'mod-cta';
 		this.submitButton.style.padding = '10px 20px';
 		this.submitButton.style.border = 'none';
 		this.submitButton.style.borderRadius = '4px';
 		this.submitButton.style.cursor = 'pointer';
+		this.submitButton.style.backgroundColor = 'var(--background-primary)'; // black background
+		this.submitButton.style.color = 'var(--interactive-accent)'; // vault highlight color
 
 		this.submitButton.addEventListener('click', () => {
 			this.handleSubmit();
@@ -137,7 +138,6 @@ export class ImportModal {
 
 		buttonContainer.appendChild(this.submitButton);
 		buttonContainer.appendChild(cancelButton);
-
 		// Add all elements to content
 		this.contentEl.appendChild(inputContainer);
 		// Validation status container
