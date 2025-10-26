@@ -31,10 +31,6 @@ async function ensureChessBoardElement() {
 }
 
 export default class ChessTrainer extends Plugin {
-	constructor(app: App) {
-		super(app);
-	}
-
 	async onload(): Promise<void> {
 		logInfo('Loading Chess Trainer plugin v0.2.0');
 
