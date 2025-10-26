@@ -51,11 +51,15 @@ declare module 'obsidian' {
 		key: string;
 	}
 
-	export interface Modal {
+	export class Modal {
 		app: App;
 		contentEl: HTMLElement;
+		titleEl: HTMLElement;
+		constructor(app: App);
 		open(): void;
 		close(): void;
+		onOpen(): void;
+		onClose(): void;
 	}
 
 	export interface Setting {
@@ -70,7 +74,7 @@ declare module 'obsidian' {
 	export function addIcon(id: string, svg: string): void;
 
 	// Extended DOM interfaces for Obsidian's modified elements
-	interface HTMLElement {
+	interface HTMLElement extends globalThis.HTMLElement {
 		createEl<T extends keyof HTMLElementTagNameMap>(
 			tag: T,
 			options?: {
@@ -81,19 +85,20 @@ declare module 'obsidian' {
 		): HTMLElementTagNameMap[T];
 		createDiv(cls?: string): HTMLDivElement;
 		createSpan(text?: string): HTMLSpanElement;
+		empty(): void;
 	}
 
-	interface HTMLDivElement {
+	interface HTMLDivElement extends globalThis.HTMLDivElement {
 		addClass(cls: string): void;
 		removeClass(cls: string): void;
 	}
 
-	interface HTMLSpanElement {
+	interface HTMLSpanElement extends globalThis.HTMLSpanElement {
 		addClass(cls: string): void;
 		removeClass(cls: string): void;
 	}
 
-	interface HTMLButtonElement {
+	interface HTMLButtonElement extends globalThis.HTMLButtonElement {
 		addClass(cls: string): void;
 		removeClass(cls: string): void;
 	}

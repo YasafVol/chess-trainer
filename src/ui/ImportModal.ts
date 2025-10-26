@@ -3,6 +3,7 @@
  * Provides UI for importing chess games in PGN format
  */
 
+import { App, Modal } from 'obsidian';
 import { validatePgn, PgnValidationResult } from '../services/pgnValidator';
 import { logInfo, logError } from '../util/logger';
 
@@ -12,18 +13,15 @@ export interface ImportModalOptions {
 	allowMultiple?: boolean;
 }
 
-export class ImportModal {
-	private app: any;
+export class ImportModal extends Modal {
 	private pgnInput: HTMLTextAreaElement;
 	private submitButton: HTMLButtonElement;
 	private validationResult: PgnValidationResult | null = null;
 	private onSubmit: (pgn: string) => void;
 	private options: ImportModalOptions;
-	private contentEl: HTMLElement;
-	private modalEl: HTMLElement;
 
-	constructor(app: any, onSubmit: (pgn: string) => void, options: ImportModalOptions = {}) {
-		this.app = app;
+	constructor(app: App, onSubmit: (pgn: string) => void, options: ImportModalOptions = {}) {
+		super(app);
 		this.onSubmit = onSubmit;
 		this.options = {
 			title: 'Import PGN',
@@ -31,72 +29,43 @@ export class ImportModal {
 			allowMultiple: false,
 			...options
 		};
-		
-		// Create modal elements
-		this.modalEl = document.createElement('div');
-		this.modalEl.className = 'chess-import-modal modal';
-		this.modalEl.style.position = 'fixed';
-		this.modalEl.style.top = '0';
-		this.modalEl.style.left = '0';
-		this.modalEl.style.width = '100%';
-		this.modalEl.style.height = '100%';
-		this.modalEl.style.backgroundColor = 'rgba(0,0,0,0.5)';
-		this.modalEl.style.zIndex = '1000';
-		this.modalEl.style.display = 'flex';
-		this.modalEl.style.alignItems = 'center';
-		this.modalEl.style.justifyContent = 'center';
-		
-		this.contentEl = document.createElement('div');
-		this.contentEl.className = 'modal-content';
-		this.contentEl.style.backgroundColor = 'var(--background-primary)';
-		this.contentEl.style.padding = '20px';
-		this.contentEl.style.borderRadius = '8px';
-		this.contentEl.style.maxWidth = '600px';
-		this.contentEl.style.width = '90%';
-		this.contentEl.style.maxHeight = '80%';
-		this.contentEl.style.overflowY = 'auto';
-		
-		this.modalEl.appendChild(this.contentEl);
 	}
 
-	open(): void {
-		document.body.appendChild(this.modalEl);
-		this.setupContent();
+	onOpen(): void {
+		this.renderContent();
 		logInfo('Import modal opened');
 	}
 
-	close(): void {
-		document.body.removeChild(this.modalEl);
+	onClose(): void {
+		this.contentEl.empty();
 		logInfo('Import modal closed');
 	}
 
-	private setupContent(): void {
+	private renderContent(): void {
 		this.contentEl.empty();
 
 		// Modal header
-		const header = document.createElement('h2');
-		header.textContent = this.options.title!;
-		this.contentEl.appendChild(header);
+		const header = this.contentEl.createEl('h2', { text: this.options.title! });
 
 		// Description
-		const description = document.createElement('p');
-		description.textContent = 'Paste a chess game in Portable Game Notation (PGN) format. The game should include player names and moves.';
-		this.contentEl.appendChild(description);
+		this.contentEl.createEl('p', {
+			text: 'Paste a chess game in Portable Game Notation (PGN) format. The game should include player names and moves.'
+		});
 
 		// Input container
-		const inputContainer = document.createElement('div');
+		const inputContainer = this.contentEl.createDiv();
 		
 		// PGN textarea
 		this.pgnInput = document.createElement('textarea');
-		this.pgnInput.rows = 18;
+		this.pgnInput.rows = 10;
 		this.pgnInput.spellcheck = false;
 		this.pgnInput.placeholder = this.options.placeholder!;
 		this.pgnInput.style.width = '100%';
-		this.pgnInput.style.minHeight = '300px';
+		this.pgnInput.style.minHeight = '150px';
 		this.pgnInput.style.padding = '10px';
-		this.pgnInput.style.border = '1px solid var(--background-modifier-border)';
+		this.pgnInput.style.border = 'none';
 		this.pgnInput.style.borderRadius = '4px';
-		this.pgnInput.style.backgroundColor = 'var(--background-primary)';
+		this.pgnInput.style.backgroundColor = 'var(--background-secondary)';
 		this.pgnInput.style.color = 'var(--text-normal)';
 		this.pgnInput.style.fontFamily = 'monospace';
 		
@@ -142,6 +111,8 @@ export class ImportModal {
 		this.contentEl.appendChild(inputContainer);
 		// Validation status container
 		const statusContainer = document.createElement('div');
+		statusContainer.style.display = 'none';
+		statusContainer.style.marginTop = '8px';
 		const statusIcon = document.createElement('span');
 		statusIcon.className = 'validation-icon';
 		const statusText = document.createElement('span');
@@ -178,7 +149,7 @@ export class ImportModal {
 		
 		if (!pgn) {
 			this.validationResult = null;
-			this.updateValidationStatus(statusIcon, statusText, 'empty', 'Enter a PGN to continue');
+			this.updateValidationStatus(statusIcon, statusText, 'empty', '');
 			this.updateSubmitButton(false);
 			return;
 		}
@@ -231,6 +202,11 @@ export class ImportModal {
 		const existingWarnings = text.parentElement?.querySelectorAll('.warning-item');
 		if (existingWarnings) {
 			existingWarnings.forEach(warning => warning.remove());
+		}
+
+		const hasMessage = Boolean(message);
+		if (text.parentElement) {
+			text.parentElement.style.display = hasMessage ? 'block' : 'none';
 		}
 
 		switch (status) {
