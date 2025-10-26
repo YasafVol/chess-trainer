@@ -67,6 +67,8 @@ declare module 'obsidian' {
 		constructor(message: string, duration?: number);
 	}
 
+	export function addIcon(id: string, svg: string): void;
+
 	// Extended DOM interfaces for Obsidian's modified elements
 	interface HTMLElement {
 		createEl<T extends keyof HTMLElementTagNameMap>(

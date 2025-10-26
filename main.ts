@@ -3,7 +3,7 @@
  * Imports PGN chess games and creates interactive notes with playable boards
  */
 
-import { App, MarkdownPostProcessorContext, Plugin } from 'obsidian';
+import { App, MarkdownPostProcessorContext, Plugin, addIcon } from 'obsidian';
 import { sha1, shortHash } from './src/util/sha1';
 import { generateChessFilename, normalizeDate } from './src/util/filename';
 import { logInfo, logError, logDebug } from './src/util/logger';
@@ -17,6 +17,16 @@ import { normalizePgnInput } from './src/util/pgn';
 import { Chess } from './src/deps/chess.js.mjs';
 
 let chessBoardReady = false;
+const CHESS_ICON_ID = 'chess-trainer-board';
+const CHESS_ICON_SVG = `
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
+  <path d="M3 9h18M3 15h18M9 3v18M15 3v18" stroke="currentColor" stroke-width="2"/>
+  <rect x="3" y="3" width="6" height="6" fill="currentColor" opacity="0.2"/>
+  <rect x="15" y="3" width="6" height="6" fill="currentColor" opacity="0.2"/>
+  <rect x="3" y="15" width="6" height="6" fill="currentColor" opacity="0.2"/>
+  <rect x="15" y="15" width="6" height="6" fill="currentColor" opacity="0.2"/>
+</svg>`;
 
 async function ensureChessBoardElement() {
 	if (chessBoardReady) {
@@ -39,9 +49,14 @@ export default class ChessTrainer extends Plugin {
 		logInfo('Loading Chess Trainer plugin v0.2.0');
 
 		await ensureChessBoardElement();
+		try {
+			addIcon(CHESS_ICON_ID, CHESS_ICON_SVG);
+		} catch {
+			// addIcon throws if icon already exists; safe to ignore
+		}
 
 		// Add ribbon icon
-		this.addRibbonIcon('dice', 'Chess Trainer', (evt: MouseEvent) => {
+		this.addRibbonIcon(CHESS_ICON_ID, 'Chess Trainer', (_evt: MouseEvent) => {
 			this.openImportModal();
 		});
 
