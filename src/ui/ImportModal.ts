@@ -82,12 +82,11 @@ export class ImportModal extends Modal {
 		this.submitButton.textContent = 'Import';
 		this.submitButton.className = '';
 		this.submitButton.style.padding = '10px 20px';
-		this.submitButton.style.border = 'none';
+		this.submitButton.style.border = '1px solid var(--interactive-accent)';
 		this.submitButton.style.borderRadius = '4px';
 		this.submitButton.style.cursor = 'pointer';
 		this.submitButton.style.backgroundColor = 'var(--background-primary)'; // black background
 		this.submitButton.style.color = 'var(--interactive-accent)'; // vault highlight color
-
 		this.submitButton.addEventListener('click', () => {
 			this.handleSubmit();
 		});
@@ -98,7 +97,7 @@ export class ImportModal extends Modal {
 		cancelButton.style.padding = '10px 20px';
 		cancelButton.style.border = '1px solid var(--background-modifier-border)';
 		cancelButton.style.borderRadius = '4px';
-		cancelButton.style.backgroundColor = 'var(--background-secondary)';
+		cancelButton.style.backgroundColor = 'transparent';
 		cancelButton.style.color = 'var(--text-normal)';
 		cancelButton.style.cursor = 'pointer';
 
@@ -245,8 +244,8 @@ export class ImportModal extends Modal {
 		this.submitButton.disabled = !enabled;
 		
 		if (enabled) {
-			this.submitButton.style.backgroundColor = 'var(--interactive-accent)';
-			this.submitButton.style.color = 'var(--text-on-accent)';
+		this.submitButton.style.backgroundColor = 'var(--background-primary)';
+		this.submitButton.style.color = 'var(--interactive-accent)';
 			this.submitButton.style.cursor = 'pointer';
 		} else {
 			this.submitButton.style.backgroundColor = 'var(--background-modifier-error)';
