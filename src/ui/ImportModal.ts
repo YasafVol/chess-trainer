@@ -102,31 +102,6 @@ export class ImportModal {
 		
 		inputContainer.appendChild(this.pgnInput);
 
-		// Validation status container
-		const statusContainer = document.createElement('div');
-		const statusIcon = document.createElement('span');
-		statusIcon.className = 'validation-icon';
-		const statusText = document.createElement('span');
-		statusText.className = 'validation-text';
-		statusContainer.appendChild(statusIcon);
-		statusContainer.appendChild(statusText);
-		
-		// Real-time validation
-		let validationTimeout: number;
-		this.pgnInput.addEventListener('input', () => {
-			// Debounce validation
-			if (validationTimeout) {
-				clearTimeout(validationTimeout);
-			}
-			
-			validationTimeout = window.setTimeout(() => {
-				this.validatePgnInput(statusIcon, statusText);
-			}, 300);
-		});
-
-		// Initial validation
-		this.validatePgnInput(statusIcon, statusText);
-
 		// Button container
 		const buttonContainer = document.createElement('div');
 		buttonContainer.style.marginTop = '20px';
@@ -135,7 +110,7 @@ export class ImportModal {
 
 		// Submit button
 		this.submitButton = document.createElement('button');
-		this.submitButton.textContent = 'Create Note';
+		this.submitButton.textContent = 'Import';
 		this.submitButton.className = 'mod-cta';
 		this.submitButton.style.padding = '10px 20px';
 		this.submitButton.style.border = 'none';
@@ -165,8 +140,31 @@ export class ImportModal {
 
 		// Add all elements to content
 		this.contentEl.appendChild(inputContainer);
+		// Validation status container
+		const statusContainer = document.createElement('div');
+		const statusIcon = document.createElement('span');
+		statusIcon.className = 'validation-icon';
+		const statusText = document.createElement('span');
+		statusText.className = 'validation-text';
+		statusContainer.appendChild(statusIcon);
+		statusContainer.appendChild(statusText);
+
 		this.contentEl.appendChild(statusContainer);
 		this.contentEl.appendChild(buttonContainer);
+
+		// Real-time validation
+		let validationTimeout: number;
+		this.pgnInput.addEventListener('input', () => {
+			if (validationTimeout) {
+				clearTimeout(validationTimeout);
+			}
+			validationTimeout = window.setTimeout(() => {
+				this.validatePgnInput(statusIcon, statusText);
+			}, 300);
+		});
+
+		// Initial validation now that submit button exists
+		this.validatePgnInput(statusIcon, statusText);
 
 		// Focus on input
 		this.pgnInput.focus();
