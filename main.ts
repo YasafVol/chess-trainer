@@ -40,8 +40,8 @@ export default class ChessTrainer extends Plugin {
 
 		await ensureChessBoardElement();
 
-		// Add ribbon icon
-		this.addRibbonIcon('crown', 'Chess Trainer', (_evt: MouseEvent) => {
+		// Add ribbon icon (Obsidian ships with a lucide "dice" icon)
+		this.addRibbonIcon('dice', 'Chess Trainer', (_evt: MouseEvent) => {
 			this.openImportModal();
 		});
 
