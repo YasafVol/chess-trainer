@@ -41,7 +41,7 @@ export default class ChessTrainer extends Plugin {
 		await ensureChessBoardElement();
 
 		// Add ribbon icon
-		this.addRibbonIcon('dice', 'Chess Trainer', (_evt: MouseEvent) => {
+		this.addRibbonIcon('crown', 'Chess Trainer', (_evt: MouseEvent) => {
 			this.openImportModal();
 		});
 
