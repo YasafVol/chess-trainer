@@ -80,13 +80,8 @@ export class ImportModal extends Modal {
 		// Submit button
 		this.submitButton = document.createElement('button');
 		this.submitButton.textContent = 'Import';
-		this.submitButton.className = '';
+		this.submitButton.className = 'ct-submit-button';
 		this.submitButton.style.padding = '10px 20px';
-		this.submitButton.style.border = '1px solid var(--interactive-accent)';
-		this.submitButton.style.borderRadius = '4px';
-		this.submitButton.style.cursor = 'pointer';
-		this.submitButton.style.backgroundColor = 'var(--background-primary)'; // black background
-		this.submitButton.style.color = 'var(--interactive-accent)'; // vault highlight color
 		this.submitButton.addEventListener('click', () => {
 			this.handleSubmit();
 		});
@@ -94,12 +89,9 @@ export class ImportModal extends Modal {
 		// Cancel button
 		const cancelButton = document.createElement('button');
 		cancelButton.textContent = 'Cancel';
+		cancelButton.className = 'ct-cancel-button';
 		cancelButton.style.padding = '10px 20px';
-		cancelButton.style.border = '1px solid var(--background-modifier-border)';
-		cancelButton.style.borderRadius = '4px';
-		cancelButton.style.backgroundColor = 'transparent';
-		cancelButton.style.color = 'var(--text-normal)';
-		cancelButton.style.cursor = 'pointer';
+
 
 		cancelButton.addEventListener('click', () => {
 			this.close();
