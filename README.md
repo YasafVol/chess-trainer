@@ -116,15 +116,16 @@ All dependencies are bundled locally - no network access required.
 ## Roadmap
 
 See `Spec/ROADMAP.md` for planned features:
+- **V0.5**: Intake/renderer polish + regression suite
 - **V1**: Game analysis with Stockfish engine
+- **V1.5**: Puzzle generation and training mode
 - **V2**: API integrations (Chess.com, Lichess)
-- **V3**: Puzzle generation from mistakes
-- **V4**: Advanced database and analytics
-- **V5**: Full customization settings
+- **V3**: Advanced database and analytics
+- **V4**: Full customization settings
 
 ## Contributing
 
-Contributions welcome! Please see the implementation plan in `Spec/IMPLEMENTATION_PLAN.md` for current priorities.
+Contributions welcome! Please see the implementation plans in `Spec/V0_IMPLEMENTATION_PLAN.md` and `Spec/V0_5_IMPLEMENTATION_PLAN.md` for current priorities.
 
 ## License
 

@@ -4,10 +4,10 @@
 
 ---
 
-## V0: Foundation - Manual Import & Interactive Viewer (Current)
+## V0: Foundation – Manual Import & Interactive Viewer (Current)
 
-**Status**: 🟢 Near Complete (Phase 1 & 4 Done, Phase 2 & 3 Deferred)  
-**Core Value**: Import PGN games and view them interactively in Obsidian notes
+**Status**: 🟢 Near Complete (Phase 1 & 4 done; polish scoped to V0.5)  
+**Core Value**: Import PGN games and view them interactively in Obsidian notes.
 
 ### Features
 - ✅ **PGN Import**: Modal interface with real-time validation
@@ -15,7 +15,7 @@
 - ✅ **Interactive Board**: Playable chess board with move navigation
 - ✅ **Basic Controls**: Previous/Next, Reset, Play/Pause, Flip board
 - ✅ **Move List**: Visual move list with current move highlighting
-- ✅ **Autoplay**: Smooth move replay (~500ms per ply)
+- ✅ **Autoplay**: Smooth move replay (~500 ms per ply)
 - ✅ **File Organization**: Structured folder (`Chess/games/`) with consistent naming
 - ✅ **Metadata**: Tags, ECO codes, opening names, player info
 - ✅ **User Feedback**: Success/error notices
@@ -27,9 +27,21 @@
 - PGN parsing with full SAN support (non-strict mode)
 - Deterministic file naming (SHA-1 hash)
 
-### Deferred Features
-- UI/UX polish (keyboard shortcuts, accessibility improvements) - see `DesignTechDebt.md`
-- Comprehensive QA testing - see `DesignTechDebt.md`
+---
+
+## V0.5: Polish & QA – Intake, Renderer, Regression Suite
+
+**Status**: 📋 Planned  
+**Core Value**: Deliver an accessible, reliable import experience with regression coverage.
+
+### Focus Areas
+- Import modal error messaging and helper content
+- Renderer accessibility (ARIA labels, keyboard shortcuts, responsive layout)
+- Representative PGN sample library & regression set
+- Manual QA checklist execution and bug triage
+
+### Reference Plan
+- See `Spec/V0_5_IMPLEMENTATION_PLAN.md`
 
 ---
 
@@ -52,10 +64,44 @@
   - Suggested improvements
   - Key moments highlighted
 
+---
+
 ### Technical Requirements
-- Stockfish WASM bundle (~2-3 MB)
+- Stockfish WASM bundle (~2-3 MB)
 - Background analysis processing
 - Configurable analysis depth
+
+### Reference Plan
+- See `Spec/V1_IMPLEMENTATION_PLAN.md`
+
+---
+
+## V1.5: Puzzle Generation & Training
+
+**Status**: 📋 Planned  
+**Core Value**: Generate training puzzles from game mistakes using V1 analysis data.
+
+### Features
+- **Puzzle Generation**:
+  - Extract blunders/mistakes from analyzed games
+  - Create puzzle notes with hidden solutions
+  - Difficulty rating based on evaluation swings
+- **Training Mode**:
+  - Puzzle solving interface with validation
+  - Solution reveal and progressive hints
+  - Progress tracking and attempt history
+- **Puzzle Organization**:
+  - Tag-based categorization
+  - Difficulty levels
+  - Theme-based playlists (tactics, endgames, positional)
+
+### Technical Requirements
+- Puzzle detection algorithm leveraging Stockfish evaluations
+- Position evaluation comparison utilities
+- Puzzle storage and indexing services
+
+### Reference Plan
+- See `Spec/V1_5_IMPLEMENTATION_PLAN.md`
 
 ---
 
@@ -84,36 +130,12 @@
 - Background sync capabilities
 - Configurable sync intervals
 
----
-
-## V3: Puzzle Generation & Training
-
-**Status**: 📋 Planned  
-**Core Value**: Generate training puzzles from game mistakes
-
-### Features
-- **Puzzle Generation**:
-  - Extract blunders/mistakes from analyzed games
-  - Create puzzle notes with hidden solutions
-  - Difficulty rating based on eval changes
-- **Training Mode**:
-  - Puzzle solving interface
-  - Solution reveal on demand
-  - Hint system
-  - Progress tracking
-- **Puzzle Organization**:
-  - Tag-based categorization
-  - Difficulty levels
-  - Theme-based puzzles (tactics, endgames, etc.)
-
-### Technical Requirements
-- Puzzle detection algorithm
-- Position evaluation comparison
-- Puzzle storage and indexing
+### Reference Plan
+- See `Spec/V2_IMPLEMENTATION_PLAN.md`
 
 ---
 
-## V4: Advanced Analysis & Database
+## V3: Advanced Analysis & Database
 
 **Status**: 📋 Future  
 **Core Value**: Deep game database and advanced analysis tools
@@ -137,9 +159,12 @@
   - Import from databases (ChessBase, etc.)
   - Cloud sync/backup
 
+### Reference Plan
+- See `Spec/V3_IMPLEMENTATION_PLAN.md`
+
 ---
 
-## V5: Customization & Settings
+## V4: Customization & Settings
 
 **Status**: 📋 Future  
 **Core Value**: Full customization of appearance and behavior
@@ -191,6 +216,9 @@
 - **Export/Import Settings**: Backup and restore configuration
 - **Reset to Defaults**: One-click reset option
 
+### Reference Plan
+- See `Spec/V4_IMPLEMENTATION_PLAN.md`
+
 ---
 
 ## Core Principles Across All Versions
@@ -208,29 +236,30 @@
 
 | Version | Focus | Key Deliverable | Status |
 |---------|-------|-----------------|--------|
-| **V0** | Foundation | Manual PGN import + interactive viewer | 🟢 In Progress |
-| **V1** | Analysis | Engine integration + eval graphs | 📋 Planned |
-| **V2** | Integration | API importers (Chess.com, Lichess) | 📋 Planned |
-| **V3** | Training | Puzzle generation from mistakes | 📋 Planned |
-| **V4** | Database | Advanced search & analytics | 📋 Future |
-| **V5** | Customization | Full settings & appearance control | 📋 Future |
+| **V0** | Foundation | Manual PGN import + interactive viewer | 🟢 Near Complete |
+| **V0.5** | Polish & QA | Intake/renderer polish + regression suite | 📋 Planned |
+| **V1** | Analysis | Stockfish engine integration + eval graphs | 📋 Planned |
+| **V1.5** | Training | Puzzle generation & training mode | 📋 Planned |
+| **V2** | Integration | Chess.com & Lichess import automation | 📋 Planned |
+| **V3** | Database | Advanced search, repertoire, analytics | 📋 Future |
+| **V4** | Customization | Full settings & appearance control | 📋 Future |
 
 ---
 
 ## Version Dependencies
 
 - **V0** → Foundation for all future versions
-- **V1** → Requires V0, enables V3 puzzle generation
-- **V2** → Requires V0, independent of V1
-- **V3** → Requires V1 (analysis) + V0
-- **V4** → Requires V0, benefits from V1/V2
-- **V5** → Can be developed independently, enhances all versions
+- **V0.5** → Builds on V0; polish required before V1 rollout
+- **V1** → Requires V0 (and benefits from V0.5 accessibility work)
+- **V1.5** → Requires V1 analysis data
+- **V2** → Requires V0; optional V1/V1.5 for richer metadata
+- **V3** → Requires V1 (analysis) and benefits from V2 imports
+- **V4** → Can build after core workflows (V0–V3) are stable
 
 ---
 
 **Last Updated**: 2025-01-XX  
 **Current Version**: V0 (0.2.0)  
-**Phase 1**: ✅ Complete  
-**Phase 4**: ✅ Complete  
-**Phase 2 & 3**: Deferred to `Spec/DesignTechDebt.md`
+**Next Focus**: V0.5 polish & QA  
+**Reference Plans**: `Spec/V0_IMPLEMENTATION_PLAN.md`, `Spec/V0_5_IMPLEMENTATION_PLAN.md`
 

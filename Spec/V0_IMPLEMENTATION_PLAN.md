@@ -257,13 +257,13 @@ game.loadPgn(pgn, { sloppy: true });
 
 ### Phase 2: UI/UX Polish (Priority: MEDIUM)
 
-**Note**: Phase 2 tasks deferred - see `Spec/DesignTechDebt.md` for details.
+**Note**: Phase 2 polish tracked in `Spec/V0_5_IMPLEMENTATION_PLAN.md`.
 
 ---
 
 ### Phase 3: Testing & Quality Assurance (Priority: HIGH)
 
-**Note**: Phase 3 tasks deferred - see `Spec/DesignTechDebt.md` for details.
+**Note**: Phase 3 QA tracked in `Spec/V0_5_IMPLEMENTATION_PLAN.md`.
 
 ---
 
@@ -345,53 +345,25 @@ game.loadPgn(pgn, { sloppy: true });
    - Eval graph visualization
    - Move annotations
 
-2. **V2 Features**:
+2. **V1.5 Features**:
+   - Puzzle generation from blunders and mistakes
+   - Hidden solutions with progressive hints
+   - Training mode with progress tracking and attempt history
+
+3. **V2 Features**:
    - Chess.com API integration
    - Lichess API integration
-   - Bulk import
+   - Bulk import and auto-sync
 
-3. **V3 Features**:
-   - Puzzle generation from blunders
-   - Hidden solutions
-   - **Settings Menu** - Control creation folder and file naming:
-     - Custom folder path (default: `Chess/`)
-     - File naming template configuration
-     - Enable/disable username truncation
-     - Username truncation length (default: 5)
-     - Include/exclude hash in filename
-     - Include/exclude Elo in filename
-     - Date format preferences
-     - **Tag management**:
-       - Default tags for imported games (default: `chess`, `game_analysis`)
-       - Add/remove custom tags
-       - Tag templates based on game result (e.g., add `white-wins` tag when result is 1-0)
-       - Tag templates based on ECO/opening
-       - Tag templates based on player names
-     - Settings persist across sessions
-     - Preview filename format before creation
-
-4. **V4 Features** (Future):
-   - Advanced analysis features
+4. **V3 Features** (Future):
    - Opening database integration
-   - Game database search
+   - Game database search and repertoire analysis
+   - Advanced performance analytics
 
-5. **V5 Features** (Future):
-   - **Settings Menu** - Control chess pieces and board design:
-     - Chess piece set selection (classic, modern, minimalist, etc.)
-     - Board color schemes (green, brown, blue, custom colors)
-     - Piece size adjustment
-     - Board size adjustment
-     - Dark/light theme preference
-     - Custom piece images (upload custom SVG/PNG)
-     - Board style (wood grain, marble, flat, etc.)
-     - Square highlight colors (for move indicators)
-     - Coordinate display toggle (files/ranks)
-     - Notation font and size
-     - Animation speed control
-     - Settings persist across sessions
-     - Preview pane in settings to see changes live
-   - Settings integration with Obsidian's settings API
-   - Theme synchronization with Obsidian appearance settings
+5. **V4 Features** (Future):
+   - Comprehensive settings menu for file naming, tag templates, and board design
+   - Custom piece sets, board themes, and visual preferences
+   - Settings export/import with live preview and Obsidian theme sync
 
 ### Code Quality Improvements
 

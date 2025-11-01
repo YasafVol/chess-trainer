@@ -4,7 +4,8 @@ This document tracks design improvements, technical debt, and known bugs that ar
 
 **Related Documents**:
 - `Spec/ROADMAP.md` - Complete version roadmap
-- `Spec/IMPLEMENTATION_PLAN.md` - Implementation plan with Phase 1 & 4 complete
+- `Spec/V0_IMPLEMENTATION_PLAN.md` - Foundation implementation plan
+- `Spec/V0_5_IMPLEMENTATION_PLAN.md` - Polish & QA follow-up
 - `BUGS.md` - Known bugs documentation
 
 ---
@@ -129,5 +130,5 @@ This document tracks design improvements, technical debt, and known bugs that ar
 
 ## Future Enhancements
 
-See `Spec/ROADMAP.md` for complete version roadmap (V1-V5).
+See `Spec/ROADMAP.md` for complete version roadmap (V1-V4).
 
