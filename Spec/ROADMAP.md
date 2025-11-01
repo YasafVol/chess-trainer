@@ -4,9 +4,9 @@
 
 ---
 
-## V0: Foundation – Manual Import & Interactive Viewer (Current)
+## V0: Foundation – Manual Import & Interactive Viewer
 
-**Status**: 🟢 Near Complete (Phase 1 & 4 done; polish scoped to V0.5)  
+**Status**: ✅ **COMPLETE**  
 **Core Value**: Import PGN games and view them interactively in Obsidian notes.
 
 ### Features
@@ -31,14 +31,14 @@
 
 ## V0.5: Polish & QA – Intake, Renderer, Regression Suite
 
-**Status**: 📋 Planned  
+**Status**: ✅ **COMPLETE**  
 **Core Value**: Deliver an accessible, reliable import experience with regression coverage.
 
 ### Focus Areas
-- Import modal error messaging and helper content
-- Renderer accessibility (ARIA labels, keyboard shortcuts, responsive layout)
-- Representative PGN sample library & regression set
-- Manual QA checklist execution and bug triage
+- ✅ Import modal error messaging and helper content
+- ✅ Renderer accessibility (ARIA labels, responsive layout)
+- ✅ Representative PGN sample library & regression set
+- ✅ QA checklist created and bug tracking updated
 
 ### Reference Plan
 - See `Spec/V0_5_IMPLEMENTATION_PLAN.md`

@@ -1,0 +1,21 @@
+[Event "Chess.com Live"]
+[Site "Chess.com"]
+[Date "2024.02.15"]
+[Round "-"]
+[White "MagnusCarlsen"]
+[Black "Hikaru"]
+[Result "1-0"]
+[WhiteElo "2850"]
+[BlackElo "2800"]
+[TimeControl "180+2"]
+[ECO "B90"]
+[Opening "Sicilian Defense"]
+[Termination "Time forfeit"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be3 e5 7. Nb3 Be6 8. f3 
+Be7 9. Qd2 O-O 10. O-O-O Nbd7 11. g4 b5 12. g5 b4 13. Ne2 Ne8 14. f4 a5 15. f5 
+a4 16. Nbd4 exd4 17. Nxd4 b3 18. axb3 axb3 19. c3 Bb7 20. h4 Nc7 21. Kb1 Ra8 22. 
+Rdg1 Qa5 23. f6 gxf6 24. gxf6 Bf8 25. h5 Rb8 26. h6 Ne6 27. Qf2 Qc5 28. Qh4 Ra8 
+29. Rg3 Kh8 30. Rhg1 Rg8 31. Qf2 Nc7 32. Qh4 Ne6 33. Qf2 Nc7 34. Qh4 Ne6 35. Qf2 
+Nc7 1/2-1/2 {Game drawn by repetition}
+

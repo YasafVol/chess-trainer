@@ -236,6 +236,7 @@ export default class ChessTrainer extends Plugin {
 			// Create container
 			const container = document.createElement('div');
 			container.className = 'chess-pgn-viewer';
+			container.style.cssText = 'position: relative;';
 			el.appendChild(container);
 
 			// Create board element
@@ -244,17 +245,32 @@ export default class ChessTrainer extends Plugin {
 			boardEl.style.width = '720px';
 			boardEl.style.maxWidth = '100%';
 			boardEl.style.height = '720px';
+			boardEl.style.minWidth = '300px';
+			boardEl.style.aspectRatio = '1 / 1';
 			container.appendChild(boardEl);
 
 			// Create controls container
 			const controlsEl = document.createElement('div');
 			controlsEl.className = 'chess-controls';
+			controlsEl.setAttribute('role', 'toolbar');
+			controlsEl.setAttribute('aria-label', 'Chess board controls');
 			controlsEl.style.cssText = 'margin: 10px 0; display: flex; gap: 5px; flex-wrap: wrap;';
 			container.appendChild(controlsEl);
+
+			// Create aria-live region for current move announcements
+			const liveRegion = document.createElement('div');
+			liveRegion.setAttribute('role', 'status');
+			liveRegion.setAttribute('aria-live', 'polite');
+			liveRegion.setAttribute('aria-atomic', 'true');
+			liveRegion.className = 'sr-only';
+			liveRegion.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;';
+			container.appendChild(liveRegion);
 
 			// Create moves list container
 			const movesEl = document.createElement('div');
 			movesEl.className = 'chess-moves';
+			movesEl.setAttribute('role', 'region');
+			movesEl.setAttribute('aria-label', 'Game moves');
 			movesEl.style.cssText = 'margin-top: 10px; font-family: monospace; line-height: 1.4; max-height: 200px; overflow-y: auto;';
 			container.appendChild(movesEl);
 
@@ -291,6 +307,21 @@ export default class ChessTrainer extends Plugin {
 				}).join(' ');
 				
 				movesEl.textContent = movesText;
+				
+				// Announce current move for screen readers
+				if (currentPly > 0 && currentPly <= history.length) {
+					const currentMove = history[currentPly - 1];
+					if (typeof currentMove === 'object' && currentMove.san) {
+						const moveNumber = Math.floor((currentPly - 1) / 2) + 1;
+						const isWhite = (currentPly - 1) % 2 === 0;
+						const moveLabel = isWhite ? `Move ${moveNumber}, white plays ${currentMove.san}` : `Move ${moveNumber}, black plays ${currentMove.san}`;
+						liveRegion.textContent = moveLabel;
+					} else {
+						liveRegion.textContent = `Move ${currentPly}`;
+					}
+				} else {
+					liveRegion.textContent = 'Starting position';
+				}
 			};
 
 			// Control functions
@@ -353,6 +384,10 @@ export default class ChessTrainer extends Plugin {
 			const playBtn = this.createButton(controlsEl, '▶', autoplayAllowed ? 'Play/Pause' : 'Autoplay disabled (too many moves)', toggleAutoplay);
 			const flipBtn = this.createButton(controlsEl, '⇅', 'Flip board', flipBoard);
 
+			// Add ARIA label to board element
+			boardEl.setAttribute('aria-label', 'Chess board');
+			boardEl.setAttribute('role', 'img');
+
 			// Disable autoplay button if not allowed
 			if (!autoplayAllowed) {
 				playBtn.disabled = true;
@@ -385,7 +420,9 @@ export default class ChessTrainer extends Plugin {
 	private createButton(container: HTMLElement, text: string, title: string, onClick: () => void): HTMLButtonElement {
 		const button = document.createElement('button');
 		button.textContent = text;
-		button.title = title;
+		// Use aria-label instead of title to avoid duplicate tooltips
+		// aria-label provides both accessibility and tooltip functionality
+		button.setAttribute('aria-label', title);
 		button.addEventListener('click', onClick);
 		container.appendChild(button);
 		return button;

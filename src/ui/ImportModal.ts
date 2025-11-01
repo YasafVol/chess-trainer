@@ -48,9 +48,23 @@ export class ImportModal extends Modal {
 		const header = this.contentEl.createEl('h2', { text: this.options.title! });
 
 		// Description
-		this.contentEl.createEl('p', {
+		const description = this.contentEl.createEl('p', {
 			text: 'Paste a chess game in Portable Game Notation (PGN) format. The game should include player names and moves.'
 		});
+		description.style.marginBottom = '10px';
+
+		// Example PGN helper button
+		const helperContainer = this.contentEl.createDiv();
+		helperContainer.style.marginBottom = '10px';
+		const exampleButton = document.createElement('button');
+		exampleButton.textContent = '📋 Load Example PGN';
+		exampleButton.className = 'mod-cta';
+		exampleButton.style.fontSize = '0.9em';
+		exampleButton.style.padding = '6px 12px';
+		exampleButton.addEventListener('click', () => {
+			this.loadExamplePgn();
+		});
+		helperContainer.appendChild(exampleButton);
 
 		// Input container
 		const inputContainer = this.contentEl.createDiv();
@@ -173,7 +187,15 @@ export class ImportModal extends Modal {
 			this.updateSubmitButton(true);
 		} else {
 			const errorMessage = this.validationResult.error?.message || 'Invalid PGN';
-			this.updateValidationStatus(statusIcon, statusText, 'error', errorMessage);
+			const lineNumber = this.validationResult.error?.line;
+			let displayMessage = errorMessage;
+			
+			// Enhance error message with line number if available
+			if (lineNumber) {
+				displayMessage = `Line ${lineNumber}: ${errorMessage}`;
+			}
+			
+			this.updateValidationStatus(statusIcon, statusText, 'error', displayMessage);
 			this.updateSubmitButton(false);
 		}
 	}
@@ -304,6 +326,33 @@ export class ImportModal extends Modal {
 	 */
 	public getValidationResult(): PgnValidationResult | null {
 		return this.validationResult;
+	}
+
+	/**
+	 * Load example PGN into the textarea
+	 */
+	private loadExamplePgn(): void {
+		const examplePgn = `[Event "Live Chess"]
+[Site "Chess.com"]
+[Date "2024.01.15"]
+[Round "-"]
+[White "Player1"]
+[Black "Player2"]
+[Result "1-0"]
+[WhiteElo "1500"]
+[BlackElo "1500"]
+[TimeControl "600"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 11. c4 c6 12. cxb5 axb5 13. Nc3 Bb7 14. Bg5 b4 15. Nb1 h6 16. Bh4 c5 17. dxe5 Nxe4 18. Bxe7 Qxe7 19. exd6 Qf6 20. Nbd2 Nxd6 21. Nc4 Nxc4 22. Bxc4 Nb6 23. Ne5 Rae8 24. Bxf7+ Rxf7 25. Nxf7 Rxe1+ 26. Qxe1 Kxf7 27. Qe3 Qg5 28. Qxg5 hxg5 29. b3 Ke6 30. a3 Kd6 31. axb4 cxb4 32. Ra5 Nd5 33. f3 Bc8 34. Kf2 Bf5 35. Ra7 g6 36. Ra6+ Kc5 37. Ke1 Nf4 38. g3 Nxh3 39. Kd2 Kb5 40. Rd6 Kc5 41. Ra6 Nf2 42. g4 Bd3 43. Re6 1-0`;
+		
+		this.pgnInput.value = examplePgn;
+		this.pgnInput.focus();
+		// Trigger validation
+		const statusIcon = this.contentEl.querySelector('.validation-icon') as HTMLSpanElement;
+		const statusText = this.contentEl.querySelector('.validation-text') as HTMLSpanElement;
+		if (statusIcon && statusText) {
+			this.validatePgnInput(statusIcon, statusText);
+		}
 	}
 }
 

@@ -31,3 +31,84 @@
 .ct-cancel-button:hover {
 	background-color: var(--background-secondary);
 }
+
+/* Chess board viewer responsive styles */
+.chess-pgn-viewer {
+	position: relative;
+}
+
+.chess-controls {
+	margin: 10px 0;
+	display: flex;
+	gap: 5px;
+	flex-wrap: wrap;
+}
+
+.chess-controls button {
+	padding: 8px 12px;
+	min-width: 40px;
+	min-height: 40px;
+	font-size: 1.2em;
+	cursor: pointer;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background-color: var(--background-secondary);
+	color: var(--text-normal);
+	transition: background-color 0.2s ease;
+}
+
+.chess-controls button:hover:not(:disabled) {
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.chess-controls button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.chess-moves {
+	margin-top: 10px;
+	font-family: monospace;
+	line-height: 1.4;
+	max-height: 200px;
+	overflow-y: auto;
+	word-wrap: break-word;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+	.chess-pgn-viewer chess-board {
+		width: 100% !important;
+		max-width: 100% !important;
+		height: auto !important;
+		min-width: 280px !important;
+	}
+	
+	.chess-controls {
+		justify-content: center;
+	}
+	
+	.chess-controls button {
+		flex: 1 1 auto;
+		min-width: 44px; /* Minimum touch target size */
+		min-height: 44px;
+	}
+	
+	.chess-moves {
+		font-size: 0.9em;
+		max-height: 150px;
+	}
+}
+
+/* Screen reader only class */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}

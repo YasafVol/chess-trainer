@@ -5,8 +5,12 @@ Import PGN chess games and create interactive notes with playable boards and mov
 ## Features
 
 - **PGN Import**: Import chess games via modal interface with real-time validation
+- **Example PGN Helper**: Load example PGN with one click
+- **Enhanced Error Messages**: Line-numbered validation errors for easier debugging
 - **Interactive Board**: View and navigate through games with an interactive chess board
 - **Move Navigation**: Previous/Next, Reset, Play/Pause, and Flip board controls
+- **Accessibility**: ARIA labels and screen reader support for all controls
+- **Responsive Design**: Works on desktop and mobile devices
 - **Automatic Metadata**: Extract player names, Elo ratings, ECO codes, openings, and game results
 - **Structured Notes**: Games are saved with consistent frontmatter and organized in `Chess/games/` folder
 - **Offline-First**: All functionality works without internet connection
@@ -55,9 +59,10 @@ Import PGN chess games and create interactive notes with playable boards and mov
 ### In the Import Modal
 
 1. Paste your PGN (Portable Game Notation) into the text area
-2. The plugin validates the PGN in real-time
-3. Click "Import" when validation shows ✅
-4. A success notice will appear and your game note will be created
+2. Click "📋 Load Example PGN" to see a sample game format
+3. The plugin validates the PGN in real-time with helpful error messages
+4. Click "Import" when validation shows ✅
+5. A success notice will appear and your game note will be created
 
 ### Viewing a Game
 
@@ -116,7 +121,8 @@ All dependencies are bundled locally - no network access required.
 ## Roadmap
 
 See `Spec/ROADMAP.md` for planned features:
-- **V0.5**: Intake/renderer polish + regression suite
+- **V0**: ✅ Complete - Core PGN import and board rendering
+- **V0.5**: ✅ Complete - UI/UX polish, accessibility, and QA
 - **V1**: Game analysis with Stockfish engine
 - **V1.5**: Puzzle generation and training mode
 - **V2**: API integrations (Chess.com, Lichess)
