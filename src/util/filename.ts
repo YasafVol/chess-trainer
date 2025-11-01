@@ -46,19 +46,24 @@ export function sanitizePlayerName(name: string): string {
 }
 
 /**
- * Format player with Elo rating
+ * Format player with Elo rating, truncating long usernames (>5 chars)
  * @param name - Player name
  * @param elo - Player Elo rating (can be null/undefined)
- * @returns Formatted player string (e.g., "Magnus(2847)" or "Unknown")
+ * @returns Formatted player string (e.g., "yasaf..(800)" or "Magnus(2847)")
  */
 export function formatPlayer(name: string, elo: number | null | undefined): string {
 	const sanitizedName = sanitizePlayerName(name);
 	
+	// Truncate if > 5 characters
+	const displayName = sanitizedName.length > 5 
+		? sanitizedName.substring(0, 5) + '..'
+		: sanitizedName;
+	
 	if (elo && elo > 0) {
-		return `${sanitizedName}(${elo})`;
+		return `${displayName}(${elo})`;
 	}
 	
-	return sanitizedName;
+	return displayName;
 }
 
 /**
@@ -92,10 +97,43 @@ export function normalizeDate(pgnDate?: string): string {
 }
 
 /**
+ * Normalize result string for use in filenames
+ * Replaces problematic characters like "/" that create subfolders
+ * @param result - Game result (e.g., "1-0", "0-1", "1/2-1/2", "*")
+ * @returns Filename-safe result string
+ */
+export function normalizeResult(result?: string): string {
+	if (!result) {
+		return '*';
+	}
+	
+	// Replace "/" with "-" to avoid creating subfolders
+	// Map common results to friendly names
+	const normalized = result.trim();
+	
+	if (normalized === '1/2-1/2') {
+		return 'draw';
+	}
+	if (normalized === '1-0') {
+		return 'white';
+	}
+	if (normalized === '0-1') {
+		return 'black';
+	}
+	if (normalized === '*') {
+		return '*';
+	}
+	
+	// Fallback: replace any "/" with "-"
+	return normalized.replace(/\//g, '-');
+}
+
+/**
  * Generate chess game filename from PGN headers
+ * Format: "YYYY-MM-DD whiteUsername(elo)-vs-blackUsername(elo) result.md"
  * @param headers - PGN headers object
- * @param hash - Short hash for uniqueness
- * @returns Generated filename in format: "YYYY-MM-DD White(Elo)-vs-Black(Elo) Result hash.md"
+ * @param hash - Short hash for uniqueness (not used in filename, kept for frontmatter)
+ * @returns Generated filename
  */
 export function generateChessFilename(headers: {
 	White?: string;
@@ -108,9 +146,9 @@ export function generateChessFilename(headers: {
 	const white = formatPlayer(headers.White || 'White', parseElo(headers.WhiteElo));
 	const black = formatPlayer(headers.Black || 'Black', parseElo(headers.BlackElo));
 	const date = normalizeDate(headers.Date);
-	const result = headers.Result || '*';
+	const result = normalizeResult(headers.Result);
 
-	return `${date} ${white}-vs-${black} ${result} ${hash}.md`;
+	return `${date} ${white}-vs-${black} ${result}.md`;
 }
 
 /**

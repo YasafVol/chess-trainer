@@ -3,6 +3,7 @@
  * - Converts Windows line endings to Unix.
  * - Strips inline ';' comments and BOM characters.
  * - Collapses excessive whitespace while preserving blank lines.
+ * - Removes comment lines starting with #
  */
 export function normalizePgnInput(pgn: string): string {
 	if (!pgn) {
@@ -12,6 +13,7 @@ export function normalizePgnInput(pgn: string): string {
 	let normalized = pgn
 		.replace(/\uFEFF/g, '') // remove BOM
 		.replace(/\r\n?/g, '\n')
+		.replace(/^#.*$/gm, '') // remove comment lines starting with #
 		.replace(/\t/g, ' ')
 		.replace(/;[^\n]*/g, '') // strip ';' comments
 		.replace(/[ \f\v]+/g, ' '); // collapse misc spaces

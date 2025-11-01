@@ -10,6 +10,7 @@ import { logInfo, logError, logDebug } from './src/util/logger';
 import { ImportModal } from './src/ui/ImportModal';
 import { validatePgn, extractHeaders } from './src/services/pgnValidator';
 import { upsert } from './src/adapters/NoteRepo';
+import { lookupOpeningFromECO } from './src/util/eco';
 import { normalizePgnInput } from './src/util/pgn';
 
 // Import chess.js for PGN parsing
@@ -132,13 +133,17 @@ export default class ChessTrainer extends Plugin {
 	 * Generate markdown content for chess note
 	 */
 	private async generateNoteContent(pgn: string, headers: any, hash: string): Promise<string> {
-		const created = new Date().toISOString();
+		const created = new Date().toISOString().split('T')[0]; // Just date: YYYY-MM-DD
 		const white = headers.White || 'White';
 		const black = headers.Black || 'Black';
 		const whiteElo = parseInt(headers.WhiteElo || headers.WhiteRating || '') || null;
 		const blackElo = parseInt(headers.BlackElo || headers.BlackRating || '') || null;
 		const result = headers.Result || '*';
 		const date = normalizeDate(headers.Date);
+		
+		// Lookup opening from ECO if Opening header is missing
+		const eco = headers.ECO || '';
+		const opening = headers.Opening || (eco ? lookupOpeningFromECO(eco) : '');
 
 		// Build frontmatter
 		const frontmatter = {
@@ -146,15 +151,15 @@ export default class ChessTrainer extends Plugin {
 			created,
 			event: headers.Event || '',
 			site: headers.Site || '',
-			date: headers.Date || '',
+			date: headers.Date || '', // PGN Date header (format: YYYY.MM.DD)
 			white,
 			white_elo: whiteElo,
 			black,
 			black_elo: blackElo,
 			result,
 			time_control: headers.TimeControl || '',
-			eco: headers.ECO || '',
-			opening: headers.Opening || '',
+			eco,
+			opening,
 			hash
 		};
 
@@ -188,7 +193,7 @@ export default class ChessTrainer extends Plugin {
 			const normalizedPgn = normalizePgnInput(pgn);
 			const game = new Chess();
 			try {
-				game.loadPgn(normalizedPgn);
+				game.loadPgn(normalizedPgn, { strict: false });
 			} catch (error) {
 				el.appendChild(document.createTextNode('Failed to load PGN'));
 				return;
@@ -253,8 +258,9 @@ export default class ChessTrainer extends Plugin {
 				boardEl.setPosition(fenPositions[currentPly], true);
 				
 				// Update board orientation
+				// When flipped, keep orientation fixed to 'black' (don't toggle based on move)
 				if (flipped) {
-					boardEl.setAttribute('orientation', (currentPly % 2 === 0) ? 'black' : 'white');
+					boardEl.setAttribute('orientation', 'black');
 				} else {
 					boardEl.removeAttribute('orientation');
 				}

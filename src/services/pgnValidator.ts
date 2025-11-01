@@ -87,7 +87,7 @@ export function validatePgn(pgn: string): PgnValidationResult {
 	try {
 		// Try to parse with chess.js
 		const game = new Chess();
-		game.loadPgn(normalizedPgn);
+		game.loadPgn(normalizedPgn, { strict: false });
 
 		// Additional validation
 		const warnings: string[] = [];
@@ -130,12 +130,22 @@ export function validatePgn(pgn: string): PgnValidationResult {
 		// Try to extract line number from error message
 		const lineMatch = errorMessage.match(/line (\d+)/i);
 		const line = lineMatch ? parseInt(lineMatch[1]) : undefined;
+		
+		// Enhanced error message for invalid moves
+		let enhancedMessage = errorMessage;
+		if (errorMessage.includes('Invalid move in PGN:')) {
+			const moveMatch = errorMessage.match(/Invalid move in PGN: (.+)/);
+			if (moveMatch) {
+				const invalidMove = moveMatch[1];
+				enhancedMessage = `Invalid move "${invalidMove}" in PGN. This move is not legal from the current position. The PGN may contain an error, or the move notation may be incorrect.`;
+			}
+		}
 
 		return {
 			isValid: false,
 			error: {
 				type: 'parse_error',
-				message: errorMessage,
+				message: enhancedMessage,
 				line
 			}
 		};
@@ -219,7 +229,7 @@ export function getGameStats(pgn: string): {
 } | null {
 	try {
 		const game = new Chess();
-		game.loadPgn(pgn);
+		game.loadPgn(pgn, { strict: false });
 
 		const history = game.history();
 		const hasComments = pgn.includes('{') && pgn.includes('}');

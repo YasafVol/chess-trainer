@@ -101,10 +101,11 @@ export class ImportModal extends Modal {
 		buttonContainer.appendChild(cancelButton);
 		// Add all elements to content
 		this.contentEl.appendChild(inputContainer);
-		// Validation status container
+		// Validation status container - always reserve space to prevent layout jumps
 		const statusContainer = document.createElement('div');
-		statusContainer.style.display = 'none';
+		statusContainer.style.minHeight = '24px';
 		statusContainer.style.marginTop = '8px';
+		statusContainer.style.marginBottom = '8px';
 		const statusIcon = document.createElement('span');
 		statusIcon.className = 'validation-icon';
 		const statusText = document.createElement('span');
@@ -196,9 +197,11 @@ export class ImportModal extends Modal {
 			existingWarnings.forEach(warning => warning.remove());
 		}
 
+		// Always show container (reserves space), but hide content when empty
 		const hasMessage = Boolean(message);
 		if (text.parentElement) {
-			text.parentElement.style.display = hasMessage ? 'block' : 'none';
+			// Container always visible to reserve space
+			text.parentElement.style.visibility = hasMessage ? 'visible' : 'hidden';
 		}
 
 		switch (status) {
@@ -236,12 +239,13 @@ export class ImportModal extends Modal {
 		this.submitButton.disabled = !enabled;
 		
 		if (enabled) {
-		this.submitButton.style.backgroundColor = 'var(--background-primary)';
-		this.submitButton.style.color = 'var(--interactive-accent)';
+			this.submitButton.style.backgroundColor = 'var(--interactive-accent)';
+			this.submitButton.style.color = 'white';
 			this.submitButton.style.cursor = 'pointer';
 		} else {
-			this.submitButton.style.backgroundColor = 'var(--background-modifier-error)';
-			this.submitButton.style.color = 'var(--text-muted)';
+			this.submitButton.style.backgroundColor = 'var(--background-secondary)';
+			this.submitButton.style.color = 'var(--text-normal)';
+			this.submitButton.style.opacity = '0.6';
 			this.submitButton.style.cursor = 'not-allowed';
 		}
 	}

@@ -1,0 +1,37 @@
+[Event "Live Chess"]
+[Site "Chess.com"]
+[Date "2025.10.31"]
+[Round "-"]
+[White "DNF90"]
+[Black "yasafvolinsky"]
+[Result "1/2-1/2"]
+[CurrentPosition "8/8/8/k7/2K5/8/8/8 w - - 0 57"]
+[Timezone "UTC"]
+[ECO "A00"]
+[ECOUrl "https://www.chess.com/openings/Kings-Fianchetto-Opening-1...d5-2.Bg2-e5"]
+[UTCDate "2025.10.31"]
+[UTCTime "11:46:48"]
+[WhiteElo "844"]
+[BlackElo "832"]
+[TimeControl "600"]
+[Termination "Game drawn by insufficient material"]
+[StartTime "11:46:48"]
+[EndDate "2025.10.31"]
+[EndTime "12:03:10"]
+[Link "https://www.chess.com/analysis/game/live/144949082394/analysis"]
+[WhiteUrl "https://www.chess.com/bundles/web/images/noavatar_l.84a92436.gif"]
+[WhiteCountry "133"]
+[WhiteTitle ""]
+[BlackUrl "https://images.chesscomfiles.com/uploads/v1/user/131747696.2d89d9f5.50x50o.192cbec8f916.png"]
+[BlackCountry "75"]
+[BlackTitle ""]
+
+1. g3 d5 2. Bg2 e5 3. Nf3 Nc6 4. O-O Bf5 5. d3 d4 6. Bg5 f6 7. Bd2 Qd7 8. Nh4
+Bh3 9. c3 Bxg2 10. Nxg2 O-O-O 11. cxd4 exd4 12. Bf4 g5 13. Bd2 h5 14. Na3 a6 15.
+Nc4 h4 16. Qa4 hxg3 17. hxg3 Qh3 18. f3 Qh2+ 19. Kf2 Rh3 20. Rh1 Qxg3+ 21. Kg1
+Rxh1+ 22. Kxh1 Re8 23. Be1 Qh3+ 24. Kg1 Rxe2 25. Bf2 Rxf2 26. Kxf2 Nh6 27. Nd2
+Bd6 28. Ne4 Nf5 29. Nxd6+ cxd6 30. Qc2 Qg3+ 31. Kf1 g4 32. Qf2 gxf3 33. Qxg3
+fxg2+ 34. Kxg2 Ne3+ 35. Qxe3 dxe3 36. Re1 Nb4 37. Rxe3 Nxa2 38. Re8+ Kc7 39.
+Re7+ Kc6 40. Re6 Nb4 41. Rxf6 Nxd3 42. Rf3 Nxb2 43. Rc3+ Kb5 44. Rb3+ Kc6 45.
+Rxb2 b5 46. Kf2 a5 47. Ke2 a4 48. Kd2 Kc5 49. Kc3 d5 50. Rb4 d4+ 51. Rxd4 b4+
+52. Rxb4 a3 53. Ra4 Kb5 54. Rxa3 Kc5 55. Ra5+ Kb6 56. Kc4 Kxa5 1/2-1/2
