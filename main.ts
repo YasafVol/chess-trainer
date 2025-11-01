@@ -3,7 +3,7 @@
  * Imports PGN chess games and creates interactive notes with playable boards
  */
 
-import { App, MarkdownPostProcessorContext, Plugin } from 'obsidian';
+import { App, MarkdownPostProcessorContext, Notice, Plugin } from 'obsidian';
 import { sha1, shortHash } from './src/util/sha1';
 import { generateChessFilename, normalizeDate } from './src/util/filename';
 import { logInfo, logError, logDebug } from './src/util/logger';
@@ -51,7 +51,7 @@ export default class ChessTrainer extends Plugin {
 			},
 			hotkeys: [
 				{
-					modifiers: ['Ctrl', 'Alt'],
+					modifiers: ['Mod', 'Alt'],
 					key: 'p'
 				}
 			]
@@ -60,7 +60,7 @@ export default class ChessTrainer extends Plugin {
 		// Register markdown processor for chess-pgn code blocks
 		this.registerMarkdownCodeBlockProcessor('chess-pgn', async (source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
 			const cleanup = await this.renderChessBoard(source, el);
-			if (typeof cleanup === 'function') {
+			if (typeof cleanup === 'function' && typeof ctx.addCleanup === 'function') {
 				ctx.addCleanup(cleanup);
 			}
 		});
@@ -93,7 +93,9 @@ export default class ChessTrainer extends Plugin {
 			// Validate PGN
 			const validationResult = validatePgn(pgn);
 			if (!validationResult.isValid) {
-				logError(`Invalid PGN provided: ${validationResult.error?.message}`);
+				const errorMessage = validationResult.error?.message || 'Invalid PGN format';
+				logError(`Invalid PGN provided: ${errorMessage}`);
+				new Notice(`❌ Invalid PGN: ${errorMessage}`);
 				return;
 			}
 
@@ -120,12 +122,16 @@ export default class ChessTrainer extends Plugin {
 			
 			if (result.created) {
 				logInfo(`Created new chess note: ${result.path}`);
+				new Notice(`✅ Created chess note: ${filename}`);
 			} else {
 				logInfo(`Updated existing chess note: ${result.path}`);
+				new Notice(`📝 Updated chess note: ${filename}`);
 			}
 
 		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : String(error);
 			logError('Failed to process PGN import', error);
+			new Notice(`❌ Failed to create note: ${errorMessage}`);
 		}
 	}
 
@@ -160,12 +166,19 @@ export default class ChessTrainer extends Plugin {
 			time_control: headers.TimeControl || '',
 			eco,
 			opening,
-			hash
+			hash,
+			tags: ['chess', 'game_analysis']
 		};
 
 		// Generate frontmatter string
 		const frontmatterString = Object.entries(frontmatter)
-			.map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+			.map(([key, value]) => {
+				// Handle array values (tags) - format as YAML array
+				if (Array.isArray(value)) {
+					return `${key}:\n${value.map(item => `  - ${JSON.stringify(item)}`).join('\n')}`;
+				}
+				return `${key}: ${JSON.stringify(value)}`;
+			})
 			.join('\n');
 
 		// Build complete note content
@@ -228,9 +241,9 @@ export default class ChessTrainer extends Plugin {
 			// Create board element
 			const boardEl = document.createElement('chess-board') as any;
 			boardEl.setAttribute('show-notation', 'true');
-			boardEl.style.width = '360px';
+			boardEl.style.width = '720px';
 			boardEl.style.maxWidth = '100%';
-			boardEl.style.height = '360px';
+			boardEl.style.height = '720px';
 			container.appendChild(boardEl);
 
 			// Create controls container
