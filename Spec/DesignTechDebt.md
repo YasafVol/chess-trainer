@@ -4,8 +4,9 @@ This document tracks design improvements, technical debt, and known bugs that ar
 
 **Related Documents**:
 - `Spec/ROADMAP.md` - Complete version roadmap
-- `Spec/V0_IMPLEMENTATION_PLAN.md` - Foundation implementation plan
-- `Spec/V0_5_IMPLEMENTATION_PLAN.md` - Polish & QA follow-up
+- `Spec/archive/V0_IMPLEMENTATION_PLAN.md` - Foundation implementation plan
+- `Spec/archive/V0_5_IMPLEMENTATION_PLAN.md` - Polish & QA follow-up
+- `Spec/V1_IMPLEMENTATION_PLAN.md` - Companion Stockfish service plan
 - `BUGS.md` - Known bugs documentation
 
 ---
@@ -13,7 +14,7 @@ This document tracks design improvements, technical debt, and known bugs that ar
 ## Version 1.0 (Post-V0 Release)
 
 ### Game Analysis Features
-- **Stockfish WASM Integration**: Embedded chess engine analysis
+- **Stockfish Companion Service**: Local/hosted service providing engine evaluations
 - **Eval Graph**: Visual evaluation bar showing position strength over time
 - **Move Annotations**: Automatic annotations for best moves, mistakes, blunders, critical positions, tactical opportunities
 - **Analysis Note**: Second note created alongside game note with detailed move-by-move analysis, position evaluations, suggested improvements, key moments highlighted

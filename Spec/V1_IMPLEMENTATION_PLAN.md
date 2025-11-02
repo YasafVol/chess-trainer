@@ -1,433 +1,294 @@
-# Implementation Plan: Chess Trainer V1 Plugin
+# Implementation Plan: Chess Trainer V1 – Companion Stockfish Service
 
 ## Executive Summary
 
-This document outlines the implementation plan for Chess Trainer V1, which adds game analysis capabilities using Stockfish WASM engine integration.
+V1 delivers automated game analysis by orchestrating a native Stockfish engine that runs **outside** Obsidian. Instead of embedding the WASM build (blocked by Obsidian’s Web Worker limitations), we ship a lightweight companion service that the user runs locally. The plugin talks to this service over HTTP, turning engine analysis into a simple request/response workflow. A hosted variant (Vercel/Netlify) remains an option once the same API is proven locally.
 
-**Target Release**: Post-V0 (after foundation complete)  
-**Core Value**: Automatic game analysis with engine evaluation and move annotations
+**Target Release**: Post-V0 (foundation complete)  
+**Core Value**: Automatic game analysis with move annotations, evaluation graphs, and analysis notes
 
-**Status**: 🔴 BLOCKED - Stockfish integration blocked by Obsidian's lack of Web Worker support. See `Spec/V1_WORKER_BLOCKER.md` for details.
+**Status**: 🟡 In Progress – migrating from blocked WASM plan to companion-service architecture
 
 **Dependencies**:
 - V0 foundation (complete)
-- Web Worker support in Obsidian (BLOCKED)
+- User-installed Stockfish binary (for local companion)
+- Optional: Node.js runtime to run the companion service script
 
 ---
 
-## V1 Features Overview
+## 0. Refactor & Cleanup
 
-### Stockfish WASM Integration
-- Embedded chess engine analysis
-- Configurable analysis depth
-- Background processing
+Before building the companion workflow, remove the dormant in-plugin engine artifacts.
 
-### Eval Graph
-- Visual evaluation bar showing position strength over time
-- Interactive hover for move details
-- Evaluation annotations
+- [ ] Delete bundles and helper files: `stockfish.wasm`, `stockfish.wasm.js`, `stockfish.worker.js`, `StockfishEngineSync.ts`, `testStockfishEngine.ts`, etc.
+- [ ] Remove “Test Stockfish Engine” command and related wiring in `main.ts`.
+- [ ] Revert custom esbuild loader for Stockfish assets.
+- [ ] Drop the `stockfish.js` dependency from `package.json` / `package-lock.json`.
+- [ ] Remove WASM-only docs (`STOCKFISH_TEST.md`, outdated specs) or archive them for posterity.
+- [ ] Revert temporary TypeScript shims (e.g., `obsidian.d.ts`, `NoteRepo` tweaks) if they were only needed for the embedded engine.
 
-### Move Annotations
-- Automatic annotations for:
-  - Best moves
-  - Mistakes and blunders
-  - Critical positions
-  - Tactical opportunities
-
-### Analysis Note
-- Second note created alongside game note
-- Detailed move-by-move analysis
-- Position evaluations
-- Suggested improvements
-- Key moments highlighted
-
-### Technical Requirements
-- Stockfish WASM bundle (~2-3 MB)
-- Background analysis processing
-- Configurable analysis depth
+_Outcome_: codebase is free from the blocked WASM approach and ready for the new architecture.
 
 ---
 
-## Milestones
+## 1. Companion Service (Local Stockfish Runner)
 
-### Milestone 1: Stockfish WASM Integration (Days 1-5)
-**Status**: 🔴 BLOCKED - Obsidian doesn't support Web Workers  
-**Exit criteria**: Stockfish WASM engine loads, can analyze positions, and returns evaluations.
+### Goals
+- Wrap a native Stockfish executable in an HTTP API.
+- Keep a single engine instance alive for multiple analysis requests.
+- Mirror the same JSON contract the plugin will use for future cloud deployments.
 
-**⚠️ BLOCKER**: Obsidian's Electron environment does not support Web Workers. Stockfish requires Workers, so this milestone cannot proceed as planned. See `Spec/V1_WORKER_BLOCKER.md` for details and alternatives.
+### Deliverables
+- `stockfish-service` project (Node.js reference implementation).  
+- REST endpoints: `GET /health`, `POST /analyze`.
+- Robust UCI loop handling (spawn, queue, graceful shutdown).
+- README explaining installation (Stockfish binary, Node runtime) and usage.
 
-**Tasks**:
-1. **Stockfish WASM Setup**
-   - [x] Research Stockfish WASM options (stockfish.js, stockfish.wasm)
-   - [x] Download/bundle Stockfish WASM (~2-3 MB)
-   - [x] Create `src/deps/stockfish.wasm` or bundle via npm
-   - [x] Create `src/services/engine/StockfishEngine.ts` wrapper
-   - [ ] Initialize engine on plugin load ❌ BLOCKED - Workers not supported
+### Tasks
+1. **Project Setup**
+   - Create repo/folder with TypeScript, Express (or Fastify), Zod for validation.
+   - Add scripts: `npm run dev`, `npm run build`, `npm run start`.
+2. **Engine Process Manager**
+   - Implement `StockfishProcess` (spawn, send commands, read output, restart on crash).
+   - Enforce mutex so only one analysis runs at a time (queue future requests).
+3. **UCI Parser**
+   - Parse `info` lines (depth, score, pv) and `bestmove` results.
+   - Normalize evaluations (centipawn / mate) into a structured object.
+4. **HTTP API**
+   - `POST /analyze` accepts `{ fen?, moves?, depth?, multiPV?, movetimeMs? }`.
+   - Validate payload, feed commands to engine, return JSON response.
+   - Timeout handling (e.g., fail after 30s) with clear error messages.
+5. **Health Endpoint**
+   - `GET /health` checks that the engine process is alive; optionally return engine version.
+6. **Configuration**
+   - Support env vars: `STOCKFISH_PATH`, `PORT`, `ENGINE_THREADS`, `ENGINE_HASH`, etc.
+7. **Testing**
+   - Local integration tests hitting `/analyze` with sample FENs.
+   - Ensure service recovers from engine restarts.
 
-2. **Engine Communication**
-   - [ ] Implement UCI protocol communication
-   - [ ] Send position commands (FEN)
-   - [ ] Request analysis with depth
-   - [ ] Parse evaluation responses
-   - [ ] Handle engine errors gracefully
-
-3. **Analysis Configuration**
-   - [ ] Add settings for default analysis depth (default: 15)
-   - [ ] Add settings for analysis time limit (optional)
-   - [ ] Add settings for multi-PV (number of best moves)
-   - [ ] Store configuration in plugin settings
-
-4. **Performance Optimization**
-   - [ ] Test engine initialization time
-   - [ ] Optimize WASM loading
-   - [ ] Consider lazy loading engine
-   - [ ] Monitor memory usage
-
-**Deliverables**:
-- Working Stockfish WASM integration
-- Engine communication wrapper
-- Configuration system
-
----
-
-### Milestone 2: Position Analysis Service (Days 6-9)
-**Exit criteria**: Service can analyze entire games move-by-move and store evaluations.
-
-**Tasks**:
-1. **Analysis Service**
-   - [ ] Create `src/services/analysis/GameAnalysisService.ts`
-   - [ ] Implement game replay with analysis
-   - [ ] Analyze each position after each move
-   - [ ] Store evaluations per ply
-   - [ ] Handle analysis interruptions
-
-2. **Evaluation Storage**
-   - [ ] Design evaluation data structure:
-     - [ ] Move number
-     - [ ] Evaluation (centipawns)
-     - [ ] Best move
-     - [ ] Alternative moves (multi-PV)
-     - [ ] Analysis depth
-   - [ ] Store in structured format (JSON)
-
-3. **Background Processing**
-   - [ ] Implement queue for analysis jobs
-   - [ ] Process games in background
-   - [ ] Show progress indicator
-   - [ ] Allow cancellation
-   - [ ] Resume interrupted analysis
-
-4. **Performance**
-   - [ ] Batch position analysis
-   - [ ] Cache common positions
-   - [ ] Optimize analysis order
-   - [ ] Progress tracking
-
-**Deliverables**:
-- Game analysis service
-- Evaluation storage system
-- Background processing
+### Out of Scope
+- Authentication / rate limiting (nice-to-have later).
+- Persistence or caching (purely stateless for now).
 
 ---
 
-### Milestone 3: Eval Graph Visualization (Days 10-13)
-**Exit criteria**: Interactive evaluation graph displays game evaluation over time.
+## 2. Plugin Integration (Analysis Client Abstraction)
 
-**Tasks**:
-1. **Graph Component**
-   - [ ] Create `src/ui/EvalGraph.ts`
-   - [ ] Use canvas or SVG for rendering
-   - [ ] Plot evaluation over moves
-   - [ ] Color-code by evaluation (white/black advantage)
-   - [ ] Add move markers
+### Goals
+- Replace direct engine calls with a client interface the plugin can swap (local companion now, remote service later).
+- Provide user settings to enable/disable analysis, point to the companion service URL, and tweak analysis defaults.
 
-2. **Interactivity**
-   - [ ] Hover to show move details
-   - [ ] Click to jump to position
-   - [ ] Zoom/pan capability
-   - [ ] Highlight key moments
+### Deliverables
+- `AnalysisClient` interface definition.
+- `RemoteServiceAnalysisClient` implementation (HTTP fetch wrapper).
+- Plugin settings UI additions.
+- Import workflow updated to call the analysis client and persist results via `AnnotationStorage`.
 
-3. **Visual Design**
-   - [ ] Smooth curve drawing
-   - [ ] Grid lines for readability
-   - [ ] Labels for key moves
-   - [ ] Responsive sizing
-
-4. **Integration**
-   - [ ] Embed graph in game note
-   - [ ] Embed graph in analysis note
-   - [ ] Sync with board position
-   - [ ] Update on move navigation
-
-**Deliverables**:
-- Interactive eval graph component
-- Visual design
-- Integration with game viewer
-
----
-
-### Milestone 4: Move Annotations (Days 14-17)
-**Exit criteria**: Moves are automatically annotated with quality indicators and best moves.
-
-**Tasks**:
-1. **Annotation Algorithm**
-   - [ ] Create `src/services/analysis/AnnotationService.ts`
-   - [ ] Compare played move vs best move
-   - [ ] Calculate evaluation change
-   - [ ] Classify move quality:
-     - [ ] Best move: matches engine best
-     - [ ] Excellent: <20cp difference
-     - [ ] Good: 20-50cp difference
-     - [ ] Inaccuracy: 50-100cp difference
-     - [ ] Mistake: 100-200cp difference
-     - [ ] Blunder: >200cp difference
-
-2. **Move Marking**
-   - [ ] Add symbols/symbols to move list:
-     - [ ] !! Best move
-     - [ ] ! Excellent
-     - [ ] ? Mistake
-     - [ ] ?? Blunder
-   - [ ] Color-code moves in move list
-   - [ ] Highlight critical positions
-
-3. **Best Move Display**
-   - [ ] Show best move suggestion
-   - [ ] Show evaluation after best move
-   - [ ] Show alternative moves
-   - [ ] Compare with played move
-
-4. **Annotation Storage**
-   - [ ] Store annotations in analysis data
-   - [ ] Link annotations to moves
-   - [ ] Include evaluation differences
-   - [ ] Include move explanations
-
-**Deliverables**:
-- Move annotation system
-- Visual move marking
-- Best move suggestions
+### Tasks
+1. **Interface & Types**
+   - Define `AnalysisRequest`, `AnalysisOptions`, `AnalysisResult`, `PvLine`, etc. (reuse from `src/types/analysis.ts`).
+   - Ensure the response matches the companion service JSON (best move, eval, PV lines, statistics, timing).
+2. **Client Implementation**
+   - `RemoteServiceAnalysisClient` with methods `analyze()` and `ping()`.
+   - Configurable base URL (default `http://localhost:9898`).
+   - Handle network errors, timeouts, and show notices to users.
+3. **Settings UI**
+   - Add toggle for “Enable analysis (requires companion service)”.
+   - Input for service URL.
+   - Defaults for depth, multiPV, movetime.
+4. **Workflow Integration**
+   - When importing a game, call `client.analyze` after note creation.
+   - Store the analysis using `AnnotationStorage` (existing service).
+   - Update note frontmatter/sections with link to analysis data.
+5. **UI Feedback**
+   - Display spinner / status message while analysis runs.
+   - Notify user if companion is offline (with instructions to start it).
+6. **Fallbacks**
+   - Allow manual command (e.g., “Chess Trainer: Analyze current game”) when auto-analysis is disabled.
 
 ---
 
-### Milestone 5: Analysis Note Generation (Days 18-21)
-**Exit criteria**: Analysis notes are created with detailed move-by-move analysis.
+## 3. Optional: Hosted Service (Vercel/Netlify)
 
-**Tasks**:
-1. **Analysis Note Template**
-   - [ ] Create `src/services/analysis/AnalysisNoteGenerator.ts`
-   - [ ] Design analysis note structure:
-     - [ ] Frontmatter (source game, analysis date, depth)
-     - [ ] Evaluation graph
-     - [ ] Move-by-move analysis
-     - [ ] Key moments section
-     - [ ] Statistics section
-   - [ ] Define note location (`Chess/analysis/`)
+Once the local service is stable, we can deploy the same code to a serverless platform to offer a turn-key experience.
 
-2. **Move-by-Move Analysis**
-   - [ ] Generate analysis for each move:
-     - [ ] Position evaluation
-     - [ ] Best move
-     - [ ] Played move evaluation
-     - [ ] Move quality annotation
-     - [ ] Alternative moves
-   - [ ] Format as readable text
-   - [ ] Include board diagrams for key positions
+### Goals
+- Provide a hosted URL for users who prefer not to run the companion locally.
+- Evaluate performance/limits of free-tier serverless platforms (favor Vercel for generous execution time).
 
-3. **Key Moments Section**
-   - [ ] Identify critical positions:
-     - [ ] Tactical opportunities
-     - [ ] Positional mistakes
-     - [ ] Opening deviations
-     - [ ] Endgame transitions
-   - [ ] Highlight with board diagrams
-   - [ ] Add explanatory text
+### Tasks (future)
+1. Package the companion service as a serverless function (remove Node-only APIs).
+2. Manage engine instantiation per request (or use a persistent KV/Durable Object if needed).
+3. Add basic request queueing or graceful errors when hitting compute limits.
+4. Document the trade-offs (requires internet, subject to quotas).
 
-4. **Statistics Section**
-   - [ ] Calculate game statistics:
-     - [ ] Average evaluation
-     - [ ] Accuracy percentage
-     - [ ] Number of mistakes/blunders
-     - [ ] Best move percentage
-     - [ ] Time spent in evaluation
-
-5. **Note Linking**
-   - [ ] Link analysis note to game note
-   - [ ] Link game note to analysis note
-   - [ ] Cross-reference in frontmatter
-
-**Deliverables**:
-- Analysis note generation
-- Detailed move analysis
-- Key moments highlighting
-- Statistics calculation
+_This milestone is optional for V1 but should remain in the plan to keep architecture aligned._
 
 ---
 
-### Milestone 6: Analysis UI & Controls (Days 22-24)
-**Exit criteria**: Users can trigger analysis, view progress, and interact with analysis results.
+## 4. Testing & Documentation
 
-**Tasks**:
-1. **Analysis Trigger**
-   - [ ] Add "Analyze Game" command
-   - [ ] Add button in game note view
-   - [ ] Add context menu option
-   - [ ] Show analysis status
+### Testing
+- Manual end-to-end tests (import PGN → analysis → annotations appear).
+- Companion service integration tests (cover typical FENs, multiPV, depth limits).
+- Plugin unit tests/mocks for the analysis client.
 
-2. **Progress Display**
-   - [ ] Show analysis progress bar
-   - [ ] Display current move being analyzed
-   - [ ] Show estimated time remaining
-   - [ ] Allow cancellation
-
-3. **Analysis View**
-   - [ ] Display eval graph in game note
-   - [ ] Show annotations in move list
-   - [ ] Highlight critical moves
-   - [ ] Link to analysis note
-
-4. **Settings Integration**
-   - [ ] Add analysis settings to settings tab
-   - [ ] Configure default analysis depth
-   - [ ] Configure analysis options
-   - [ ] Auto-analysis toggle
-
-**Deliverables**:
-- Analysis UI controls
-- Progress tracking
-- Integration with game viewer
+### Documentation
+- README updates:
+  - “How to run the Stockfish companion service”.
+  - Settings instructions for pointing the plugin to the service.
+  - Troubleshooting (service offline, Stockfish binary missing, etc.).
+- Spec updates: cross-reference `Spec/V1_WORKER_BLOCKER.md` (archived approach) and note the new solution.
 
 ---
 
-### Milestone 7: Testing & Documentation (Days 25-27)
-**Exit criteria**: Manual QA complete, documentation updated, analysis works reliably.
+## Architecture Overview
 
-**Tasks**:
-1. **Manual QA**
-   - [ ] Test analysis on various games
-   - [ ] Test eval graph rendering
-   - [ ] Test move annotations
-   - [ ] Test analysis note generation
-   - [ ] Test performance with long games
-
-2. **Edge Cases**
-   - [ ] Handle analysis errors gracefully
-   - [ ] Handle interrupted analysis
-   - [ ] Handle games with no valid moves
-   - [ ] Handle very long games (>100 moves)
-
-3. **Performance**
-   - [ ] Optimize analysis speed
-   - [ ] Test memory usage
-   - [ ] Test with multiple games
-   - [ ] Monitor WASM bundle size
-
-4. **Documentation**
-   - [ ] Update README with V1 features
-   - [ ] Document analysis process
-   - [ ] Document analysis settings
-   - [ ] Add troubleshooting section
-
-**Deliverables**:
-- QA checklist completed
-- Updated documentation
-- Performance optimizations
-
----
-
-## Technical Architecture
-
-### File Structure
 ```
-src/
-  deps/
-    stockfish.wasm           # Stockfish WASM engine
-  services/
-    engine/
-      StockfishEngine.ts     # Engine wrapper
-    analysis/
-      GameAnalysisService.ts # Main analysis service
-      AnnotationService.ts   # Move annotation logic
-      AnalysisNoteGenerator.ts # Analysis note creation
-  ui/
-    EvalGraph.ts            # Evaluation graph component
-  types/
-    analysis.ts             # Analysis data types
+┌─────────────────────────┐       HTTP        ┌────────────────────────────┐
+│ Obsidian Plugin         │ <----------------> │ Companion Service          │
+│ - AnalysisClient        │                   │ - Express/Node server      │
+│ - AnnotationStorage     │                   │ - StockfishProcess wrapper │
+│ - UI feedback           │                   │ - Local Stockfish binary   │
+└─────────────────────────┘                   └────────────────────────────┘
 ```
 
-### Dependencies
-- Stockfish WASM (~2-3 MB)
-- Canvas/SVG for graph rendering
-- Existing chess.js integration
+1. Plugin collects FEN/moves from the imported game.
+2. Sends `POST /analyze` request.
+3. Service runs Stockfish, parses output, returns JSON.
+4. Plugin writes annotations and displays results.
 
 ---
 
-## Risk Assessment
+## Risks & Mitigations
 
-### High Risk Items
-
-1. **WASM Bundle Size**
-   - **Risk**: Large WASM file increases plugin size significantly
-   - **Mitigation**: Optimize bundle, consider lazy loading, document size impact
-
-2. **Performance**
-   - **Risk**: Analysis takes too long for users
-   - **Mitigation**: Background processing, progress indicators, configurable depth
-
-3. **Memory Usage**
-   - **Risk**: Analyzing many games consumes memory
-   - **Mitigation**: Process one game at a time, clear cache, monitor usage
-
-### Medium Risk Items
-
-1. **Engine Reliability**
-   - **Risk**: WASM engine fails to load or crashes
-   - **Mitigation**: Error handling, fallback options, user notifications
-
-2. **Analysis Accuracy**
-   - **Risk**: Analysis depth too low for accurate evaluations
-   - **Mitigation**: Configurable depth, recommend depth settings
+| Risk | Impact | Mitigation |
+| --- | --- | --- |
+| Companion service not running | Analysis requests fail | Detect via `ping()` and show instructions to start service |
+| Stockfish binary unavailable | Service startup fails | Document installation steps, allow custom `STOCKFISH_PATH` |
+| Long-running analysis hits timeouts | Incomplete results | Limit default depth, expose movetime option, surface warnings |
+| Users uncomfortable running local server | Adoption barrier | Provide hosted option (Milestone 3) |
+| Plugin build still references old WASM files | Confusion / bundle bloat | Complete cleanup in Task 0 |
 
 ---
 
-## Timeline Estimate
+## Timeline (High-Level Estimate)
 
-**Total Estimated Time**: 27 days (~5-6 weeks)
+- **Week 0**: Task 0 cleanup.
+- **Week 1**: Companion service implementation (Milestone 1).
+- **Week 2**: Plugin analysis client + settings (Milestone 2).
+- **Week 3**: Integration testing, documentation updates (Milestone 4).
+- **Week 4** (optional): Hosted service prototype (Milestone 3).
 
-- **Week 1**: Milestone 1 (Stockfish Integration)
-- **Week 2**: Milestones 2 & 3 (Analysis Service & Eval Graph)
-- **Week 3**: Milestones 4 & 5 (Annotations & Note Generation)
-- **Week 4**: Milestone 6 (UI & Controls)
-- **Week 5**: Milestone 7 (Testing & Documentation)
+Total ~3 weeks for local solution, +1 week for hosted option.
 
 ---
 
 ## Success Criteria
 
-### Definition of Done
-
-1. ✅ Stockfish WASM engine integrates successfully
-2. ✅ Games can be analyzed move-by-move
-3. ✅ Eval graph displays evaluation over time
-4. ✅ Moves are annotated with quality indicators
-5. ✅ Analysis notes are generated automatically
-6. ✅ Analysis runs in background without blocking UI
-7. ✅ Performance is acceptable for typical games
-8. ✅ Documentation is complete
+1. ✅ Companion service runs Stockfish locally and responds via HTTP.
+2. ✅ Plugin can analyze a game end-to-end (annotations stored, UI reflects results).
+3. ✅ Error handling guides users when the service is offline or misconfigured.
+4. ✅ Documentation clearly explains setup and limitations.
+5. ✅ (Optional) Hosted endpoint available for users who prefer the cloud option.
 
 ---
 
-## Future Enhancements (Post-V1)
+## References
 
-- Multi-variant analysis
-- Opening book integration
-- Endgame tablebase integration
-- Cloud analysis (optional)
-- Custom analysis engines
+- `Spec/V1_WORKER_BLOCKER.md` – Archived WASM approach.
+- `Spec/ROADMAP.md` – Version overview and dependencies.
+- `Spec/DesignTechDebt.md` – Follow-up enhancements once V1 ships.
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: 2025-01-XX  
-**Owner**: Development Team
+## Implementation Notes & Checklists (for execution)
 
+### Companion Service Details
+- **Stockfish binary**: tested with Stockfish 16 (64-bit). Default executable name: `stockfish`. Allow override via `STOCKFISH_PATH`.
+- **Project layout** (`stockfish-service/`):
+  ```
+  package.json
+  tsconfig.json
+  src/
+    index.ts              // Express setup
+    engine/StockfishProcess.ts
+    engine/UciParser.ts
+    routes/analyze.ts
+    routes/health.ts
+    types.ts
+  README.md               // setup instructions
+  ```
+- **Dependencies**: `express`, `zod`, `async-mutex`, `pino` (optional logging).
+- **/analyze request JSON**:
+  ```json
+  {
+    "fen": "optional FEN, defaults to startpos",
+    "moves": ["optional SAN or UCI moves"],
+    "depth": 14,
+    "multiPV": 1,
+    "movetimeMs": 0
+  }
+  ```
+- **Response JSON**:
+  ```json
+  {
+    "bestMove": "e2e4",
+    "ponder": "e7e5",
+    "evaluation": { "type": "cp", "value": 23 },
+    "lines": [
+      {
+        "pv": ["e2e4", "e7e5", "Nf3"],
+        "eval": { "type": "cp", "value": 23 }
+      }
+    ],
+    "statistics": { "depth": 14, "selDepth": 22, "nodes": 123456, "nps": 500000 },
+    "timingMs": 512
+  }
+  ```
+- **Timeout**: return 504 after 30 seconds; message "Analysis exceeded time limit (depth=%depth).".
+- **Logging**: log request summary and errors to stdout (`pino` or console).
+- **Shutdown**: handle SIGINT/SIGTERM to send `quit` to the engine.
+
+### Plugin Integration Details
+- **AnalysisClient files**:
+  - `src/services/analysis/AnalysisClient.ts` (interface)
+  - `src/services/analysis/RemoteServiceAnalysisClient.ts`
+- **Settings defaults**:
+  - `analysisEnabled`: false
+  - `serviceUrl`: `http://localhost:9898`
+  - `defaultDepth`: 14
+  - `defaultMultiPV`: 1
+  - `defaultMovetimeMs`: 0
+- **UI strings**:
+  - Toast when offline: "Stockfish companion service not reachable. Start the service or update the URL in settings."
+  - Status during analysis: "Analyzing game with Stockfish..."
+- **Annotation storage**: reuse `src/services/analysis/AnnotationStorage.ts`; store `analysisFile` path in game frontmatter.
+- **Commands**: add "Chess Trainer: Analyze current game" (manual trigger).
+
+### Cleanup Checklist (Task 0)
+- Remove files: `src/services/engine/StockfishEngineSync.ts`, `src/services/engine/testStockfish.ts`, `stockfish.wasm`, `stockfish.wasm.js`, `stockfish.worker.js`, `STOCKFISH_TEST.md`.
+- Remove "Test Stockfish Engine" command from `main.ts`.
+- Revert esbuild plugin snippet that inlined Stockfish assets.
+- Run `npm uninstall stockfish.js` and clean `package-lock.json`.
+- Delete TypeScript shims added only for WASM (check `src/types/obsidian.d.ts`, `src/adapters/NoteRepo.ts`).
+
+### Testing Scenarios
+- Local service running, plugin imports short PGN (depth 12) → annotations appear, timing logged.
+- Companion service offline → plugin shows toast, no crash.
+- `multiPV = 3` → response includes 3 PV lines, plugin stores them.
+- Long game (100+ moves) → ensure service handles queues, plugin displays progress.
+
+### README Updates
+- Add “Stockfish Companion Service” section with steps:
+  1. Install Stockfish (link to official downloads).
+  2. Install Node.js.
+  3. Clone/run `stockfish-service` (`npm install`, `npm run start`).
+  4. Configure plugin settings (URL, depth).
+  5. Trigger analysis command.
+- Mark old embedded-engine instructions as archived.
+
+### Optional Hosted Service Notes
+- Vercel deployment: `api/analyze.ts`, `api/health.ts`; ensure WASM artefact < 50MB zipped.
+- Add environment variables for API secrets if needed.
+- Document free-tier limits (10s execution, 125MB memory).

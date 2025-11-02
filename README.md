@@ -123,7 +123,7 @@ All dependencies are bundled locally - no network access required.
 See `Spec/ROADMAP.md` for planned features:
 - **V0**: ✅ Complete - Core PGN import and board rendering
 - **V0.5**: ✅ Complete - UI/UX polish, accessibility, and QA
-- **V1**: 🔴 BLOCKED - Game analysis with Stockfish engine (Obsidian doesn't support Web Workers - see `Spec/V1_WORKER_BLOCKER.md`)
+- **V1**: 🟡 In Progress - Companion Stockfish service + plugin integration (`Spec/V1_IMPLEMENTATION_PLAN.md`)
 - **V1.5**: Puzzle generation and training mode
 - **V2**: API integrations (Chess.com, Lichess)
 - **V3**: Advanced database and analytics

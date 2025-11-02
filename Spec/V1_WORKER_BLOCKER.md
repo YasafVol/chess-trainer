@@ -1,10 +1,12 @@
-# V1 Worker Blocker: Stockfish Integration
+# V1 Worker Blocker: Stockfish Integration (Archived)
+
+> **Update (V1 Companion Service Plan)**: The embedded WASM approach documented here is no longer pursued. See `Spec/V1_IMPLEMENTATION_PLAN.md` for the active strategy that uses a local Stockfish companion service (with an optional hosted API). This document is retained for historical context.
 
 ## Issue Summary
 
-**Status**: 🔴 BLOCKED  
+**Status**: 🔴 BLOCKED (historical)  
 **Date Identified**: 2025-11-01  
-**Impact**: V1 Milestone 1 (Stockfish WASM Integration) cannot proceed as planned
+**Impact**: Original Milestone 1 (Stockfish WASM Integration) could not proceed as planned
 
 ## Problem
 
@@ -33,60 +35,26 @@ This blocks Stockfish integration because:
   - Blob URL approach: `fetch()` → `app://obsidian.md/` protocol doesn't support fetch
   - Both fail with: "The V8 platform used by this instance of Node does not support creating Workers"
 
-## Alternative Approaches
+## Alternative Approaches (Historical)
 
-### Option 1: Main Thread Execution (Not Recommended)
+### Option 1: Main Thread Execution
 - Run Stockfish in main thread (blocking)
-- Would freeze UI during analysis
-- Poor user experience
-- **Verdict**: Not viable for production
+- Save analysis to annotation file
+- Read annotations during playback
+- **Status**: Archived – superseded by companion service
 
-### Option 2: Simpler JavaScript Engine
-- Use a pure JavaScript chess engine (no WASM, no Workers)
-- Examples: `chess.js` (already used, but no engine), `sunfish.js`, `chess-engine-js`
-- Much weaker than Stockfish (~1500-1800 ELO vs 3000+)
-- **Verdict**: Could work but significantly weaker analysis
+### Option 2: Companion Service (Adopted)
+- Run Stockfish outside Obsidian
+- Communicate via HTTP / JSON API
+- Avoid Worker limitations entirely
+- **Status**: ✅ Active – see `Spec/V1_IMPLEMENTATION_PLAN.md`
 
-### Option 3: Cloud-Based Analysis API
-- Use external service (Chess.com API, Lichess API, Stockfish Cloud)
-- Requires internet connection
-- API rate limits
-- Privacy concerns
-- **Verdict**: Viable but goes against offline-first philosophy
+### Option 3: Cloud Analysis
+- Use remote engine (e.g., Stockfish API)
+- Requires network access
+- Potential cost / latency
+- Considered as future enhancement
 
-### Option 4: Defer V1 Feature
-- Move Stockfish integration to future version
-- Focus on V1 features that don't require Workers
-- Wait for Obsidian to support Workers
-- **Verdict**: Most pragmatic approach
+## Current Resolution
 
-### Option 5: Native Module (Future)
-- Create Node.js native addon for Stockfish
-- Would require native compilation
-- Complex build process
-- **Verdict**: Overkill for this plugin
-
-## Recommended Path Forward
-
-**SOLUTION ACCEPTED**: Main-thread analysis with annotation storage
-- Run Stockfish in main thread during import (blocking is acceptable)
-- Save analysis results to annotation file
-- Read from annotation file when displaying (fast, non-blocking)
-- See `Spec/V1_MAIN_THREAD_SOLUTION.md` for implementation details
-
-**Implementation Status**: ✅ SOLUTION IDENTIFIED
-
-## Related Files
-
-- `src/services/engine/StockfishEngine.ts` - Current implementation (blocked)
-- `src/services/engine/testStockfish.ts` - Test file (fails)
-- `Spec/V1_IMPLEMENTATION_PLAN.md` - Original plan (needs update)
-- `STOCKFISH_TEST.md` - Test documentation
-
-## Next Steps
-
-1. Update `Spec/V1_IMPLEMENTATION_PLAN.md` to reflect this blocker
-2. Consider alternative V1 features that don't require Workers
-3. Document Worker limitation in `README.md`
-4. Remove or defer Stockfish-related code until solution found
-
+We are proceeding with the companion-service architecture. This blocker document remains for historical knowledge.

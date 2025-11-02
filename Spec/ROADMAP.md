@@ -41,18 +41,18 @@
 - ✅ QA checklist created and bug tracking updated
 
 ### Reference Plan
-- See `Spec/V0_5_IMPLEMENTATION_PLAN.md`
+- See `Spec/archive/V0_5_IMPLEMENTATION_PLAN.md`
 
 ---
 
 ## V1: Game Analysis - Engine Integration
 
-**Status**: 🔴 BLOCKED - Obsidian doesn't support Web Workers  
+**Status**: 🟡 In Progress – migrating to companion Stockfish service  
 **Core Value**: Automatic game analysis with engine evaluation  
-**Blocking Issue**: See `Spec/V1_WORKER_BLOCKER.md`
+**Notes**: Blocked WASM approach archived in `Spec/V1_WORKER_BLOCKER.md`; new plan in `Spec/V1_IMPLEMENTATION_PLAN.md`
 
 ### Features
-- **Stockfish WASM Integration**: Embedded chess engine analysis
+- **Stockfish Companion Service**: Local/hosted engine analysis over HTTP
 - **Eval Graph**: Visual evaluation bar showing position strength over time
 - **Move Annotations**: Automatic annotations for:
   - Best moves
@@ -65,12 +65,10 @@
   - Suggested improvements
   - Key moments highlighted
 
----
-
 ### Technical Requirements
-- Stockfish WASM bundle (~2-3 MB)
-- Background analysis processing
-- Configurable analysis depth
+- Local Stockfish companion service (or hosted API)
+- HTTP contract between plugin and engine service
+- Configurable analysis depth / options via plugin settings
 
 ### Reference Plan
 - See `Spec/V1_IMPLEMENTATION_PLAN.md`
@@ -259,8 +257,8 @@
 
 ---
 
-**Last Updated**: 2025-01-XX  
+**Last Updated**: 2025-11-02  
 **Current Version**: V0 (0.2.0)  
-**Next Focus**: V0.5 polish & QA  
-**Reference Plans**: `Spec/V0_IMPLEMENTATION_PLAN.md`, `Spec/V0_5_IMPLEMENTATION_PLAN.md`
+**Next Focus**: V1 companion Stockfish service  
+**Reference Plans**: `Spec/archive/V0_IMPLEMENTATION_PLAN.md`, `Spec/archive/V0_5_IMPLEMENTATION_PLAN.md`, `Spec/V1_IMPLEMENTATION_PLAN.md`
 
