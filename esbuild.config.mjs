@@ -67,6 +67,65 @@ const context = await esbuild.context({
 				});
 			},
 		},
+		{
+			name: 'stockfish-wasm-loader',
+			setup(build) {
+				build.onResolve({ filter: /stockfish\.wasm\.js$/ }, args => {
+					return { path: args.path, namespace: 'stockfish-wasm' };
+				});
+				build.onLoad({ filter: /.*/, namespace: 'stockfish-wasm' }, async () => {
+					const fs = await import('fs');
+					const path = await import('path');
+					const stockfishPath = path.resolve('node_modules/stockfish.js/stockfish.wasm.js');
+					const content = fs.readFileSync(stockfishPath, 'utf8');
+					const augmentedSource = `${content}\nreturn Module;`;
+					return {
+						contents: `const STOCKFISH_SOURCE = ${JSON.stringify(augmentedSource)};
+
+const stockfishFactory = new Function('Module', STOCKFISH_SOURCE);
+
+export function initializeStockfishModule(Module) {
+	const previousPostMessage = globalThis.postMessage;
+	const previousOnmessage = globalThis.onmessage;
+	const previousClose = globalThis.close;
+	const stubPostMessage = (message) => {
+		if (Module && typeof Module.__postMessage === 'function') {
+			Module.__postMessage(message);
+		}
+	};
+	globalThis.postMessage = stubPostMessage;
+	globalThis.onmessage = function () {};
+	globalThis.close = function () {};
+	try {
+		return stockfishFactory(Module);
+	} finally {
+		globalThis.postMessage = previousPostMessage;
+		globalThis.onmessage = previousOnmessage;
+		globalThis.close = previousClose;
+	}
+}
+
+export default initializeStockfishModule;
+`,
+						loader: 'js',
+					};
+				});
+				build.onResolve({ filter: /stockfish\.wasm$/ }, args => {
+					return { path: args.path, namespace: 'stockfish-wasm-binary' };
+				});
+				build.onLoad({ filter: /.*/, namespace: 'stockfish-wasm-binary' }, async (args) => {
+					const fs = await import('fs');
+					const path = await import('path');
+					const wasmPath = path.resolve('node_modules/stockfish.js/stockfish.wasm');
+					const wasmBinary = fs.readFileSync(wasmPath);
+					const base64 = wasmBinary.toString('base64');
+					return {
+						contents: `export default '${base64}';`,
+						loader: 'js',
+					};
+				});
+			},
+		},
 	],
 });
 

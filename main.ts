@@ -12,6 +12,7 @@ import { validatePgn, extractHeaders } from './src/services/pgnValidator';
 import { upsert } from './src/adapters/NoteRepo';
 import { lookupOpeningFromECO } from './src/util/eco';
 import { normalizePgnInput } from './src/util/pgn';
+import { testStockfishEngine } from './src/services/engine/testStockfish';
 
 // Import chess.js for PGN parsing
 // @ts-ignore - Bundled dependency
@@ -55,6 +56,23 @@ export default class ChessTrainer extends Plugin {
 					key: 'p'
 				}
 			]
+		});
+
+		// Add test command for Stockfish engine (development only)
+		this.addCommand({
+			id: 'chess-test-stockfish',
+			name: 'Test Stockfish Engine',
+			callback: async () => {
+				new Notice('🧪 Testing Stockfish engine... Check console for results');
+				try {
+					await testStockfishEngine();
+					new Notice('✅ Stockfish engine test completed! Check console for details.');
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					logError('Stockfish test failed', error);
+					new Notice(`❌ Stockfish test failed: ${errorMessage}`);
+				}
+			}
 		});
 
 		// Register markdown processor for chess-pgn code blocks

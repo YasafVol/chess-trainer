@@ -12,6 +12,8 @@ declare module 'obsidian' {
 		create(path: string, content: string): Promise<TFile>;
 		modify(file: TFile, content: string): Promise<void>;
 		createFolder(path: string): Promise<void>;
+		read(file: TFile): Promise<string>;
+		cachedRead(file: TFile): Promise<string>;
 	}
 
 	export interface Workspace {

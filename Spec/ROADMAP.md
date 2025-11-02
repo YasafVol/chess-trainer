@@ -47,8 +47,9 @@
 
 ## V1: Game Analysis - Engine Integration
 
-**Status**: 📋 Planned  
-**Core Value**: Automatic game analysis with engine evaluation
+**Status**: 🔴 BLOCKED - Obsidian doesn't support Web Workers  
+**Core Value**: Automatic game analysis with engine evaluation  
+**Blocking Issue**: See `Spec/V1_WORKER_BLOCKER.md`
 
 ### Features
 - **Stockfish WASM Integration**: Embedded chess engine analysis

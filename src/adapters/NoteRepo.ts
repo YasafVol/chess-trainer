@@ -129,12 +129,7 @@ export async function readFileContent(vault: Vault, path: string): Promise<strin
 		const file = vault.getAbstractFileByPath(path);
 		
 		if (file) {
-			// Use cached read method if available, otherwise fallback
-			if ((file as any).read) {
-				return await (file as any).read();
-			}
-			// Alternative: use vault.adapter.read if available
-			return null;
+			return await vault.read(file);
 		}
 		
 		return null;

@@ -7,8 +7,11 @@ This document outlines the implementation plan for Chess Trainer V1, which adds 
 **Target Release**: Post-V0 (after foundation complete)  
 **Core Value**: Automatic game analysis with engine evaluation and move annotations
 
+**Status**: 🔴 BLOCKED - Stockfish integration blocked by Obsidian's lack of Web Worker support. See `Spec/V1_WORKER_BLOCKER.md` for details.
+
 **Dependencies**:
 - V0 foundation (complete)
+- Web Worker support in Obsidian (BLOCKED)
 
 ---
 
@@ -48,15 +51,18 @@ This document outlines the implementation plan for Chess Trainer V1, which adds 
 ## Milestones
 
 ### Milestone 1: Stockfish WASM Integration (Days 1-5)
+**Status**: 🔴 BLOCKED - Obsidian doesn't support Web Workers  
 **Exit criteria**: Stockfish WASM engine loads, can analyze positions, and returns evaluations.
+
+**⚠️ BLOCKER**: Obsidian's Electron environment does not support Web Workers. Stockfish requires Workers, so this milestone cannot proceed as planned. See `Spec/V1_WORKER_BLOCKER.md` for details and alternatives.
 
 **Tasks**:
 1. **Stockfish WASM Setup**
-   - [ ] Research Stockfish WASM options (stockfish.js, stockfish.wasm)
-   - [ ] Download/bundle Stockfish WASM (~2-3 MB)
-   - [ ] Create `src/deps/stockfish.wasm` or bundle via npm
-   - [ ] Create `src/services/engine/StockfishEngine.ts` wrapper
-   - [ ] Initialize engine on plugin load
+   - [x] Research Stockfish WASM options (stockfish.js, stockfish.wasm)
+   - [x] Download/bundle Stockfish WASM (~2-3 MB)
+   - [x] Create `src/deps/stockfish.wasm` or bundle via npm
+   - [x] Create `src/services/engine/StockfishEngine.ts` wrapper
+   - [ ] Initialize engine on plugin load ❌ BLOCKED - Workers not supported
 
 2. **Engine Communication**
    - [ ] Implement UCI protocol communication

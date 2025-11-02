@@ -29,5 +29,8 @@
 		"obsidian": "latest",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
+	},
+	"dependencies": {
+		"stockfish.js": "^10.0.2"
 	}
 }

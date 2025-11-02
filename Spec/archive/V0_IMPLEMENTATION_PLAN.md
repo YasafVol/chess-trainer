@@ -257,13 +257,13 @@ game.loadPgn(pgn, { sloppy: true });
 
 ### Phase 2: UI/UX Polish (Priority: MEDIUM)
 
-**Note**: Phase 2 polish tracked in `Spec/V0_5_IMPLEMENTATION_PLAN.md`.
+**Note**: Phase 2 polish tracked in `Spec/archive/V0_5_IMPLEMENTATION_PLAN.md`.
 
 ---
 
 ### Phase 3: Testing & Quality Assurance (Priority: HIGH)
 
-**Note**: Phase 3 QA tracked in `Spec/V0_5_IMPLEMENTATION_PLAN.md`.
+**Note**: Phase 3 QA tracked in `Spec/archive/V0_5_IMPLEMENTATION_PLAN.md`.
 
 ---
 
