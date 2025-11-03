@@ -8,7 +8,8 @@ import { GameAnalysis, PositionEvaluation } from '../../types/analysis';
 import { upsert, readFileContent } from '../../adapters/NoteRepo';
 import { logInfo, logError } from '../../util/logger';
 
-const ANNOTATIONS_DIR = 'Chess/games/annotations';
+const ANNOTATIONS_DIR = 'Chess/games';
+const LEGACY_ANNOTATIONS_DIR = 'Chess/games/annotations';
 
 /**
  * Save game analysis annotations to file
@@ -50,7 +51,12 @@ export async function loadAnnotations(
 ): Promise<GameAnalysis | null> {
 	try {
 		const path = `${ANNOTATIONS_DIR}/${gameHash}.json`;
-		const content = await readFileContent(vault, path);
+		let content = await readFileContent(vault, path);
+
+		if (!content) {
+			// Fallback to legacy location for backward compatibility
+			content = await readFileContent(vault, `${LEGACY_ANNOTATIONS_DIR}/${gameHash}.json`);
+		}
 		
 		if (!content) {
 			return null;
@@ -90,7 +96,10 @@ export async function loadAnnotations(
  */
 export function annotationsExist(vault: Vault, gameHash: string): boolean {
 	const path = `${ANNOTATIONS_DIR}/${gameHash}.json`;
-	const file = vault.getAbstractFileByPath(path);
-	return file !== null;
+	const legacyPath = `${LEGACY_ANNOTATIONS_DIR}/${gameHash}.json`;
+	return Boolean(
+		vault.getAbstractFileByPath(path) ??
+		vault.getAbstractFileByPath(legacyPath)
+	);
 }
 

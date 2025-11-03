@@ -16,7 +16,8 @@ import { ChessTrainerSettings, DEFAULT_SETTINGS } from './src/types/settings';
 import { ChessTrainerSettingsTab } from './src/ui/SettingsTab';
 import { RemoteServiceAnalysisClient } from './src/services/analysis/RemoteServiceAnalysisClient';
 import { AnalysisClient } from './src/services/analysis/AnalysisClient';
-import { saveAnnotations } from './src/services/analysis/AnnotationStorage';
+import { saveAnnotations, loadAnnotations } from './src/services/analysis/AnnotationStorage';
+import { MoveQuality, MoveAnalysis, GameAnalysis } from './src/types/analysis';
 
 // Import chess.js for PGN parsing
 // @ts-ignore - Bundled dependency
@@ -41,7 +42,9 @@ export default class ChessTrainer extends Plugin {
 	analysisClient: AnalysisClient | null = null;
 
 	async onload(): Promise<void> {
-		logInfo('Loading Chess Trainer plugin v0.2.0');
+		const version = '0.2.1';
+		console.log(`[Chess Trainer] Loading plugin version ${version}`);
+		logInfo(`Loading Chess Trainer plugin v${version}`);
 
 		// Load settings
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -93,7 +96,7 @@ export default class ChessTrainer extends Plugin {
 
 		// Register markdown processor for chess-pgn code blocks
 		this.registerMarkdownCodeBlockProcessor('chess-pgn', async (source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-			const cleanup = await this.renderChessBoard(source, el);
+			const cleanup = await this.renderChessBoard(source, el, ctx);
 			if (typeof cleanup === 'function' && typeof ctx.addCleanup === 'function') {
 				ctx.addCleanup(cleanup);
 			}
@@ -239,7 +242,7 @@ export default class ChessTrainer extends Plugin {
 	/**
 	 * Render chess board for PGN code block
 	 */
-	private async renderChessBoard(pgn: string, el: HTMLElement): Promise<(() => void) | undefined> {
+	private async renderChessBoard(pgn: string, el: HTMLElement, ctx?: MarkdownPostProcessorContext): Promise<(() => void) | undefined> {
 		try {
 			logDebug(`Rendering chess board for PGN (${pgn.length} characters)`);
 
@@ -255,6 +258,19 @@ export default class ChessTrainer extends Plugin {
 
 			const history = game.history({ verbose: true });
 			const totalPlies = history.length;
+
+			// Attempt to load annotations for this game
+			const frontmatterHash = (ctx as any)?.frontmatter?.hash ?? (ctx as any)?.frontmatter?.gameHash;
+			let analysis: GameAnalysis | null = null;
+			const annotationsByPly = new Map<number, MoveAnalysis>();
+			if (typeof frontmatterHash === 'string' && frontmatterHash.length > 0) {
+				analysis = await loadAnnotations(this.app.vault, frontmatterHash);
+				if (analysis?.moves) {
+					for (const move of analysis.moves) {
+						annotationsByPly.set(move.ply, move);
+					}
+				}
+			}
 
 			// Guard against very long games
 			if (totalPlies > 500) {
@@ -298,6 +314,24 @@ export default class ChessTrainer extends Plugin {
 			controlsEl.style.cssText = 'margin: 10px 0; display: flex; gap: 5px; flex-wrap: wrap;';
 			container.appendChild(controlsEl);
 
+			// Analysis summary (if available)
+			let analysisSummaryEl: HTMLDivElement | null = null;
+			if (analysis) {
+				analysisSummaryEl = document.createElement('div');
+				analysisSummaryEl.className = 'analysis-summary';
+				analysisSummaryEl.innerHTML = `
+					<span title="Engine depth">Depth <strong>${analysis.depth}</strong></span>
+					<span title="Accuracy">Accuracy <strong>${analysis.statistics.accuracy.toFixed(1)}%</strong></span>
+					<span title="Analysis duration">Time <strong>${(analysis.analysisTime / 1000).toFixed(1)}s</strong></span>
+				`;
+				container.appendChild(analysisSummaryEl);
+			} else if (frontmatterHash) {
+				analysisSummaryEl = document.createElement('div');
+				analysisSummaryEl.className = 'analysis-summary missing';
+				analysisSummaryEl.textContent = 'Analysis data not found for this game.';
+				container.appendChild(analysisSummaryEl);
+			}
+
 			// Create aria-live region for current move announcements
 			const liveRegion = document.createElement('div');
 			liveRegion.setAttribute('role', 'status');
@@ -321,6 +355,93 @@ export default class ChessTrainer extends Plugin {
 			let isPlaying = false;
 			let flipped = false;
 			const autoplayAllowed = totalPlies <= 500;
+			let playBtn: HTMLButtonElement | null = null;
+
+			const QUALITY_SYMBOLS: Record<MoveQuality, string> = {
+				[MoveQuality.BEST]: '✓',
+				[MoveQuality.EXCELLENT]: '!!',
+				[MoveQuality.GOOD]: '!',
+				[MoveQuality.INACCURACY]: '?!',
+				[MoveQuality.MISTAKE]: '?',
+				[MoveQuality.BLUNDER]: '??'
+			};
+
+			const QUALITY_LABELS: Record<MoveQuality, string> = {
+				[MoveQuality.BEST]: 'Best move',
+				[MoveQuality.EXCELLENT]: 'Excellent move',
+				[MoveQuality.GOOD]: 'Good move',
+				[MoveQuality.INACCURACY]: 'Inaccuracy',
+				[MoveQuality.MISTAKE]: 'Mistake',
+				[MoveQuality.BLUNDER]: 'Blunder'
+			};
+
+			const moveElements: Array<HTMLSpanElement | undefined> = [];
+
+			const buildAnnotationTooltip = (annotation: MoveAnalysis): string => {
+				const parts = [QUALITY_LABELS[annotation.quality]];
+				if (annotation.bestMove) {
+					parts.push(`Best: ${annotation.bestMove}`);
+				}
+				parts.push(`Δ ${annotation.evaluationDiff} cp`);
+				return parts.join(' • ');
+			};
+
+			const buildMovesList = () => {
+				movesEl.textContent = '';
+				const fragment = document.createDocumentFragment();
+
+				history.forEach((move: any, index: number) => {
+					const moveNumber = Math.floor(index / 2) + 1;
+					const isWhiteMove = index % 2 === 0;
+
+					if (isWhiteMove) {
+						const numberSpan = document.createElement('span');
+						numberSpan.className = 'move-number';
+						numberSpan.textContent = `${moveNumber}. `;
+						fragment.appendChild(numberSpan);
+					}
+
+					const moveSpan = document.createElement('span');
+					moveSpan.className = 'chess-move';
+					moveSpan.textContent = move.san;
+					moveSpan.dataset.ply = String(index);
+
+					const annotation = annotationsByPly.get(index);
+					if (annotation) {
+						moveSpan.classList.add('has-annotation', `quality-${annotation.quality}`);
+						const symbol = QUALITY_SYMBOLS[annotation.quality];
+						if (symbol) {
+							const symbolSpan = document.createElement('span');
+							symbolSpan.className = 'move-annotation-symbol';
+							symbolSpan.textContent = symbol;
+							moveSpan.appendChild(document.createTextNode(' '));
+							moveSpan.appendChild(symbolSpan);
+						}
+						moveSpan.setAttribute('title', buildAnnotationTooltip(annotation));
+					}
+
+					moveSpan.addEventListener('click', () => {
+						currentPly = index + 1;
+						isPlaying = false;
+						if (autoplayTimer) {
+							clearInterval(autoplayTimer);
+							autoplayTimer = null;
+						}
+						if (playBtn) {
+							playBtn.textContent = '▶';
+						}
+						render();
+					});
+
+					moveElements[index] = moveSpan;
+					fragment.appendChild(moveSpan);
+					fragment.appendChild(document.createTextNode(' '));
+				});
+
+				movesEl.appendChild(fragment);
+			};
+
+			buildMovesList();
 
 			// Render functions
 			const render = () => {
@@ -335,19 +456,16 @@ export default class ChessTrainer extends Plugin {
 					boardEl.removeAttribute('orientation');
 				}
 
-				// Update moves list with current move highlighting
-				const movesText = history.map((move: any, index: number) => {
-					const moveNumber = Math.floor(index / 2) + 1;
-					const isWhite = index % 2 === 0;
-					
+				// Update moves list highlighting
+				moveElements.forEach((moveEl, index) => {
+					if (!moveEl) return;
 					if (index === currentPly - 1) {
-						return `[${move.san}]`;
+						moveEl.classList.add('current');
+						moveEl.scrollIntoView({ block: 'nearest' });
+					} else {
+						moveEl.classList.remove('current');
 					}
-					
-					return isWhite ? `${moveNumber}. ${move.san}` : `${move.san}`;
-				}).join(' ');
-				
-				movesEl.textContent = movesText;
+				});
 				
 				// Announce current move for screen readers
 				if (currentPly > 0 && currentPly <= history.length) {
@@ -419,11 +537,11 @@ export default class ChessTrainer extends Plugin {
 			};
 
 			// Control buttons
-			const prevBtn = this.createButton(controlsEl, '‹', 'Previous move', () => navigateMove(-1));
-			const nextBtn = this.createButton(controlsEl, '›', 'Next move', () => navigateMove(1));
-			const resetBtn = this.createButton(controlsEl, '↺', 'Reset to start', resetPosition);
-			const playBtn = this.createButton(controlsEl, '▶', autoplayAllowed ? 'Play/Pause' : 'Autoplay disabled (too many moves)', toggleAutoplay);
-			const flipBtn = this.createButton(controlsEl, '⇅', 'Flip board', flipBoard);
+			this.createButton(controlsEl, '‹', 'Previous move', () => navigateMove(-1));
+			this.createButton(controlsEl, '›', 'Next move', () => navigateMove(1));
+			this.createButton(controlsEl, '↺', 'Reset to start', resetPosition);
+			playBtn = this.createButton(controlsEl, '▶', autoplayAllowed ? 'Play/Pause' : 'Autoplay disabled (too many moves)', toggleAutoplay);
+			this.createButton(controlsEl, '⇅', 'Flip board', flipBoard);
 
 			// Add ARIA label to board element
 			boardEl.setAttribute('aria-label', 'Chess board');
