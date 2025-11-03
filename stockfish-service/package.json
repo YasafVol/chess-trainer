@@ -1,0 +1,32 @@
+{
+	"name": "stockfish-service",
+	"version": "1.0.0",
+	"description": "Companion HTTP service for Stockfish chess engine analysis",
+	"main": "dist/index.js",
+	"scripts": {
+		"dev": "tsx watch src/index.ts",
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"stockfish",
+		"chess",
+		"engine",
+		"analysis"
+	],
+	"author": "Chess Trainer Team",
+	"license": "MIT",
+	"dependencies": {
+		"express": "^4.18.2",
+		"zod": "^3.22.4",
+		"async-mutex": "^0.4.0"
+	},
+	"devDependencies": {
+		"@types/express": "^4.17.21",
+		"@types/node": "^20.10.0",
+		"tsx": "^4.7.0",
+		"typescript": "^5.3.3"
+	}
+}
+
