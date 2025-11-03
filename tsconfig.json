@@ -28,5 +28,9 @@
     "**/*.ts",
     "src/deps/*.js",
     "src/types/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "stockfish-service"
   ]
 }

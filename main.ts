@@ -12,7 +12,11 @@ import { validatePgn, extractHeaders } from './src/services/pgnValidator';
 import { upsert } from './src/adapters/NoteRepo';
 import { lookupOpeningFromECO } from './src/util/eco';
 import { normalizePgnInput } from './src/util/pgn';
-import { testStockfishEngine } from './src/services/engine/testStockfish';
+import { ChessTrainerSettings, DEFAULT_SETTINGS } from './src/types/settings';
+import { ChessTrainerSettingsTab } from './src/ui/SettingsTab';
+import { RemoteServiceAnalysisClient } from './src/services/analysis/RemoteServiceAnalysisClient';
+import { AnalysisClient } from './src/services/analysis/AnalysisClient';
+import { saveAnnotations } from './src/services/analysis/AnnotationStorage';
 
 // Import chess.js for PGN parsing
 // @ts-ignore - Bundled dependency
@@ -33,8 +37,28 @@ async function ensureChessBoardElement() {
 }
 
 export default class ChessTrainer extends Plugin {
+	settings: ChessTrainerSettings;
+	analysisClient: AnalysisClient | null = null;
+
 	async onload(): Promise<void> {
 		logInfo('Loading Chess Trainer plugin v0.2.0');
+
+		// Load settings
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+
+		// Initialize analysis client if enabled
+		if (this.settings.analysisEnabled) {
+			this.analysisClient = new RemoteServiceAnalysisClient(this.settings.serviceUrl);
+		}
+
+		// Add settings tab
+		try {
+			const settingsTab = new ChessTrainerSettingsTab(this.app, this);
+			this.addSettingTab(settingsTab);
+			logInfo('Settings tab registered');
+		} catch (error) {
+			logError('Failed to register settings tab', error);
+		}
 
 		await ensureChessBoardElement();
 
@@ -58,20 +82,12 @@ export default class ChessTrainer extends Plugin {
 			]
 		});
 
-		// Add test command for Stockfish engine (development only)
+		// Add command for manual game analysis
 		this.addCommand({
-			id: 'chess-test-stockfish',
-			name: 'Test Stockfish Engine',
+			id: 'chess-analyze-game',
+			name: 'Analyze current game',
 			callback: async () => {
-				new Notice('🧪 Testing Stockfish engine... Check console for results');
-				try {
-					await testStockfishEngine();
-					new Notice('✅ Stockfish engine test completed! Check console for details.');
-				} catch (error) {
-					const errorMessage = error instanceof Error ? error.message : String(error);
-					logError('Stockfish test failed', error);
-					new Notice(`❌ Stockfish test failed: ${errorMessage}`);
-				}
+				await this.analyzeCurrentGame();
 			}
 		});
 
@@ -141,6 +157,13 @@ export default class ChessTrainer extends Plugin {
 			if (result.created) {
 				logInfo(`Created new chess note: ${result.path}`);
 				new Notice(`✅ Created chess note: ${filename}`);
+				
+				// Trigger analysis if enabled
+				if (this.settings.analysisEnabled && this.analysisClient) {
+					this.analyzeGameAsync(normalizedPgn, hash).catch((error) => {
+						logError('Failed to analyze game', error);
+					});
+				}
 			} else {
 				logInfo(`Updated existing chess note: ${result.path}`);
 				new Notice(`📝 Updated chess note: ${filename}`);
@@ -444,6 +467,104 @@ export default class ChessTrainer extends Plugin {
 		button.addEventListener('click', onClick);
 		container.appendChild(button);
 		return button;
+	}
+
+	/**
+	 * Save settings
+	 */
+	async saveSettings(): Promise<void> {
+		await this.saveData(this.settings);
+		
+		// Update analysis client if URL changed
+		if (this.settings.analysisEnabled) {
+			this.analysisClient = new RemoteServiceAnalysisClient(this.settings.serviceUrl);
+		} else {
+			this.analysisClient = null;
+		}
+	}
+
+	/**
+	 * Analyze game asynchronously (background)
+	 */
+	private async analyzeGameAsync(pgn: string, gameHash: string): Promise<void> {
+		if (!this.analysisClient) {
+			return;
+		}
+
+		try {
+			// Check if service is available
+			const isAvailable = await this.analysisClient.ping();
+			if (!isAvailable) {
+				new Notice('Stockfish companion service not reachable. Start the service or update the URL in settings.');
+				return;
+			}
+
+			new Notice('Analyzing game with Stockfish...');
+
+			// Parse PGN to get moves
+			const normalizedPgn = normalizePgnInput(pgn);
+			const game = new Chess();
+			game.loadPgn(normalizedPgn, { strict: false });
+			const history = game.history({ verbose: true });
+			
+			// Convert to UCI moves
+			const uciMoves = history.map((move: any) => {
+				const from = move.from;
+				const to = move.to;
+				const promotion = move.promotion || '';
+				return from + to + promotion;
+			});
+
+			// Perform analysis
+			const analysis = await this.analysisClient.analyzeGame(
+				'startpos',
+				uciMoves,
+				{
+					depth: this.settings.defaultDepth,
+					multiPV: this.settings.defaultMultiPV,
+					movetimeMs: this.settings.defaultMovetimeMs,
+				}
+			);
+
+			// Set game hash
+			analysis.gameHash = gameHash;
+
+			// Save annotations
+			await saveAnnotations(this.app.vault, gameHash, analysis);
+
+			new Notice(`✅ Game analysis complete! Analyzed ${analysis.moves.length} moves.`);
+			logInfo(`Analysis complete for game ${gameHash}: ${analysis.statistics.accuracy.toFixed(1)}% accuracy`);
+		} catch (error) {
+			logError('Game analysis failed', error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			new Notice(`❌ Analysis failed: ${errorMessage}`);
+		}
+	}
+
+	/**
+	 * Analyze current game (manual command)
+	 */
+	private async analyzeCurrentGame(): Promise<void> {
+		const activeFile = this.app.workspace.getActiveFile();
+		if (!activeFile) {
+			new Notice('No file open. Open a chess game note to analyze.');
+			return;
+		}
+
+		// Read file content
+		const content = await this.app.vault.read(activeFile);
+		
+		// Extract PGN from chess-pgn code block
+		const pgnMatch = content.match(/```chess-pgn\n([\s\S]*?)\n```/);
+		if (!pgnMatch) {
+			new Notice('No chess game found in current file. Ensure the file contains a ```chess-pgn``` code block.');
+			return;
+		}
+
+		const pgn = pgnMatch[1];
+		const hash = await shortHash(normalizePgnInput(pgn));
+
+		await this.analyzeGameAsync(pgn, hash);
 	}
 
 }
