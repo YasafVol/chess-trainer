@@ -29,3 +29,4 @@ The service will start on `http://localhost:9898` and automatically find Stockfi
 
 See `stockfish-service/README.md` for full documentation.
 
+

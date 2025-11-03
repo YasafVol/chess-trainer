@@ -202,3 +202,4 @@ STOCKFISH_PATH=/path/to/stockfish npm start
 
 MIT
 
+

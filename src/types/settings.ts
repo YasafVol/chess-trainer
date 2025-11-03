@@ -19,3 +19,4 @@ export const DEFAULT_SETTINGS: ChessTrainerSettings = {
 	defaultMovetimeMs: 0,
 };
 
+
