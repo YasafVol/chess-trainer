@@ -5,6 +5,21 @@
 import { App, PluginSettingTab, Setting, Plugin } from 'obsidian';
 import { ChessTrainerSettings } from '../types/settings';
 
+const BOARD_SIZE_OPTIONS: Array<{ value: string; label: string }> = [
+	{ value: 'auto', label: 'Fit note width (auto)' },
+	{ value: '540', label: '540 px (compact)' },
+	{ value: '600', label: '600 px' },
+	{ value: '660', label: '660 px' },
+	{ value: '720', label: '720 px' },
+	{ value: '780', label: '780 px' },
+	{ value: '840', label: '840 px' },
+	{ value: '900', label: '900 px' },
+	{ value: '960', label: '960 px' },
+	{ value: '1020', label: '1020 px' },
+	{ value: '1080', label: '1080 px (XL)' },
+	{ value: '1200', label: '1200 px (max)' },
+];
+
 export class ChessTrainerSettingsTab extends PluginSettingTab {
 	plugin: Plugin & { settings: ChessTrainerSettings; saveSettings: () => Promise<void> };
 
@@ -20,8 +35,8 @@ export class ChessTrainerSettingsTab extends PluginSettingTab {
 
 		containerEl.createEl('h2', { text: 'Chess Trainer Settings' });
 
-		// Analysis Settings Section
-		containerEl.createEl('h3', { text: 'Analysis Settings' });
+		// Analysis settings section
+		containerEl.createEl('h3', { text: 'Analysis settings' });
 
 		new Setting(containerEl)
 			.setName('Enable analysis')
@@ -92,8 +107,35 @@ export class ChessTrainerSettingsTab extends PluginSettingTab {
 					});
 			});
 
+		// Board display section
+		containerEl.createEl('h3', { text: 'Board display' });
+
+		new Setting(containerEl)
+			.setName('Board size')
+			.setDesc('Set the width and height of the rendered board in pixels')
+			.addDropdown((dropdown: any) => {
+				BOARD_SIZE_OPTIONS.forEach((option) => {
+					dropdown.addOption(option.value, option.label);
+				});
+				const currentValue = this.plugin.settings.boardSizePx && this.plugin.settings.boardSizePx > 0
+					? this.plugin.settings.boardSizePx.toString()
+					: 'auto';
+				dropdown.setValue(currentValue);
+				dropdown.onChange(async (value: string) => {
+					if (value === 'auto') {
+						this.plugin.settings.boardSizePx = 0;
+					} else {
+						const parsedValue = parseInt(value, 10);
+						if (!Number.isNaN(parsedValue) && parsedValue > 0) {
+							this.plugin.settings.boardSizePx = parsedValue;
+						}
+					}
+					await this.plugin.saveSettings();
+				});
+			});
+
 		// Instructions
-		containerEl.createEl('h3', { text: 'Setup Instructions' });
+		containerEl.createEl('h3', { text: 'Setup instructions' });
 		const instructionsEl = containerEl.createEl('div');
 		instructionsEl.innerHTML = `
 			<p>To use game analysis, you need to run the Stockfish companion service:</p>
@@ -107,4 +149,3 @@ export class ChessTrainerSettingsTab extends PluginSettingTab {
 		`;
 	}
 }
-

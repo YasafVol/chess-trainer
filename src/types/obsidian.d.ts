@@ -83,6 +83,7 @@ declare module 'obsidian' {
 		addText(callback: (component: any) => void): Setting;
 		addToggle(callback: (component: any) => void): Setting;
 		addSlider(callback: (component: any) => void): Setting;
+		addDropdown(callback: (component: any) => void): Setting;
 		addButton(callback: (component: any) => void): Setting;
 	}
 

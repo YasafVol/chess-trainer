@@ -42,7 +42,7 @@ export default class ChessTrainer extends Plugin {
 	analysisClient: AnalysisClient | null = null;
 
 	async onload(): Promise<void> {
-		const version = '0.2.1';
+		const version = '0.2.4';
 		console.log(`[Chess Trainer] Loading plugin version ${version}`);
 		logInfo(`Loading Chess Trainer plugin v${version}`);
 
@@ -293,17 +293,27 @@ export default class ChessTrainer extends Plugin {
 			// Create container
 			const container = document.createElement('div');
 			container.className = 'chess-pgn-viewer';
-			container.style.cssText = 'position: relative;';
+			container.style.cssText = 'position: relative; width: 100%;';
 			el.appendChild(container);
 
 			// Create board element
+			const boardSizeSetting = this.settings?.boardSizePx ?? DEFAULT_SETTINGS.boardSizePx;
 			const boardEl = document.createElement('chess-board') as any;
 			boardEl.setAttribute('show-notation', 'true');
-			boardEl.style.width = '720px';
-			boardEl.style.maxWidth = '100%';
-			boardEl.style.height = '720px';
-			boardEl.style.minWidth = '300px';
+			if (boardSizeSetting && boardSizeSetting > 0) {
+				boardEl.style.width = `${boardSizeSetting}px`;
+				boardEl.style.height = `${boardSizeSetting}px`;
+				boardEl.style.maxWidth = '100%';
+				boardEl.style.maxHeight = '100%';
+			} else {
+				boardEl.style.width = '100%';
+				boardEl.style.height = 'auto';
+				boardEl.style.maxWidth = '100%';
+				boardEl.style.maxHeight = '100%';
+			}
 			boardEl.style.aspectRatio = '1 / 1';
+			boardEl.style.display = 'block';
+			boardEl.style.margin = '0 auto';
 			container.appendChild(boardEl);
 
 			// Create controls container
@@ -346,7 +356,7 @@ export default class ChessTrainer extends Plugin {
 			movesEl.className = 'chess-moves';
 			movesEl.setAttribute('role', 'region');
 			movesEl.setAttribute('aria-label', 'Game moves');
-			movesEl.style.cssText = 'margin-top: 10px; font-family: monospace; line-height: 1.4; max-height: 200px; overflow-y: auto;';
+			movesEl.style.cssText = 'margin-top: 10px; font-family: monospace; line-height: 1.4; width: 100%; overflow-y: auto;';
 			container.appendChild(movesEl);
 
 			// State
@@ -443,6 +453,19 @@ export default class ChessTrainer extends Plugin {
 
 			buildMovesList();
 
+			const ensureMoveVisible = (target: HTMLSpanElement) => {
+				const parent = movesEl;
+				const top = target.offsetTop;
+				const bottom = top + target.offsetHeight;
+				const viewTop = parent.scrollTop;
+				const viewBottom = viewTop + parent.clientHeight;
+				if (top < viewTop) {
+					parent.scrollTop = top;
+				} else if (bottom > viewBottom) {
+					parent.scrollTop = bottom - parent.clientHeight;
+				}
+			};
+
 			// Render functions
 			const render = () => {
 				// Set board position using precomputed FEN
@@ -457,15 +480,19 @@ export default class ChessTrainer extends Plugin {
 				}
 
 				// Update moves list highlighting
+				let currentMoveElement: HTMLSpanElement | null = null;
 				moveElements.forEach((moveEl, index) => {
 					if (!moveEl) return;
 					if (index === currentPly - 1) {
 						moveEl.classList.add('current');
-						moveEl.scrollIntoView({ block: 'nearest' });
+						currentMoveElement = moveEl;
 					} else {
 						moveEl.classList.remove('current');
 					}
 				});
+				if (currentMoveElement) {
+					ensureMoveVisible(currentMoveElement);
+				}
 				
 				// Announce current move for screen readers
 				if (currentPly > 0 && currentPly <= history.length) {
@@ -497,6 +524,7 @@ export default class ChessTrainer extends Plugin {
 					autoplayTimer = null;
 				}
 				if (playBtn) playBtn.textContent = '▶';
+				movesEl.scrollTop = 0;
 				render();
 			};
 

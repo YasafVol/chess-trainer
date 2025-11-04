@@ -9,6 +9,7 @@ export interface ChessTrainerSettings {
 	defaultDepth: number;
 	defaultMultiPV: number;
 	defaultMovetimeMs: number;
+	boardSizePx: number; // 0 = auto-fit to container width
 }
 
 export const DEFAULT_SETTINGS: ChessTrainerSettings = {
@@ -17,6 +18,7 @@ export const DEFAULT_SETTINGS: ChessTrainerSettings = {
 	defaultDepth: 14,
 	defaultMultiPV: 1,
 	defaultMovetimeMs: 0,
+	boardSizePx: 0,
 };
 
 
