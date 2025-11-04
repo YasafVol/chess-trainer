@@ -76,6 +76,66 @@
 	word-wrap: break-word;
 }
 
+.chess-moves .move-number {
+	color: var(--text-muted);
+	margin-right: 2px;
+}
+
+.chess-moves .chess-move {
+	display: inline-block;
+	margin-right: 6px;
+	padding: 2px 4px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.chess-moves .chess-move:hover {
+	background-color: var(--background-secondary-alt);
+}
+
+.chess-moves .chess-move.current {
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	font-weight: 600;
+}
+
+.chess-moves .chess-move .move-annotation-symbol {
+	font-weight: 700;
+}
+
+
+.chess-moves .chess-move.quality-blunder {
+	color: var(--color-red, #ff4d4d);
+	font-weight: 700;
+}
+
+.chess-moves .chess-move.quality-mistake {
+	color: var(--color-orange, #ffaa33);
+	font-weight: 600;
+}
+
+.chess-moves .chess-move.quality-inaccuracy {
+	color: var(--text-muted);
+}
+
+.analysis-summary {
+	margin-bottom: 8px;
+	font-size: 0.9em;
+	color: var(--text-muted);
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.analysis-summary span strong {
+	color: var(--text-normal);
+}
+
+.analysis-summary.missing {
+	font-style: italic;
+}
+
 /* Responsive design for mobile */
 @media (max-width: 768px) {
 	.chess-pgn-viewer chess-board {

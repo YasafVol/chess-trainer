@@ -18,6 +18,7 @@ declare module 'obsidian' {
 
 	export interface Workspace {
 		getActiveViewOfType<T>(type: any): T | null;
+		getActiveFile(): TFile | null;
 	}
 
 	export interface TFile {
@@ -32,9 +33,12 @@ declare module 'obsidian' {
 		app: App;
 		addRibbonIcon(icon: string, title: string, callback: (evt: MouseEvent) => void): HTMLElement;
 		addCommand(command: Command): void;
+		addSettingTab(tab: PluginSettingTab): void;
 		registerMarkdownCodeBlockProcessor(language: string, handler: (source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => void): void;
 		registerDomEvent(element: HTMLElement, event: string, callback: (evt: Event) => void): void;
 		registerInterval(id: number): void;
+		loadData(): Promise<any>;
+		saveData(data: any): Promise<void>;
 		onload(): Promise<void>;
 		onunload(): void;
 		constructor(app: App);
@@ -64,8 +68,21 @@ declare module 'obsidian' {
 		onClose(): void;
 	}
 
-	export interface Setting {
+	export class PluginSettingTab {
+		app: App;
+		plugin: Plugin;
+		containerEl: HTMLElement;
+		constructor(app: App, plugin: Plugin);
+		display(): void;
+	}
+
+	export class Setting {
+		constructor(containerEl: HTMLElement);
+		setName(name: string): Setting;
+		setDesc(desc: string): Setting;
 		addText(callback: (component: any) => void): Setting;
+		addToggle(callback: (component: any) => void): Setting;
+		addSlider(callback: (component: any) => void): Setting;
 		addButton(callback: (component: any) => void): Setting;
 	}
 

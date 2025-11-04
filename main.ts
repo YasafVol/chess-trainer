@@ -12,7 +12,12 @@ import { validatePgn, extractHeaders } from './src/services/pgnValidator';
 import { upsert } from './src/adapters/NoteRepo';
 import { lookupOpeningFromECO } from './src/util/eco';
 import { normalizePgnInput } from './src/util/pgn';
-import { testStockfishEngine } from './src/services/engine/testStockfish';
+import { ChessTrainerSettings, DEFAULT_SETTINGS } from './src/types/settings';
+import { ChessTrainerSettingsTab } from './src/ui/SettingsTab';
+import { RemoteServiceAnalysisClient } from './src/services/analysis/RemoteServiceAnalysisClient';
+import { AnalysisClient } from './src/services/analysis/AnalysisClient';
+import { saveAnnotations, loadAnnotations } from './src/services/analysis/AnnotationStorage';
+import { MoveQuality, MoveAnalysis, GameAnalysis } from './src/types/analysis';
 
 // Import chess.js for PGN parsing
 // @ts-ignore - Bundled dependency
@@ -33,8 +38,30 @@ async function ensureChessBoardElement() {
 }
 
 export default class ChessTrainer extends Plugin {
+	settings: ChessTrainerSettings;
+	analysisClient: AnalysisClient | null = null;
+
 	async onload(): Promise<void> {
-		logInfo('Loading Chess Trainer plugin v0.2.0');
+		const version = '0.2.1';
+		console.log(`[Chess Trainer] Loading plugin version ${version}`);
+		logInfo(`Loading Chess Trainer plugin v${version}`);
+
+		// Load settings
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+
+		// Initialize analysis client if enabled
+		if (this.settings.analysisEnabled) {
+			this.analysisClient = new RemoteServiceAnalysisClient(this.settings.serviceUrl);
+		}
+
+		// Add settings tab
+		try {
+			const settingsTab = new ChessTrainerSettingsTab(this.app, this);
+			this.addSettingTab(settingsTab);
+			logInfo('Settings tab registered');
+		} catch (error) {
+			logError('Failed to register settings tab', error);
+		}
 
 		await ensureChessBoardElement();
 
@@ -58,26 +85,18 @@ export default class ChessTrainer extends Plugin {
 			]
 		});
 
-		// Add test command for Stockfish engine (development only)
+		// Add command for manual game analysis
 		this.addCommand({
-			id: 'chess-test-stockfish',
-			name: 'Test Stockfish Engine',
+			id: 'chess-analyze-game',
+			name: 'Analyze current game',
 			callback: async () => {
-				new Notice('🧪 Testing Stockfish engine... Check console for results');
-				try {
-					await testStockfishEngine();
-					new Notice('✅ Stockfish engine test completed! Check console for details.');
-				} catch (error) {
-					const errorMessage = error instanceof Error ? error.message : String(error);
-					logError('Stockfish test failed', error);
-					new Notice(`❌ Stockfish test failed: ${errorMessage}`);
-				}
+				await this.analyzeCurrentGame();
 			}
 		});
 
 		// Register markdown processor for chess-pgn code blocks
 		this.registerMarkdownCodeBlockProcessor('chess-pgn', async (source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-			const cleanup = await this.renderChessBoard(source, el);
+			const cleanup = await this.renderChessBoard(source, el, ctx);
 			if (typeof cleanup === 'function' && typeof ctx.addCleanup === 'function') {
 				ctx.addCleanup(cleanup);
 			}
@@ -141,6 +160,13 @@ export default class ChessTrainer extends Plugin {
 			if (result.created) {
 				logInfo(`Created new chess note: ${result.path}`);
 				new Notice(`✅ Created chess note: ${filename}`);
+				
+				// Trigger analysis if enabled
+				if (this.settings.analysisEnabled && this.analysisClient) {
+					this.analyzeGameAsync(normalizedPgn, hash).catch((error) => {
+						logError('Failed to analyze game', error);
+					});
+				}
 			} else {
 				logInfo(`Updated existing chess note: ${result.path}`);
 				new Notice(`📝 Updated chess note: ${filename}`);
@@ -216,7 +242,7 @@ export default class ChessTrainer extends Plugin {
 	/**
 	 * Render chess board for PGN code block
 	 */
-	private async renderChessBoard(pgn: string, el: HTMLElement): Promise<(() => void) | undefined> {
+	private async renderChessBoard(pgn: string, el: HTMLElement, ctx?: MarkdownPostProcessorContext): Promise<(() => void) | undefined> {
 		try {
 			logDebug(`Rendering chess board for PGN (${pgn.length} characters)`);
 
@@ -232,6 +258,19 @@ export default class ChessTrainer extends Plugin {
 
 			const history = game.history({ verbose: true });
 			const totalPlies = history.length;
+
+			// Attempt to load annotations for this game
+			const frontmatterHash = (ctx as any)?.frontmatter?.hash ?? (ctx as any)?.frontmatter?.gameHash;
+			let analysis: GameAnalysis | null = null;
+			const annotationsByPly = new Map<number, MoveAnalysis>();
+			if (typeof frontmatterHash === 'string' && frontmatterHash.length > 0) {
+				analysis = await loadAnnotations(this.app.vault, frontmatterHash);
+				if (analysis?.moves) {
+					for (const move of analysis.moves) {
+						annotationsByPly.set(move.ply, move);
+					}
+				}
+			}
 
 			// Guard against very long games
 			if (totalPlies > 500) {
@@ -275,6 +314,24 @@ export default class ChessTrainer extends Plugin {
 			controlsEl.style.cssText = 'margin: 10px 0; display: flex; gap: 5px; flex-wrap: wrap;';
 			container.appendChild(controlsEl);
 
+			// Analysis summary (if available)
+			let analysisSummaryEl: HTMLDivElement | null = null;
+			if (analysis) {
+				analysisSummaryEl = document.createElement('div');
+				analysisSummaryEl.className = 'analysis-summary';
+				analysisSummaryEl.innerHTML = `
+					<span title="Engine depth">Depth <strong>${analysis.depth}</strong></span>
+					<span title="Accuracy">Accuracy <strong>${analysis.statistics.accuracy.toFixed(1)}%</strong></span>
+					<span title="Analysis duration">Time <strong>${(analysis.analysisTime / 1000).toFixed(1)}s</strong></span>
+				`;
+				container.appendChild(analysisSummaryEl);
+			} else if (frontmatterHash) {
+				analysisSummaryEl = document.createElement('div');
+				analysisSummaryEl.className = 'analysis-summary missing';
+				analysisSummaryEl.textContent = 'Analysis data not found for this game.';
+				container.appendChild(analysisSummaryEl);
+			}
+
 			// Create aria-live region for current move announcements
 			const liveRegion = document.createElement('div');
 			liveRegion.setAttribute('role', 'status');
@@ -298,6 +355,93 @@ export default class ChessTrainer extends Plugin {
 			let isPlaying = false;
 			let flipped = false;
 			const autoplayAllowed = totalPlies <= 500;
+			let playBtn: HTMLButtonElement | null = null;
+
+			const QUALITY_SYMBOLS: Record<MoveQuality, string> = {
+				[MoveQuality.BEST]: '✓',
+				[MoveQuality.EXCELLENT]: '!!',
+				[MoveQuality.GOOD]: '!',
+				[MoveQuality.INACCURACY]: '?!',
+				[MoveQuality.MISTAKE]: '?',
+				[MoveQuality.BLUNDER]: '??'
+			};
+
+			const QUALITY_LABELS: Record<MoveQuality, string> = {
+				[MoveQuality.BEST]: 'Best move',
+				[MoveQuality.EXCELLENT]: 'Excellent move',
+				[MoveQuality.GOOD]: 'Good move',
+				[MoveQuality.INACCURACY]: 'Inaccuracy',
+				[MoveQuality.MISTAKE]: 'Mistake',
+				[MoveQuality.BLUNDER]: 'Blunder'
+			};
+
+			const moveElements: Array<HTMLSpanElement | undefined> = [];
+
+			const buildAnnotationTooltip = (annotation: MoveAnalysis): string => {
+				const parts = [QUALITY_LABELS[annotation.quality]];
+				if (annotation.bestMove) {
+					parts.push(`Best: ${annotation.bestMove}`);
+				}
+				parts.push(`Δ ${annotation.evaluationDiff} cp`);
+				return parts.join(' • ');
+			};
+
+			const buildMovesList = () => {
+				movesEl.textContent = '';
+				const fragment = document.createDocumentFragment();
+
+				history.forEach((move: any, index: number) => {
+					const moveNumber = Math.floor(index / 2) + 1;
+					const isWhiteMove = index % 2 === 0;
+
+					if (isWhiteMove) {
+						const numberSpan = document.createElement('span');
+						numberSpan.className = 'move-number';
+						numberSpan.textContent = `${moveNumber}. `;
+						fragment.appendChild(numberSpan);
+					}
+
+					const moveSpan = document.createElement('span');
+					moveSpan.className = 'chess-move';
+					moveSpan.textContent = move.san;
+					moveSpan.dataset.ply = String(index);
+
+					const annotation = annotationsByPly.get(index);
+					if (annotation) {
+						moveSpan.classList.add('has-annotation', `quality-${annotation.quality}`);
+						const symbol = QUALITY_SYMBOLS[annotation.quality];
+						if (symbol) {
+							const symbolSpan = document.createElement('span');
+							symbolSpan.className = 'move-annotation-symbol';
+							symbolSpan.textContent = symbol;
+							moveSpan.appendChild(document.createTextNode(' '));
+							moveSpan.appendChild(symbolSpan);
+						}
+						moveSpan.setAttribute('title', buildAnnotationTooltip(annotation));
+					}
+
+					moveSpan.addEventListener('click', () => {
+						currentPly = index + 1;
+						isPlaying = false;
+						if (autoplayTimer) {
+							clearInterval(autoplayTimer);
+							autoplayTimer = null;
+						}
+						if (playBtn) {
+							playBtn.textContent = '▶';
+						}
+						render();
+					});
+
+					moveElements[index] = moveSpan;
+					fragment.appendChild(moveSpan);
+					fragment.appendChild(document.createTextNode(' '));
+				});
+
+				movesEl.appendChild(fragment);
+			};
+
+			buildMovesList();
 
 			// Render functions
 			const render = () => {
@@ -312,19 +456,16 @@ export default class ChessTrainer extends Plugin {
 					boardEl.removeAttribute('orientation');
 				}
 
-				// Update moves list with current move highlighting
-				const movesText = history.map((move: any, index: number) => {
-					const moveNumber = Math.floor(index / 2) + 1;
-					const isWhite = index % 2 === 0;
-					
+				// Update moves list highlighting
+				moveElements.forEach((moveEl, index) => {
+					if (!moveEl) return;
 					if (index === currentPly - 1) {
-						return `[${move.san}]`;
+						moveEl.classList.add('current');
+						moveEl.scrollIntoView({ block: 'nearest' });
+					} else {
+						moveEl.classList.remove('current');
 					}
-					
-					return isWhite ? `${moveNumber}. ${move.san}` : `${move.san}`;
-				}).join(' ');
-				
-				movesEl.textContent = movesText;
+				});
 				
 				// Announce current move for screen readers
 				if (currentPly > 0 && currentPly <= history.length) {
@@ -396,11 +537,11 @@ export default class ChessTrainer extends Plugin {
 			};
 
 			// Control buttons
-			const prevBtn = this.createButton(controlsEl, '‹', 'Previous move', () => navigateMove(-1));
-			const nextBtn = this.createButton(controlsEl, '›', 'Next move', () => navigateMove(1));
-			const resetBtn = this.createButton(controlsEl, '↺', 'Reset to start', resetPosition);
-			const playBtn = this.createButton(controlsEl, '▶', autoplayAllowed ? 'Play/Pause' : 'Autoplay disabled (too many moves)', toggleAutoplay);
-			const flipBtn = this.createButton(controlsEl, '⇅', 'Flip board', flipBoard);
+			this.createButton(controlsEl, '‹', 'Previous move', () => navigateMove(-1));
+			this.createButton(controlsEl, '›', 'Next move', () => navigateMove(1));
+			this.createButton(controlsEl, '↺', 'Reset to start', resetPosition);
+			playBtn = this.createButton(controlsEl, '▶', autoplayAllowed ? 'Play/Pause' : 'Autoplay disabled (too many moves)', toggleAutoplay);
+			this.createButton(controlsEl, '⇅', 'Flip board', flipBoard);
 
 			// Add ARIA label to board element
 			boardEl.setAttribute('aria-label', 'Chess board');
@@ -444,6 +585,104 @@ export default class ChessTrainer extends Plugin {
 		button.addEventListener('click', onClick);
 		container.appendChild(button);
 		return button;
+	}
+
+	/**
+	 * Save settings
+	 */
+	async saveSettings(): Promise<void> {
+		await this.saveData(this.settings);
+		
+		// Update analysis client if URL changed
+		if (this.settings.analysisEnabled) {
+			this.analysisClient = new RemoteServiceAnalysisClient(this.settings.serviceUrl);
+		} else {
+			this.analysisClient = null;
+		}
+	}
+
+	/**
+	 * Analyze game asynchronously (background)
+	 */
+	private async analyzeGameAsync(pgn: string, gameHash: string): Promise<void> {
+		if (!this.analysisClient) {
+			return;
+		}
+
+		try {
+			// Check if service is available
+			const isAvailable = await this.analysisClient.ping();
+			if (!isAvailable) {
+				new Notice('Stockfish companion service not reachable. Start the service or update the URL in settings.');
+				return;
+			}
+
+			new Notice('Analyzing game with Stockfish...');
+
+			// Parse PGN to get moves
+			const normalizedPgn = normalizePgnInput(pgn);
+			const game = new Chess();
+			game.loadPgn(normalizedPgn, { strict: false });
+			const history = game.history({ verbose: true });
+			
+			// Convert to UCI moves
+			const uciMoves = history.map((move: any) => {
+				const from = move.from;
+				const to = move.to;
+				const promotion = move.promotion || '';
+				return from + to + promotion;
+			});
+
+			// Perform analysis
+			const analysis = await this.analysisClient.analyzeGame(
+				'startpos',
+				uciMoves,
+				{
+					depth: this.settings.defaultDepth,
+					multiPV: this.settings.defaultMultiPV,
+					movetimeMs: this.settings.defaultMovetimeMs,
+				}
+			);
+
+			// Set game hash
+			analysis.gameHash = gameHash;
+
+			// Save annotations
+			await saveAnnotations(this.app.vault, gameHash, analysis);
+
+			new Notice(`✅ Game analysis complete! Analyzed ${analysis.moves.length} moves.`);
+			logInfo(`Analysis complete for game ${gameHash}: ${analysis.statistics.accuracy.toFixed(1)}% accuracy`);
+		} catch (error) {
+			logError('Game analysis failed', error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			new Notice(`❌ Analysis failed: ${errorMessage}`);
+		}
+	}
+
+	/**
+	 * Analyze current game (manual command)
+	 */
+	private async analyzeCurrentGame(): Promise<void> {
+		const activeFile = this.app.workspace.getActiveFile();
+		if (!activeFile) {
+			new Notice('No file open. Open a chess game note to analyze.');
+			return;
+		}
+
+		// Read file content
+		const content = await this.app.vault.read(activeFile);
+		
+		// Extract PGN from chess-pgn code block
+		const pgnMatch = content.match(/```chess-pgn\n([\s\S]*?)\n```/);
+		if (!pgnMatch) {
+			new Notice('No chess game found in current file. Ensure the file contains a ```chess-pgn``` code block.');
+			return;
+		}
+
+		const pgn = pgnMatch[1];
+		const hash = await shortHash(normalizePgnInput(pgn));
+
+		await this.analyzeGameAsync(pgn, hash);
 	}
 
 }

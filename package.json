@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-chess-trainer",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Import PGN chess games and create interactive notes with playable boards and move analysis.",
 	"main": "main.js",
 	"scripts": {
@@ -29,8 +29,5 @@
 		"obsidian": "latest",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
-	},
-	"dependencies": {
-		"stockfish.js": "^10.0.2"
 	}
 }

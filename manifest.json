@@ -1,7 +1,7 @@
 {
 	"id": "chess-trainer",
 	"name": "Chess Trainer",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"minAppVersion": "0.15.0",
 	"description": "Import PGN chess games and create interactive notes with playable boards and move analysis.",
 	"author": "Chess Trainer Team",
