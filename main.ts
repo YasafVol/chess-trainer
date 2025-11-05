@@ -260,14 +260,27 @@ export default class ChessTrainer extends Plugin {
 			const totalPlies = history.length;
 
 			// Attempt to load annotations for this game
-			const frontmatterHash = (ctx as any)?.frontmatter?.hash ?? (ctx as any)?.frontmatter?.gameHash;
+			const frontmatter = (ctx as any)?.frontmatter ?? {};
+			let gameHash: string | undefined = typeof frontmatter?.hash === 'string' ? frontmatter.hash : undefined;
+			if (!gameHash && typeof frontmatter?.gameHash === 'string') {
+				gameHash = frontmatter.gameHash;
+			}
+			if (!gameHash) {
+				try {
+					gameHash = await shortHash(normalizedPgn);
+				} catch (hashError) {
+					logError('Failed to compute game hash for annotations', hashError);
+				}
+			}
 			let analysis: GameAnalysis | null = null;
 			const annotationsByPly = new Map<number, MoveAnalysis>();
-			if (typeof frontmatterHash === 'string' && frontmatterHash.length > 0) {
-				analysis = await loadAnnotations(this.app.vault, frontmatterHash);
+			if (gameHash) {
+				analysis = await loadAnnotations(this.app.vault, gameHash);
 				if (analysis?.moves) {
 					for (const move of analysis.moves) {
-						annotationsByPly.set(move.ply, move);
+						if (typeof move?.ply === 'number' && move.playedMove) {
+							annotationsByPly.set(move.ply, move);
+						}
 					}
 				}
 			}
@@ -335,7 +348,7 @@ export default class ChessTrainer extends Plugin {
 					<span title="Analysis duration">Time <strong>${(analysis.analysisTime / 1000).toFixed(1)}s</strong></span>
 				`;
 				container.appendChild(analysisSummaryEl);
-			} else if (frontmatterHash) {
+			} else if (gameHash) {
 				analysisSummaryEl = document.createElement('div');
 				analysisSummaryEl.className = 'analysis-summary missing';
 				analysisSummaryEl.textContent = 'Analysis data not found for this game.';
