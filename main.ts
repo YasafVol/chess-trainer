@@ -614,7 +614,7 @@ export default class ChessTrainer extends Plugin {
 					isPlaying = true;
 					if (playBtn) playBtn.textContent = '⏸';
 					autoplayTimer = window.setInterval(() => {
-						if (currentPly >= totalPlies - 1) {
+						if (currentPly >= totalPlies) {
 							toggleAutoplay(); // Stop at end
 						} else {
 							navigateMove(1);
@@ -632,8 +632,8 @@ export default class ChessTrainer extends Plugin {
 			};
 
 			// Control buttons
-			this.createButton(controlsEl, '‹', 'Previous move', () => navigateMove(-1));
-			this.createButton(controlsEl, '›', 'Next move', () => navigateMove(1));
+			this.createButton(controlsEl, '←', 'Previous move', () => navigateMove(-1));
+			this.createButton(controlsEl, '→', 'Next move', () => navigateMove(1));
 			this.createButton(controlsEl, '↺', 'Reset to start', resetPosition);
 			playBtn = this.createButton(controlsEl, '▶', autoplayAllowed ? 'Play/Pause' : 'Autoplay disabled (too many moves)', toggleAutoplay);
 			this.createButton(controlsEl, '⇅', 'Flip board', flipBoard);
@@ -673,10 +673,22 @@ export default class ChessTrainer extends Plugin {
 	 */
 	private createButton(container: HTMLElement, text: string, title: string, onClick: () => void): HTMLButtonElement {
 		const button = document.createElement('button');
-		button.textContent = text;
-		// Use aria-label instead of title to avoid duplicate tooltips
-		// aria-label provides both accessibility and tooltip functionality
+		button.type = 'button';
+		button.classList.add('chess-control-button');
 		button.setAttribute('aria-label', title);
+		button.setAttribute('title', title);
+
+		const iconSpan = document.createElement('span');
+		iconSpan.className = 'chess-control-icon';
+		iconSpan.setAttribute('aria-hidden', 'true');
+		iconSpan.textContent = text;
+		button.appendChild(iconSpan);
+
+		const srLabel = document.createElement('span');
+		srLabel.className = 'sr-only';
+		srLabel.textContent = title;
+		button.appendChild(srLabel);
+
 		button.addEventListener('click', onClick);
 		container.appendChild(button);
 		return button;
