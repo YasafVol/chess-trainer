@@ -2,6 +2,60 @@
 .chess-pgn-viewer {
 	width: 100%;
 	position: relative;
+	/* Notation color palette (light theme defaults) */
+	--ct-notation-best-fg: #166534;
+	--ct-notation-best-bg: rgba(34, 197, 94, 0.18);
+	--ct-notation-best-border: rgba(22, 101, 52, 0.38);
+	--ct-notation-best-hover: rgba(34, 197, 94, 0.28);
+	--ct-notation-excellent-fg: #0f5e68;
+	--ct-notation-excellent-bg: rgba(45, 212, 191, 0.2);
+	--ct-notation-excellent-border: rgba(14, 116, 144, 0.35);
+	--ct-notation-excellent-hover: rgba(45, 212, 191, 0.32);
+	--ct-notation-good-fg: #1e3a8a;
+	--ct-notation-good-bg: rgba(129, 140, 248, 0.18);
+	--ct-notation-good-border: rgba(79, 70, 229, 0.35);
+	--ct-notation-good-hover: rgba(129, 140, 248, 0.28);
+	--ct-notation-inaccuracy-fg: #92400e;
+	--ct-notation-inaccuracy-bg: rgba(251, 191, 36, 0.18);
+	--ct-notation-inaccuracy-border: rgba(217, 119, 6, 0.35);
+	--ct-notation-inaccuracy-hover: rgba(251, 191, 36, 0.28);
+	--ct-notation-mistake-fg: #b45309;
+	--ct-notation-mistake-bg: rgba(249, 115, 22, 0.2);
+	--ct-notation-mistake-border: rgba(194, 65, 12, 0.35);
+	--ct-notation-mistake-hover: rgba(249, 115, 22, 0.3);
+	--ct-notation-blunder-fg: #b91c1c;
+	--ct-notation-blunder-bg: rgba(248, 113, 113, 0.22);
+	--ct-notation-blunder-border: rgba(185, 28, 28, 0.38);
+	--ct-notation-blunder-hover: rgba(248, 113, 113, 0.32);
+	--ct-notation-border-muted: rgba(15, 23, 42, 0.1);
+}
+
+body.theme-dark .chess-pgn-viewer {
+	--ct-notation-best-fg: #8df0b4;
+	--ct-notation-best-bg: rgba(21, 128, 61, 0.45);
+	--ct-notation-best-border: rgba(134, 239, 172, 0.5);
+	--ct-notation-best-hover: rgba(21, 128, 61, 0.65);
+	--ct-notation-excellent-fg: #7ce9e4;
+	--ct-notation-excellent-bg: rgba(13, 148, 136, 0.45);
+	--ct-notation-excellent-border: rgba(45, 212, 191, 0.52);
+	--ct-notation-excellent-hover: rgba(13, 148, 136, 0.7);
+	--ct-notation-good-fg: #a5b4fc;
+	--ct-notation-good-bg: rgba(67, 56, 202, 0.45);
+	--ct-notation-good-border: rgba(129, 140, 248, 0.55);
+	--ct-notation-good-hover: rgba(67, 56, 202, 0.7);
+	--ct-notation-inaccuracy-fg: #f2c97d;
+	--ct-notation-inaccuracy-bg: rgba(217, 119, 6, 0.5);
+	--ct-notation-inaccuracy-border: rgba(251, 191, 36, 0.6);
+	--ct-notation-inaccuracy-hover: rgba(217, 119, 6, 0.7);
+	--ct-notation-mistake-fg: #fdba74;
+	--ct-notation-mistake-bg: rgba(194, 65, 12, 0.52);
+	--ct-notation-mistake-border: rgba(249, 115, 22, 0.62);
+	--ct-notation-mistake-hover: rgba(194, 65, 12, 0.72);
+	--ct-notation-blunder-fg: #fca5a5;
+	--ct-notation-blunder-bg: rgba(185, 28, 28, 0.55);
+	--ct-notation-blunder-border: rgba(248, 113, 113, 0.65);
+	--ct-notation-blunder-hover: rgba(185, 28, 28, 0.75);
+	--ct-notation-border-muted: rgba(148, 163, 184, 0.25);
 }
 
 .chess-pgn-viewer chess-board {
@@ -77,23 +131,42 @@
 	margin-top: 10px;
 	font-family: monospace;
 	line-height: 1.4;
-	max-height: 280px;
+	max-height: 450px;
 	overflow-y: auto;
 	word-wrap: break-word;
 }
 
-.chess-moves .move-number {
+.chess-moves .move-turn-pair {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 2px;
+	gap: 4px;
+}
+
+.chess-moves .move-turn-pair .move-number {
 	color: var(--text-muted);
 	margin-right: 2px;
+	min-width: 3ch;
+	display: inline-block;
+	text-align: right;
+}
+
+.chess-moves .move-turn-pair .turn-row {
+	display: flex;
+	align-items: center;
 }
 
 .chess-moves .chess-move {
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
 	margin-right: 6px;
 	padding: 2px 4px;
 	border-radius: 4px;
+	border: 1px solid transparent;
+	box-sizing: border-box;
 	cursor: pointer;
-	transition: background-color 0.15s ease, color 0.15s ease;
+	transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .chess-moves .chess-move:hover {
@@ -104,25 +177,61 @@
 	background-color: var(--interactive-accent);
 	color: var(--text-on-accent);
 	font-weight: 600;
+	border-color: var(--interactive-accent);
+}
+
+.chess-moves .chess-move .move-notation {
+	display: inline-block;
+	min-width: 4.5em;
+	text-align: left;
 }
 
 .chess-moves .chess-move .move-annotation-symbol {
 	font-weight: 700;
+	margin-left: 4px;
+	padding: 1px 3px;
+	border-radius: 3px;
+	display: inline-block;
+	flex-shrink: 0;
+	min-width: 2em;
+	text-align: center;
 }
 
-
-.chess-moves .chess-move.quality-blunder {
-	color: var(--color-red, #ff4d4d);
-	font-weight: 700;
+/* Apply quality colors only to the annotation symbol */
+.chess-moves .chess-move.quality-best .move-annotation-symbol {
+	color: var(--ct-notation-best-fg);
+	background-color: var(--ct-notation-best-bg);
+	border: 1px solid var(--ct-notation-best-border);
 }
 
-.chess-moves .chess-move.quality-mistake {
-	color: var(--color-orange, #ffaa33);
-	font-weight: 600;
+.chess-moves .chess-move.quality-excellent .move-annotation-symbol {
+	color: var(--ct-notation-excellent-fg);
+	background-color: var(--ct-notation-excellent-bg);
+	border: 1px solid var(--ct-notation-excellent-border);
 }
 
-.chess-moves .chess-move.quality-inaccuracy {
-	color: var(--text-muted);
+.chess-moves .chess-move.quality-good .move-annotation-symbol {
+	color: var(--ct-notation-good-fg);
+	background-color: var(--ct-notation-good-bg);
+	border: 1px solid var(--ct-notation-good-border);
+}
+
+.chess-moves .chess-move.quality-inaccuracy .move-annotation-symbol {
+	color: var(--ct-notation-inaccuracy-fg);
+	background-color: var(--ct-notation-inaccuracy-bg);
+	border: 1px solid var(--ct-notation-inaccuracy-border);
+}
+
+.chess-moves .chess-move.quality-mistake .move-annotation-symbol {
+	color: var(--ct-notation-mistake-fg);
+	background-color: var(--ct-notation-mistake-bg);
+	border: 1px solid var(--ct-notation-mistake-border);
+}
+
+.chess-moves .chess-move.quality-blunder .move-annotation-symbol {
+	color: var(--ct-notation-blunder-fg);
+	background-color: var(--ct-notation-blunder-bg);
+	border: 1px solid var(--ct-notation-blunder-border);
 }
 
 .analysis-summary {
@@ -163,7 +272,7 @@
 	
 	.chess-moves {
 		font-size: 0.9em;
-		max-height: 150px;
+		max-height: 250px;
 	}
 }
 

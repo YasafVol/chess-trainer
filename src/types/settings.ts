@@ -10,6 +10,7 @@ export interface ChessTrainerSettings {
 	defaultMultiPV: number;
 	defaultMovetimeMs: number;
 	boardSizePx: number; // 0 = auto-fit to container width
+	moveWindowHeightPx: number; // Height of the move viewer window
 }
 
 export const DEFAULT_SETTINGS: ChessTrainerSettings = {
@@ -19,6 +20,7 @@ export const DEFAULT_SETTINGS: ChessTrainerSettings = {
 	defaultMultiPV: 1,
 	defaultMovetimeMs: 0,
 	boardSizePx: 0,
+	moveWindowHeightPx: 450,
 };
 
 

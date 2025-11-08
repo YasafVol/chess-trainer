@@ -20,6 +20,13 @@ const BOARD_SIZE_OPTIONS: Array<{ value: string; label: string }> = [
 	{ value: '1200', label: '1200 px (max)' },
 ];
 
+const MOVE_WINDOW_HEIGHT_OPTIONS: Array<{ value: string; label: string }> = [
+	{ value: '140', label: '140 px (compact)' },
+	{ value: '280', label: '280 px (medium)' },
+	{ value: '450', label: '450 px (large)' },
+	{ value: '600', label: '600 px (extra large)' },
+];
+
 export class ChessTrainerSettingsTab extends PluginSettingTab {
 	plugin: Plugin & { settings: ChessTrainerSettings; saveSettings: () => Promise<void> };
 
@@ -131,6 +138,24 @@ export class ChessTrainerSettingsTab extends PluginSettingTab {
 						}
 					}
 					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName('Move window height')
+			.setDesc('Set the height of the move viewer window in pixels')
+			.addDropdown((dropdown: any) => {
+				MOVE_WINDOW_HEIGHT_OPTIONS.forEach((option) => {
+					dropdown.addOption(option.value, option.label);
+				});
+				const currentValue = this.plugin.settings.moveWindowHeightPx.toString();
+				dropdown.setValue(currentValue);
+				dropdown.onChange(async (value: string) => {
+					const parsedValue = parseInt(value, 10);
+					if (!Number.isNaN(parsedValue) && parsedValue > 0) {
+						this.plugin.settings.moveWindowHeightPx = parsedValue;
+						await this.plugin.saveSettings();
+					}
 				});
 			});
 

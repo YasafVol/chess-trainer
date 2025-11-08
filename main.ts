@@ -42,7 +42,7 @@ export default class ChessTrainer extends Plugin {
 	analysisClient: AnalysisClient | null = null;
 
 	async onload(): Promise<void> {
-		const version = '0.2.4';
+		const version = '0.2.6';
 		console.log(`[Chess Trainer] Loading plugin version ${version}`);
 		logInfo(`Loading Chess Trainer plugin v${version}`);
 
@@ -369,7 +369,8 @@ export default class ChessTrainer extends Plugin {
 			movesEl.className = 'chess-moves';
 			movesEl.setAttribute('role', 'region');
 			movesEl.setAttribute('aria-label', 'Game moves');
-			movesEl.style.cssText = 'margin-top: 10px; font-family: monospace; line-height: 1.4; width: 100%; overflow-y: auto;';
+			const moveWindowHeight = this.settings?.moveWindowHeightPx ?? DEFAULT_SETTINGS.moveWindowHeightPx;
+			movesEl.style.cssText = `margin-top: 10px; font-family: monospace; line-height: 1.4; width: 100%; overflow-y: auto; max-height: ${moveWindowHeight}px;`;
 			container.appendChild(movesEl);
 
 			// State
@@ -413,38 +414,48 @@ export default class ChessTrainer extends Plugin {
 				movesEl.textContent = '';
 				const fragment = document.createDocumentFragment();
 
-				history.forEach((move: any, index: number) => {
-					const moveNumber = Math.floor(index / 2) + 1;
-					const isWhiteMove = index % 2 === 0;
+				// Group moves into turn pairs (white + black)
+				for (let i = 0; i < history.length; i += 2) {
+					const moveNumber = Math.floor(i / 2) + 1;
+					const whiteMove = history[i] as any;
+					const blackMove = history[i + 1] as any;
 
-					if (isWhiteMove) {
-						const numberSpan = document.createElement('span');
-						numberSpan.className = 'move-number';
-						numberSpan.textContent = `${moveNumber}. `;
-						fragment.appendChild(numberSpan);
-					}
+					// Create turn pair container (inline row)
+					const turnPairDiv = document.createElement('div');
+					turnPairDiv.className = 'move-turn-pair';
 
-					const moveSpan = document.createElement('span');
-					moveSpan.className = 'chess-move';
-					moveSpan.textContent = move.san;
-					moveSpan.dataset.ply = String(index);
+					// Move number
+					const numberSpan = document.createElement('span');
+					numberSpan.className = 'move-number';
+					numberSpan.textContent = `${moveNumber}. `;
+					turnPairDiv.appendChild(numberSpan);
 
-					const annotation = annotationsByPly.get(index);
-					if (annotation) {
-						moveSpan.classList.add('has-annotation', `quality-${annotation.quality}`);
-						const symbol = QUALITY_SYMBOLS[annotation.quality];
+					// White move
+					const whiteMoveSpan = document.createElement('span');
+					whiteMoveSpan.className = 'chess-move';
+					whiteMoveSpan.dataset.ply = String(i);
+
+					// Wrap move notation in fixed-width span
+					const whiteMoveNotation = document.createElement('span');
+					whiteMoveNotation.className = 'move-notation';
+					whiteMoveNotation.textContent = whiteMove.san;
+					whiteMoveSpan.appendChild(whiteMoveNotation);
+
+					const whiteAnnotation = annotationsByPly.get(i);
+					if (whiteAnnotation) {
+						whiteMoveSpan.classList.add('has-annotation', `quality-${whiteAnnotation.quality}`);
+						const symbol = QUALITY_SYMBOLS[whiteAnnotation.quality];
 						if (symbol) {
 							const symbolSpan = document.createElement('span');
 							symbolSpan.className = 'move-annotation-symbol';
 							symbolSpan.textContent = symbol;
-							moveSpan.appendChild(document.createTextNode(' '));
-							moveSpan.appendChild(symbolSpan);
+							whiteMoveSpan.appendChild(symbolSpan);
 						}
-						moveSpan.setAttribute('title', buildAnnotationTooltip(annotation));
+						whiteMoveSpan.setAttribute('title', buildAnnotationTooltip(whiteAnnotation));
 					}
 
-					moveSpan.addEventListener('click', () => {
-						currentPly = index + 1;
+					whiteMoveSpan.addEventListener('click', () => {
+						currentPly = i + 1;
 						isPlaying = false;
 						if (autoplayTimer) {
 							clearInterval(autoplayTimer);
@@ -456,10 +467,53 @@ export default class ChessTrainer extends Plugin {
 						render();
 					});
 
-					moveElements[index] = moveSpan;
-					fragment.appendChild(moveSpan);
-					fragment.appendChild(document.createTextNode(' '));
-				});
+					moveElements[i] = whiteMoveSpan;
+					turnPairDiv.appendChild(whiteMoveSpan);
+
+					// Black move (if exists)
+					if (blackMove) {
+						const blackMoveSpan = document.createElement('span');
+						blackMoveSpan.className = 'chess-move';
+						blackMoveSpan.dataset.ply = String(i + 1);
+
+						// Wrap move notation in fixed-width span
+						const blackMoveNotation = document.createElement('span');
+						blackMoveNotation.className = 'move-notation';
+						blackMoveNotation.textContent = blackMove.san;
+						blackMoveSpan.appendChild(blackMoveNotation);
+
+						const blackAnnotation = annotationsByPly.get(i + 1);
+						if (blackAnnotation) {
+							blackMoveSpan.classList.add('has-annotation', `quality-${blackAnnotation.quality}`);
+							const symbol = QUALITY_SYMBOLS[blackAnnotation.quality];
+							if (symbol) {
+								const symbolSpan = document.createElement('span');
+								symbolSpan.className = 'move-annotation-symbol';
+								symbolSpan.textContent = symbol;
+								blackMoveSpan.appendChild(symbolSpan);
+							}
+							blackMoveSpan.setAttribute('title', buildAnnotationTooltip(blackAnnotation));
+						}
+
+						blackMoveSpan.addEventListener('click', () => {
+							currentPly = i + 2;
+							isPlaying = false;
+							if (autoplayTimer) {
+								clearInterval(autoplayTimer);
+								autoplayTimer = null;
+							}
+							if (playBtn) {
+								playBtn.textContent = '▶';
+							}
+							render();
+						});
+
+						moveElements[i + 1] = blackMoveSpan;
+						turnPairDiv.appendChild(blackMoveSpan);
+					}
+
+					fragment.appendChild(turnPairDiv);
+				}
 
 				movesEl.appendChild(fragment);
 			};
