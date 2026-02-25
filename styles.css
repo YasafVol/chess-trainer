@@ -61,6 +61,69 @@ body.theme-dark .chess-pgn-viewer {
 .chess-pgn-viewer chess-board {
 	display: block;
 	margin: 0 auto;
+	cursor: default;
+}
+
+.chess-pgn-viewer chess-board::part(square) {
+	cursor: default;
+}
+
+.chess-pgn-viewer chess-board::part(piece) {
+	cursor: grab;
+}
+
+.chess-pgn-viewer chess-board::part(piece):active {
+	cursor: grabbing;
+}
+
+.ct-promotion-modal {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 240px;
+	align-items: stretch;
+}
+
+.ct-promotion-description {
+	margin: 0;
+	color: var(--text-muted);
+}
+
+.ct-promotion-options {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.ct-promotion-option {
+	padding: 10px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background-color: var(--background-secondary);
+	cursor: pointer;
+	font-weight: 600;
+	transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.ct-promotion-option:hover {
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.ct-promotion-cancel {
+	padding: 8px 12px;
+	border: none;
+	background: none;
+	color: var(--text-muted);
+	font-size: 0.9em;
+	cursor: pointer;
+	align-self: flex-end;
+}
+
+.ct-promotion-cancel:hover {
+	color: var(--text-normal);
+	text-decoration: underline;
 }
 .ct-submit-button {
 	padding: 10px 20px;
@@ -312,4 +375,59 @@ body.theme-dark .chess-pgn-viewer {
 	overflow: hidden;
 	clip: rect(0, 0, 0, 0);
 	border: 0;
+}
+
+/* Analysis Panel Styles */
+.analysis-panel {
+	font-size: 0.9em;
+}
+
+.analysis-panel h4 {
+	margin: 10px 0 5px 0;
+	font-size: 1em;
+	font-weight: 600;
+}
+
+.analysis-panel .analysis-evaluation {
+	margin-bottom: 15px;
+}
+
+.analysis-panel .eval-value {
+	font-size: 1.5em;
+	font-weight: bold;
+	font-family: monospace;
+}
+
+.analysis-panel .eval-value.mate {
+	color: var(--text-accent);
+}
+
+.analysis-panel .analysis-stats {
+	display: flex;
+	gap: 15px;
+	margin-bottom: 15px;
+	font-size: 0.9em;
+	color: var(--text-muted);
+}
+
+.analysis-panel .analysis-breakdown ul,
+.analysis-panel .analysis-variations ul {
+	margin: 5px 0;
+	padding-left: 20px;
+	list-style-type: disc;
+}
+
+.analysis-panel .analysis-breakdown li,
+.analysis-panel .analysis-variations li {
+	margin: 3px 0;
+	font-family: monospace;
+	font-size: 0.9em;
+}
+
+.analysis-panel .analysis-graph {
+	overflow-x: auto;
+}
+
+.analysis-panel .analysis-graph svg {
+	display: block;
 }

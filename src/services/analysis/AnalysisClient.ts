@@ -9,6 +9,9 @@ export interface AnalysisOptions {
 	depth?: number;
 	multiPV?: number;
 	movetimeMs?: number;
+	limitStrength?: boolean;
+	elo?: number;
+	skillLevel?: number;
 }
 
 export interface AnalysisClient {

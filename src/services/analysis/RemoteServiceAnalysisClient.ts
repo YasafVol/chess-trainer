@@ -7,6 +7,8 @@ import { Notice } from 'obsidian';
 import { AnalysisClient, AnalysisOptions } from './AnalysisClient';
 import { PositionEvaluation, GameAnalysis, MoveAnalysis, MoveQuality, AnalysisStatistics } from '../../types/analysis';
 import { logInfo, logError } from '../../util/logger';
+// @ts-ignore - Bundled dependency
+import { Chess } from '../../deps/chess.js.mjs';
 
 /**
  * Response type from companion service
@@ -17,6 +19,23 @@ interface ServiceAnalysisResponse {
 	evaluation: {
 		type: 'cp' | 'mate';
 		value: number;
+	};
+	evaluationType: 'cp' | 'mate';
+	mateIn?: number;
+	evaluationBreakdown?: {
+		material?: number;
+		imbalance?: number;
+		pawns?: number;
+		knights?: number;
+		bishops?: number;
+		rooks?: number;
+		queens?: number;
+		mobility?: number;
+		kingSafety?: number;
+		threats?: number;
+		passedPawns?: number;
+		space?: number;
+		total?: number;
 	};
 	lines: Array<{
 		pv: string[];
@@ -69,13 +88,24 @@ export class RemoteServiceAnalysisClient implements AnalysisClient {
 		moves?: string[],
 		options: AnalysisOptions = {}
 	): Promise<PositionEvaluation> {
-		const requestBody = {
+		const requestBody: any = {
 			fen,
 			moves: moves || [],
 			depth: options.depth || 14,
 			multiPV: options.multiPV || 1,
 			movetimeMs: options.movetimeMs || 0,
 		};
+
+		// Add engine strength options if provided
+		if (options.limitStrength !== undefined) {
+			requestBody.limitStrength = options.limitStrength;
+		}
+		if (options.elo !== undefined) {
+			requestBody.elo = options.elo;
+		}
+		if (options.skillLevel !== undefined) {
+			requestBody.skillLevel = options.skillLevel;
+		}
 
 		try {
 			const response = await fetch(`${this.baseUrl}/analyze`, {
@@ -98,7 +128,7 @@ export class RemoteServiceAnalysisClient implements AnalysisClient {
 			}
 
 			const data: ServiceAnalysisResponse = await response.json();
-			return this.convertToPositionEvaluation(data);
+			return this.convertToPositionEvaluation(data, fen, moves);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error);
 			logError('Analysis request failed', error);
@@ -139,6 +169,20 @@ export class RemoteServiceAnalysisClient implements AnalysisClient {
 				const evaluationDiff = Math.abs(evaluationAfter.evaluation - evaluationBefore.evaluation);
 				const quality = this.classifyMoveQuality(evaluationBefore.evaluation, evaluationAfter.evaluation, evaluationDiff);
 
+				// Get full PV lines from the service response
+				// Use fullPvLines if available, otherwise fall back to alternativeMoves
+				const alternativeLines = evaluationBefore.fullPvLines && evaluationBefore.fullPvLines.length > 0
+					? evaluationBefore.fullPvLines.map((pvLine) => ({
+						moves: pvLine.moves,
+						evaluation: pvLine.evaluation,
+					}))
+					: (evaluationBefore.alternativeMoves && evaluationBefore.alternativeMoves.length > 0
+						? evaluationBefore.alternativeMoves.map((alt) => ({
+							moves: [alt.move], // First move of PV line
+							evaluation: alt.evaluation,
+						}))
+						: undefined);
+
 				const moveAnalysis: MoveAnalysis = {
 					moveNumber: Math.floor(i / 2) + 1,
 					ply: i,
@@ -150,6 +194,7 @@ export class RemoteServiceAnalysisClient implements AnalysisClient {
 					quality,
 					evaluationDiff,
 					positionEvaluation: evaluationBefore,
+					alternativeLines,
 				};
 
 				moveAnalyses.push(moveAnalysis);
@@ -173,22 +218,126 @@ export class RemoteServiceAnalysisClient implements AnalysisClient {
 	}
 
 	/**
+	 * Convert UCI move notation to SAN
+	 */
+	private uciToSan(fen: string, moves: string[], uciMove: string): string {
+		try {
+			const tempGame = new Chess(fen);
+			for (const move of moves) {
+				tempGame.move(move);
+			}
+			const moveObj = tempGame.move({ from: uciMove.substring(0, 2), to: uciMove.substring(2, 4), promotion: uciMove.length > 4 ? uciMove[4] : undefined });
+			return moveObj ? moveObj.san : uciMove;
+		} catch (error) {
+			logError('Failed to convert UCI to SAN', error);
+			return uciMove;
+		}
+	}
+
+	/**
 	 * Convert service response to PositionEvaluation
 	 */
-	private convertToPositionEvaluation(data: ServiceAnalysisResponse): PositionEvaluation {
-		const evaluation = data.evaluation.type === 'cp' 
+	private convertToPositionEvaluation(data: ServiceAnalysisResponse, fen?: string, moves?: string[]): PositionEvaluation {
+		// Preserve mate scores - don't convert to ±10000
+		const evaluationType = data.evaluationType || data.evaluation.type;
+		const evaluation = evaluationType === 'cp' 
 			? data.evaluation.value 
-			: (data.evaluation.value > 0 ? 10000 : -10000);
+			: (data.evaluation.value > 0 ? 10000 : -10000); // Keep backward compat for display
 
-		const alternativeMoves = data.lines.slice(1).map((line) => ({
-			move: line.pv[0] || '',
-			evaluation: line.eval.type === 'cp' ? line.eval.value : (line.eval.value > 0 ? 10000 : -10000),
-		}));
+		// Convert best move from UCI to SAN
+		let bestMoveSan = data.bestMove;
+		if (fen && moves && data.bestMove.length === 4) {
+			try {
+				bestMoveSan = this.uciToSan(fen, moves, data.bestMove);
+			} catch (error) {
+				logError('Failed to convert best move UCI to SAN', error);
+			}
+		}
+
+		// Convert alternative moves (first move only)
+		const alternativeMoves = data.lines.slice(1).map((line) => {
+			const firstMoveUci = line.pv[0] || '';
+			let firstMoveSan = firstMoveUci;
+			if (fen && moves && firstMoveUci.length === 4) {
+				try {
+					firstMoveSan = this.uciToSan(fen, moves, firstMoveUci);
+				} catch (error) {
+					// Fallback to UCI if conversion fails
+				}
+			}
+			const evalValue = line.eval.type === 'cp' ? line.eval.value : (line.eval.value > 0 ? 10000 : -10000);
+			return {
+				move: firstMoveSan,
+				evaluation: evalValue,
+			};
+		});
+
+		// Convert full PV lines from UCI to SAN
+		const fullPvLines = data.lines.map((line) => {
+			const sanMoves: string[] = [];
+			if (fen && moves) {
+				try {
+					const tempGame = new Chess(fen);
+					// Apply existing moves to get to current position
+					for (const move of moves) {
+						if (typeof move === 'string') {
+							// Try UCI format first
+							if (move.length === 4 || move.length === 5) {
+								const from = move.substring(0, 2);
+								const to = move.substring(2, 4);
+								const promotion = move.length > 4 ? move[4] : undefined;
+								tempGame.move({ from, to, promotion });
+							} else {
+								// Assume SAN
+								tempGame.move(move);
+							}
+						}
+					}
+					// Now convert PV moves
+					for (const uciMove of line.pv) {
+						if (uciMove.length >= 4) {
+							const from = uciMove.substring(0, 2);
+							const to = uciMove.substring(2, 4);
+							const promotion = uciMove.length > 4 ? uciMove[4] : undefined;
+							const moveObj = tempGame.move({ from, to, promotion });
+							if (moveObj) {
+								sanMoves.push(moveObj.san);
+							} else {
+								break; // Invalid move in PV
+							}
+						}
+					}
+				} catch (error) {
+					logError('Failed to convert PV line UCI to SAN', error);
+					// Fallback to UCI moves
+					return {
+						moves: line.pv,
+						evaluation: line.eval.type === 'cp' ? line.eval.value : (line.eval.value > 0 ? 10000 : -10000),
+						evaluationType: line.eval.type,
+						mateIn: line.eval.type === 'mate' ? line.eval.value : undefined,
+					};
+				}
+			} else {
+				// No FEN/moves provided, return UCI moves
+				sanMoves.push(...line.pv);
+			}
+
+			return {
+				moves: sanMoves,
+				evaluation: line.eval.type === 'cp' ? line.eval.value : (line.eval.value > 0 ? 10000 : -10000),
+				evaluationType: line.eval.type,
+				mateIn: line.eval.type === 'mate' ? line.eval.value : undefined,
+			};
+		});
 
 		return {
 			evaluation,
-			bestMove: data.bestMove,
+			evaluationType,
+			mateIn: data.mateIn,
+			bestMove: bestMoveSan,
 			alternativeMoves: alternativeMoves.length > 0 ? alternativeMoves : undefined,
+			fullPvLines: fullPvLines.length > 0 ? fullPvLines : undefined,
+			evaluationBreakdown: data.evaluationBreakdown,
 			depth: data.statistics.depth,
 			nodes: data.statistics.nodes,
 			time: data.timingMs,

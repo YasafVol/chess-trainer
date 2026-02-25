@@ -4,6 +4,21 @@
 
 ---
 
+## Web transition (active planning track)
+
+In parallel to plugin roadmap work, the project now has an accepted web-app transition track:
+
+1. Transition plan: `Spec/WEB_APP_TRANSITION_PLAN.md`
+2. Architecture decisions: `Spec/adr/README.md`
+
+This track is currently scoped to:
+
+1. Standalone web app
+2. In-browser Stockfish analysis
+3. No auth and no cloud DB in v1
+
+---
+
 ## V0: Foundation – Manual Import & Interactive Viewer
 
 **Status**: ✅ **COMPLETE**  
@@ -261,4 +276,3 @@
 **Current Version**: V0 (0.2.0)  
 **Next Focus**: V1 companion Stockfish service  
 **Reference Plans**: `Spec/archive/V0_IMPLEMENTATION_PLAN.md`, `Spec/archive/V0_5_IMPLEMENTATION_PLAN.md`, `Spec/V1_IMPLEMENTATION_PLAN.md`
-

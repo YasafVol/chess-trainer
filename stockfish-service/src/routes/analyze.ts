@@ -33,17 +33,20 @@ export async function analyzeHandler(
 
 		// Perform analysis
 		const startTime = Date.now();
-		const output = await stockfishProcess.analyze({
+		const { analysis: analysisOutput, evalOutput } = await stockfishProcess.analyze({
 			fen: request.fen,
 			moves: request.moves,
 			depth: request.depth,
 			multiPV: request.multiPV,
 			movetimeMs: request.movetimeMs,
+			limitStrength: request.limitStrength,
+			elo: request.elo,
+			skillLevel: request.skillLevel,
 		});
 		const timingMs = Date.now() - startTime;
 
 		// Parse output
-		const analysis = UciParser.parseAnalysis(output, timingMs);
+		const analysis = UciParser.parseAnalysis(analysisOutput, evalOutput, timingMs);
 
 		// Return response
 		res.json(analysis);

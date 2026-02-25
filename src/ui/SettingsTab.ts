@@ -114,7 +114,77 @@ export class ChessTrainerSettingsTab extends PluginSettingTab {
 					});
 			});
 
-		// Board display section
+		// Engine strength settings
+		containerEl.createEl('h3', { text: 'Engine strength' });
+
+		new Setting(containerEl)
+			.setName('Limit engine strength')
+			.setDesc('Limit Stockfish strength for training purposes (default: 2400 Elo)')
+			.addToggle((toggle: any) => {
+				toggle
+					.setValue(this.plugin.settings.limitStrength)
+					.onChange(async (value: boolean) => {
+						this.plugin.settings.limitStrength = value;
+						await this.plugin.saveSettings();
+						this.display(); // Refresh to enable/disable dependent settings
+					});
+			});
+
+		new Setting(containerEl)
+			.setName('Engine Elo rating')
+			.setDesc('Target Elo rating when strength is limited (1000-3200)')
+			.addSlider((slider: any) => {
+				slider
+					.setLimits(1000, 3200, 50)
+					.setValue(this.plugin.settings.defaultEngineElo)
+					.setDynamicTooltip()
+					.setDisabled(!this.plugin.settings.limitStrength)
+					.onChange(async (value: number) => {
+						this.plugin.settings.defaultEngineElo = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
+		new Setting(containerEl)
+			.setName('Engine skill level')
+			.setDesc('Skill level when using skill-based limiting (0-20, lower = weaker)')
+			.addSlider((slider: any) => {
+				slider
+					.setLimits(0, 20, 1)
+					.setValue(this.plugin.settings.defaultEngineSkill)
+					.setDynamicTooltip()
+					.setDisabled(!this.plugin.settings.limitStrength)
+					.onChange(async (value: number) => {
+						this.plugin.settings.defaultEngineSkill = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
+		// Evaluation breakdown visibility settings
+		containerEl.createEl('h3', { text: 'Evaluation breakdown display' });
+
+		const breakdownCategories = [
+			{ key: 'material' as const, label: 'Material' },
+			{ key: 'pawns' as const, label: 'Pawns' },
+			{ key: 'kingSafety' as const, label: 'King safety' },
+			{ key: 'mobility' as const, label: 'Mobility' },
+			{ key: 'space' as const, label: 'Space' },
+			{ key: 'threats' as const, label: 'Threats' },
+		];
+
+		for (const category of breakdownCategories) {
+			new Setting(containerEl)
+				.setName(`Show ${category.label}`)
+				.setDesc(`Display ${category.label.toLowerCase()} component in evaluation breakdown`)
+				.addToggle((toggle: any) => {
+					toggle
+						.setValue(this.plugin.settings.showEvalBreakdown[category.key])
+						.onChange(async (value: boolean) => {
+							this.plugin.settings.showEvalBreakdown[category.key] = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		}
 		containerEl.createEl('h3', { text: 'Board display' });
 
 		new Setting(containerEl)

@@ -131,6 +131,14 @@ export class StockfishProcess {
 			if (firstWord === 'info' || firstWord === 'bestmove') {
 				this.currentAnalysis += line + '\n';
 			}
+			
+			// Accumulate eval output (for eval command)
+			// Eval output doesn't have a specific marker, so we capture all non-command responses
+			// Check if we're waiting for eval output by checking if last command was 'eval'
+			const lastMessage = this.messageQueue[this.messageQueue.length - 1];
+			if (lastMessage?.command === 'eval' || line.includes('Total Evaluation:') || line.includes('Material:') || line.includes('Pawns:')) {
+				this.currentAnalysis += line + '\n';
+			}
 		}
 	}
 
@@ -202,6 +210,34 @@ export class StockfishProcess {
 	}
 
 	/**
+	 * Send eval command and capture detailed evaluation breakdown
+	 */
+	async getEvalBreakdown(): Promise<string> {
+		return this.analysisMutex.runExclusive(async () => {
+			if (!this.isReady) {
+				await this.initialize();
+			}
+
+			// Clear previous output
+			this.currentAnalysis = '';
+
+			// Send eval command
+			if (this.process?.stdin) {
+				this.process.stdin.write('eval\n');
+				console.log('[Stockfish] Eval command sent');
+			} else {
+				throw new Error('Stockfish process stdin not available');
+			}
+
+			// Wait a bit for eval output (it doesn't have a specific response marker)
+			// We'll accumulate output and return it
+			await new Promise(resolve => setTimeout(resolve, 500));
+			
+			return this.currentAnalysis;
+		});
+	}
+
+	/**
 	 * Analyze position
 	 */
 	async analyze(request: {
@@ -210,10 +246,25 @@ export class StockfishProcess {
 		depth: number;
 		multiPV: number;
 		movetimeMs: number;
-	}): Promise<string> {
+		limitStrength?: boolean;
+		elo?: number;
+		skillLevel?: number;
+	}): Promise<{ analysis: string; evalOutput: string }> {
 		return this.analysisMutex.runExclusive(async () => {
 			if (!this.isReady) {
 				await this.initialize();
+			}
+
+			// Set engine strength options if requested
+			if (request.limitStrength && this.process?.stdin) {
+				if (request.elo !== undefined) {
+					this.process.stdin.write(`setoption name UCI_LimitStrength value true\n`);
+					this.process.stdin.write(`setoption name UCI_Elo value ${request.elo}\n`);
+					console.log(`[Stockfish] Set Elo limit to ${request.elo}`);
+				} else if (request.skillLevel !== undefined) {
+					this.process.stdin.write(`setoption name Skill Level value ${request.skillLevel}\n`);
+					console.log(`[Stockfish] Set skill level to ${request.skillLevel}`);
+				}
 			}
 
 			// Clear previous analysis
@@ -257,8 +308,26 @@ export class StockfishProcess {
 			await this.sendCommand(goCommand, Math.max(30000, request.movetimeMs || 30000)); // Use request timeout or 30s default
 			const timingMs = Date.now() - startTime;
 
-			// Return accumulated analysis
-			return this.currentAnalysis;
+			// Capture analysis output
+			const analysisOutput = this.currentAnalysis;
+
+			// Get detailed evaluation breakdown
+			this.currentAnalysis = '';
+			let evalOutput = '';
+			try {
+				if (this.process?.stdin) {
+					this.process.stdin.write('eval\n');
+					// Wait for eval output (give it some time)
+					await new Promise(resolve => setTimeout(resolve, 500));
+					evalOutput = this.currentAnalysis;
+				}
+			} catch (error) {
+				console.warn('[Stockfish] Failed to get eval breakdown:', error);
+				// Continue without eval breakdown - not critical
+			}
+
+			// Return both analysis and eval output
+			return { analysis: analysisOutput, evalOutput };
 		});
 	}
 

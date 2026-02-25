@@ -2,9 +2,32 @@
  * Analysis data types for chess game analysis
  */
 
+/**
+ * Evaluation breakdown components
+ */
+export interface EvaluationBreakdown {
+	material?: number;
+	imbalance?: number;
+	pawns?: number;
+	knights?: number;
+	bishops?: number;
+	rooks?: number;
+	queens?: number;
+	mobility?: number;
+	kingSafety?: number;
+	threats?: number;
+	passedPawns?: number;
+	space?: number;
+	total?: number;
+}
+
 export interface PositionEvaluation {
 	/** Evaluation in centipawns (positive = white advantage, negative = black advantage) */
 	evaluation: number;
+	/** Evaluation type: 'cp' for centipawns, 'mate' for mate */
+	evaluationType: 'cp' | 'mate';
+	/** Mate in N moves (if evaluationType is 'mate') */
+	mateIn?: number;
 	/** Best move in SAN notation */
 	bestMove: string;
 	/** Alternative moves (multi-PV) */
@@ -12,6 +35,15 @@ export interface PositionEvaluation {
 		move: string;
 		evaluation: number;
 	}>;
+	/** Full PV lines (principal variations) from multi-PV analysis - moves in SAN notation */
+	fullPvLines?: Array<{
+		moves: string[];
+		evaluation: number;
+		evaluationType: 'cp' | 'mate';
+		mateIn?: number;
+	}>;
+	/** Evaluation breakdown components */
+	evaluationBreakdown?: EvaluationBreakdown;
 	/** Analysis depth reached */
 	depth: number;
 	/** Nodes searched */
@@ -41,6 +73,13 @@ export interface MoveAnalysis {
 	evaluationDiff: number;
 	/** Position evaluation details */
 	positionEvaluation: PositionEvaluation;
+	/** Optional comment for this move */
+	comment?: string;
+	/** Alternative lines (variations) for this position */
+	alternativeLines?: Array<{
+		moves: string[];
+		evaluation: number;
+	}>;
 }
 
 export enum MoveQuality {

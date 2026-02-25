@@ -13,6 +13,9 @@ export const AnalysisRequestSchema = z.object({
 	depth: z.number().int().min(1).max(30).default(14),
 	multiPV: z.number().int().min(1).max(10).default(1),
 	movetimeMs: z.number().int().min(0).default(0),
+	limitStrength: z.boolean().default(false),
+	elo: z.number().int().min(0).max(3200).optional(),
+	skillLevel: z.number().int().min(0).max(20).optional(),
 });
 
 export type AnalysisRequest = z.infer<typeof AnalysisRequestSchema>;
@@ -49,12 +52,34 @@ export interface EngineStatistics {
 }
 
 /**
+ * Evaluation breakdown components
+ */
+export interface EvaluationBreakdown {
+	material?: number;
+	imbalance?: number;
+	pawns?: number;
+	knights?: number;
+	bishops?: number;
+	rooks?: number;
+	queens?: number;
+	mobility?: number;
+	kingSafety?: number;
+	threats?: number;
+	passedPawns?: number;
+	space?: number;
+	total?: number;
+}
+
+/**
  * Analysis response
  */
 export interface AnalysisResponse {
 	bestMove: string;
 	ponder?: string;
 	evaluation: Evaluation;
+	evaluationType: 'cp' | 'mate';
+	mateIn?: number;
+	evaluationBreakdown?: EvaluationBreakdown;
 	lines: PvLine[];
 	statistics: EngineStatistics;
 	timingMs: number;
