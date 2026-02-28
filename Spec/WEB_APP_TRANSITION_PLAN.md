@@ -18,6 +18,7 @@ Linked decisions:
 - `Spec/adr/ADR-002-stockfish-distribution.md`
 - `Spec/adr/ADR-003-browser-storage-schema.md`
 - `Spec/adr/ADR-004-mobile-performance-guardrails.md`
+- Execution backlog: `Spec/WEB_APP_BACKLOG.md`
 
 ## 2. Current Product Feature Map
 
