@@ -25,12 +25,15 @@
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },
   "include": [
-    "**/*.ts",
+    "main.ts",
+    "src/**/*.ts",
     "src/deps/*.js",
     "src/types/*.d.ts"
   ],
   "exclude": [
     "node_modules",
-    "stockfish-service"
+    "stockfish-service",
+    "apps",
+    "packages"
   ]
 }

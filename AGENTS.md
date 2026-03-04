@@ -10,6 +10,53 @@
 - Entry point: `main.ts` compiled to `main.js` and loaded by Obsidian.
 - Required release artifacts: `main.js`, `manifest.json`, and optional `styles.css`.
 
+## FITL Nav governance (canonical)
+
+This project uses FITL Nav: Functional Intent x Technical Layer Navigation.
+
+### Canonical layer model
+
+1. Contracts
+2. Domain
+3. Application
+4. Adapters
+5. Presentation
+6. Composition
+
+Cross-cutting lanes:
+- Tests lane
+- Documentation lane
+
+### Dependency rule
+
+- Outer depends inward only.
+- Allowed direction: `Composition -> Presentation -> Adapters -> Application -> Domain -> Contracts`.
+- Disallowed: inward layers importing outward layers.
+
+### TDD rule
+
+- Every vertical implementation/refactor follows Red-Green-Refactor:
+  1. Red: write failing tests first.
+  2. Green: implement minimal passing change.
+  3. Refactor: improve structure while keeping tests green.
+- If a change cannot start with a test, document why in the related vertical doc and add the closest possible contract/integration test first.
+
+### Mandatory doc-update policy
+
+- Any non-trivial code change must update FITL Nav docs in the same PR:
+  - impacted layer docs under `docs/architecture/layers/`
+  - impacted vertical doc under `docs/architecture/verticals/`
+  - module mapping in `docs/modules/`
+  - decisions/risks in `docs/decisions/` when tradeoffs or deferrals change
+- Do not remove historical docs silently. If a doc is superseded, keep a pointer stub to the replacement.
+
+### Definition of done
+
+A change is done only when all are true:
+1. Code is implemented and integrated.
+2. Tests exist at the right level and pass (unit/integration/manual smoke as applicable).
+3. FITL Nav docs are updated (layer + vertical + module + decision/risk where relevant).
+
 ## Environment & tooling
 
 - Node.js: use current LTS (Node 18+ recommended).

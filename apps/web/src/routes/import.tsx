@@ -1,6 +1,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { normalizePgnInput, extractHeaders, shortHash } from "@chess-trainer/chess-core";
 import { saveGame } from "../lib/storage/repositories/gamesRepo";
+import { buildReplayData, moveToUci } from "../domain/gameReplay";
 
 export function ImportPage() {
   const [pgn, setPgn] = useState("");
@@ -17,6 +18,7 @@ export function ImportPage() {
     try {
       const headers = extractHeaders(normalized);
       const hash = await shortHash(normalized);
+      const replayData = buildReplayData(normalized, "startpos");
       const id = crypto.randomUUID();
       const now = new Date().toISOString();
       await saveGame({
@@ -26,7 +28,7 @@ export function ImportPage() {
         pgn: normalized,
         headers,
         initialFen: "startpos",
-        movesUci: [],
+        movesUci: replayData.moves.map(moveToUci),
         createdAt: now,
         updatedAt: now
       });

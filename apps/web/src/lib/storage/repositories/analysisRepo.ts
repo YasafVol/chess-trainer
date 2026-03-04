@@ -36,3 +36,11 @@ export async function listPlyAnalysisByGameId(gameId: string): Promise<PlyAnalys
     return (result ?? []).sort((a, b) => a.ply - b.ply);
   });
 }
+
+export async function listPlyAnalysisByRunId(runId: string): Promise<PlyAnalysis[]> {
+  return withStore("analysisByPly", "readonly", async (store) => {
+    const index = store.index("by_runId");
+    const result = (await requestToPromise(index.getAll(runId))) as PlyAnalysis[];
+    return (result ?? []).sort((a, b) => a.ply - b.ply);
+  });
+}

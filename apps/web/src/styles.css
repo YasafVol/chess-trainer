@@ -51,3 +51,67 @@ body {
   padding: 0;
   list-style: none;
 }
+
+.game-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 560px) 1fr;
+  gap: 18px;
+  margin-top: 12px;
+}
+
+.board-host {
+  width: 100%;
+}
+
+.controls {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.analysis-inline {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.moves-pane {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.move-btn {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.move-btn:hover {
+  background: #f9fafb;
+}
+
+.move-btn.active {
+  border-color: #1f2937;
+  background: #eef2ff;
+}
+
+@media (max-width: 900px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .moves-pane {
+    max-height: 240px;
+  }
+}
