@@ -11,9 +11,11 @@ Standalone web runtime under `apps/web`.
 - Domain:
   - `apps/web/src/domain/analysisPolicy.ts`
   - `apps/web/src/domain/analysisPlan.ts`
+  - `apps/web/src/domain/analysisRunLifecycle.ts`
   - `apps/web/src/domain/gameReplay.ts`
 - Application:
-  - use-case orchestration currently in:
+  - `apps/web/src/application/runGameAnalysis.ts`
+  - remaining orchestration currently in:
     - `apps/web/src/routes/import.tsx`
     - `apps/web/src/routes/game.tsx`
     - `apps/web/src/routes/library.tsx`
@@ -30,5 +32,5 @@ Standalone web runtime under `apps/web`.
   - `apps/web/src/router.tsx`
 
 ## Notes
-- Current compromise: application logic is route-local; extraction to application services is planned.
+- Current compromise: import and library application logic is still route-local; extraction is still planned.
 - TDD anchor: `apps/web/src/domain/analysisPlan.test.ts`.

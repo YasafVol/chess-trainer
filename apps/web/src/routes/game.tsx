@@ -11,12 +11,10 @@ import {
 } from "../lib/storage/repositories/analysisRepo";
 import { ANALYSIS_POLICY } from "../domain/analysisPolicy";
 import { buildReplayData } from "../domain/gameReplay";
-import { buildAnalysisPlan, lowerDepthForRetry } from "../domain/analysisPlan";
+import { runGameAnalysis } from "../application/runGameAnalysis";
 import { ChessboardElementAdapter } from "../board/ChessboardElementAdapter";
 import type { BoardAdapter } from "../board/BoardAdapter";
-import { EngineClient, type EngineFlavor, type EngineResultMessage } from "../engine/engineClient";
-
-const ANALYSIS_RETRY_LIMIT = 1;
+import { EngineClient, type EngineFlavor } from "../engine/engineClient";
 
 function formatEval(evaluationType: "cp" | "mate", evaluation: number): string {
   if (evaluationType === "mate") {
@@ -40,6 +38,10 @@ function chooseEngineFlavor(): EngineFlavor {
   }
 
   return "stockfish-18-single";
+}
+
+function formatRunStatus(run: AnalysisRun): string {
+  return `${run.engineName} ${run.engineVersion} (${run.engineFlavor}) depth=${run.options.depth} status=${run.status}`;
 }
 
 export function GamePage() {
@@ -94,9 +96,7 @@ export function GamePage() {
       setAnalysisStatus("No analysis run yet.");
       return;
     }
-    setAnalysisStatus(
-      `${run.engineName} ${run.engineVersion} (${run.engineFlavor}) depth=${run.options.depth} status=${run.status}`
-    );
+    setAnalysisStatus(formatRunStatus(run));
   }
 
   useEffect(() => {
@@ -282,165 +282,48 @@ export function GamePage() {
     setAnalysisRunning(true);
     setAnalysisError(null);
 
-    const plan = buildAnalysisPlan(totalPlies, moveList.map((move) => move.san), ANALYSIS_POLICY.defaultDepth);
-    setAnalysisProgress({ done: 0, total: plan.length });
-
-    const runId = crypto.randomUUID();
-    const startedAt = new Date().toISOString();
-    const runStartTs = Date.now();
-
-    const run: AnalysisRun = {
-      id: runId,
-      gameId: game.id,
-      schemaVersion: 1,
-      engineName: "Stockfish",
-      engineVersion: "18",
-      engineFlavor: engineFlavorRef.current,
-      options: {
-        depth: ANALYSIS_POLICY.defaultDepth,
-        multiPV: ANALYSIS_POLICY.defaultMultiPV,
-        movetimeMs: ANALYSIS_POLICY.softPerPositionMaxMs
-      },
-      status: "running",
-      createdAt: startedAt
-    };
-
-    await saveAnalysisRun(run);
-    setAnalysisRun(run);
-    setAnalysisStatus(
-      `${run.engineName} ${run.engineVersion} (${run.engineFlavor}) depth=${run.options.depth} status=${run.status}`
-    );
-
-    let done = 0;
-    let stoppedByBudget = false;
-    let retriesUsed = 0;
-
     try {
-      for (const step of plan) {
-        if (cancelRequestedRef.current) {
-          break;
-        }
-
-        const fen = replayData.fenPositions[step.ply];
-        if (!fen) {
-          continue;
-        }
-
-        const startedStepAt = Date.now();
-        let result: Awaited<ReturnType<EngineClient["analyzePosition"]>> | null = null;
-        let depthForAttempt = step.depth;
-        let attempt = 0;
-
-        while (attempt <= ANALYSIS_RETRY_LIMIT) {
-          try {
-            result = await engineRef.current.analyzePosition({
-              fen,
-              movesUci: game.movesUci.slice(0, step.ply),
-              depth: depthForAttempt,
-              multiPV: ANALYSIS_POLICY.defaultMultiPV,
-              movetimeMs: ANALYSIS_POLICY.softPerPositionMaxMs
-            });
-            break;
-          } catch (error) {
-            const message = error instanceof Error ? error.message : "Unknown engine error";
-            const canRetry =
-              attempt < ANALYSIS_RETRY_LIMIT &&
-              (message.toLowerCase().includes("timed out") ||
-                message.toLowerCase().includes("engine worker error") ||
-                message.toLowerCase().includes("another analysis is already running"));
-
-            if (!canRetry) {
-              throw error;
-            }
-
-            retriesUsed += 1;
-            attempt += 1;
-            depthForAttempt = lowerDepthForRetry(depthForAttempt);
-            setAnalysisStatus(
-              `Retrying ply ${step.ply} after engine timeout/error (depth ${depthForAttempt})...`
-            );
-            await new Promise((resolve) => setTimeout(resolve, 80));
-          }
-        }
-
-        if (!result) {
-          throw new Error("Engine returned no result");
-        }
-
-        if (result.type === "engine:cancelled") {
+      const result = await runGameAnalysis({
+        game,
+        fenPositions: replayData.fenPositions,
+        moveSanList: moveList.map((move) => move.san),
+        engineFlavor: engineFlavorRef.current,
+        analyzePosition: (input) => engineRef.current!.analyzePosition(input),
+        saveRun: saveAnalysisRun,
+        savePly: savePlyAnalysis,
+        isCancelRequested: () => cancelRequestedRef.current,
+        markCancelRequested: () => {
           cancelRequestedRef.current = true;
-          break;
+        },
+        onRetryStatus: (message) => {
+          setAnalysisStatus(message);
+        },
+        onRunUpdated: (run) => {
+          setAnalysisRun(run);
+          setAnalysisStatus(formatRunStatus(run));
+        },
+        onPlySaved: (plyRecord) => {
+          setAnalysisByPly((prev) => {
+            const map = new Map<number, PlyAnalysis>();
+            for (const item of prev) map.set(item.ply, item);
+            map.set(plyRecord.ply, plyRecord);
+            return Array.from(map.values()).sort((a, b) => a.ply - b.ply);
+          });
+        },
+        onProgress: (progress) => {
+          setAnalysisProgress(progress);
         }
+      });
 
-        const analysisResult = result as EngineResultMessage;
-        const plyRecord: PlyAnalysis = {
-          id: crypto.randomUUID(),
-          runId,
-          gameId: game.id,
-          ply: step.ply,
-          fen,
-          playedMoveUci: game.movesUci[step.ply],
-          bestMoveUci: analysisResult.payload.bestMoveUci,
-          evaluationType: analysisResult.payload.evaluationType,
-          evaluation: analysisResult.payload.evaluation,
-          depth: analysisResult.payload.depth,
-          nodes: analysisResult.payload.nodes,
-          nps: analysisResult.payload.nps,
-          timeMs: Date.now() - startedStepAt,
-          pvUci: analysisResult.payload.pvUci
-        };
-        await savePlyAnalysis(plyRecord);
-
-        setAnalysisByPly((prev) => {
-          const map = new Map<number, PlyAnalysis>();
-          for (const item of prev) map.set(item.ply, item);
-          map.set(plyRecord.ply, plyRecord);
-          return Array.from(map.values()).sort((a, b) => a.ply - b.ply);
-        });
-
-        done += 1;
-        setAnalysisProgress({ done, total: plan.length });
-
-        if (Date.now() - runStartTs > ANALYSIS_POLICY.foregroundBudgetMs) {
-          cancelRequestedRef.current = true;
-          stoppedByBudget = true;
-          break;
-        }
-      }
-
-      const finishedStatus: AnalysisRun = {
-        ...run,
-        status: cancelRequestedRef.current ? "cancelled" : "completed",
-        completedAt: new Date().toISOString(),
-        error: stoppedByBudget
-          ? "Stopped after foreground runtime budget; rerun to continue refining."
-          : retriesUsed > 0
-          ? `Completed with ${retriesUsed} retry${retriesUsed === 1 ? "" : "ies"}.`
-          : undefined
-      };
-      await saveAnalysisRun(finishedStatus);
-      setAnalysisRun(finishedStatus);
-      setAnalysisStatus(
-        `${finishedStatus.engineName} ${finishedStatus.engineVersion} (${finishedStatus.engineFlavor}) depth=${finishedStatus.options.depth} status=${finishedStatus.status}`
-      );
-      if (stoppedByBudget) {
+      if (result.finalRun.status === "failed") {
+        setAnalysisError(result.finalRun.error ?? "Analysis failed.");
+      } else if (result.stoppedByBudget) {
         setAnalysisError("Stopped after runtime budget. Run analysis again to continue.");
-      } else if (retriesUsed > 0) {
-        setAnalysisError(`Analysis completed with ${retriesUsed} retry${retriesUsed === 1 ? "" : "ies"}.`);
+      } else if (result.retriesUsed > 0) {
+        setAnalysisError(`Analysis completed with ${result.retriesUsed} ${result.retriesUsed === 1 ? "retry" : "retries"}.`);
       }
     } catch (error) {
-      const failed: AnalysisRun = {
-        ...run,
-        status: "failed",
-        completedAt: new Date().toISOString(),
-        error: error instanceof Error ? error.message : "Unknown analysis error"
-      };
-      await saveAnalysisRun(failed);
-      setAnalysisRun(failed);
-      setAnalysisStatus(
-        `${failed.engineName} ${failed.engineVersion} (${failed.engineFlavor}) depth=${failed.options.depth} status=${failed.status}`
-      );
-      setAnalysisError(failed.error ?? "Analysis failed.");
+      setAnalysisError(error instanceof Error ? error.message : "Analysis failed.");
     } finally {
       setAnalysisRunning(false);
       setAnalysisProgress(null);

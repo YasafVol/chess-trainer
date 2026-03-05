@@ -38,7 +38,11 @@ Provide actionable engine feedback per position so users can identify mistakes, 
   - Results persist and reload correctly.
   - Timeouts/retries surface explicit status, never silent hangs.
 - Tests/gates:
-  - Existing `analysisPlan.test.ts` and new run-lifecycle tests.
+  - Existing:
+    - `apps/web/src/domain/analysisPlan.test.ts`
+    - `apps/web/src/domain/analysisRunLifecycle.test.ts`
+    - `apps/web/src/application/runGameAnalysis.test.ts`
+    - `apps/web/src/lib/storage/repositories/analysisRepo.test.ts`
   - `Spec/WEB_APP_SMOKE_CHECKLIST.md` analysis sections.
   - `TESTING.md` companion API + plugin integration checks.
 

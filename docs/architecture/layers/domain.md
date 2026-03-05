@@ -22,6 +22,7 @@ Own chess-specific rules and pure decision logic independent of UI and storage t
 - `apps/web/src/domain/gameReplay.ts`
 - `apps/web/src/domain/analysisPolicy.ts`
 - `apps/web/src/domain/analysisPlan.ts`
+- `apps/web/src/domain/analysisRunLifecycle.ts`
 - `stockfish-service/src/engine/UciParser.ts`
 - `src/services/pgnValidator.ts`
 
@@ -37,6 +38,9 @@ Own chess-specific rules and pure decision logic independent of UI and storage t
 
 ## Tests / Quality Gates
 - Existing: `apps/web/src/domain/analysisPlan.test.ts`.
+- Existing:
+  - `apps/web/src/domain/analysisPlan.test.ts`
+  - `apps/web/src/domain/analysisRunLifecycle.test.ts`
 - Needed:
   - unit tests for `gameReplay.ts` edge cases (promotions, malformed PGN)
   - parser tests for `UciParser` against sample engine logs

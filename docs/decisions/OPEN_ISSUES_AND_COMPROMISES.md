@@ -10,12 +10,12 @@
 2. Plugin board drag/drop race condition in divergent manual lines (`BUGS.md`, open/deferred).
 3. Move pane focus and scroll consistency (`BUGS.md`, open/deferred).
 4. Companion service has no automated tests for process lifecycle and timeout behavior.
-5. Web route files still mix presentation and application orchestration.
+5. Web route files still mix presentation and application orchestration in import/library flows (analysis run loop was extracted).
 6. Plugin and shared package duplicate PGN/contract logic.
 
 ## Current Compromises
 1. Monolithic plugin entry (`main.ts`) accepted temporarily to avoid blocking V1/V1-web delivery.
-2. Route-centric orchestration in web app accepted temporarily for sprint velocity.
+2. Route-centric orchestration in web app accepted temporarily for sprint velocity; progressively being extracted to `apps/web/src/application`.
 3. Service orchestration embedded in handlers accepted until test harness exists.
 4. Manual checklists are still primary quality gates for several high-risk paths.
 

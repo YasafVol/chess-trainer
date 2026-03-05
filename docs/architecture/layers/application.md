@@ -16,8 +16,9 @@ Coordinate domain rules to execute user use-cases while remaining UI-agnostic wh
 
 ## Key Files
 - `main.ts` (`processPgnImport`, `analyzeCurrentGame`, `analyzeGameAsync`)
+- `apps/web/src/application/runGameAnalysis.ts` (analysis run orchestration service)
 - `apps/web/src/routes/import.tsx` (current import orchestration)
-- `apps/web/src/routes/game.tsx` (`runAnalysis`, cancellation/retry flow)
+- `apps/web/src/routes/game.tsx` (UI callbacks and route state handling)
 - `apps/web/src/routes/library.tsx` (load sequence)
 
 ## Internal Flows
@@ -35,7 +36,7 @@ Coordinate domain rules to execute user use-cases while remaining UI-agnostic wh
   - green-state regression test after change
 - Current gaps:
   - plugin orchestration lacks automated tests
-  - web `game.tsx` run lifecycle tested mainly by smoke checklist.
+  - web import and library route orchestration still need dedicated application-service extraction.
 
 ## Open Risks / Deferred Items
 - Application logic currently embedded in presentation files (`main.ts`, `game.tsx`); extract to dedicated services to reduce regression risk.

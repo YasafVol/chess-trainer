@@ -66,8 +66,9 @@ Legend:
   - `apps/web/src/domain/analysisPlan.ts`
   - `stockfish-service/src/engine/UciParser.ts`
 - Application:
+  - `apps/web/src/application/runGameAnalysis.ts`
   - `main.ts` `analyzeGameAsync()` / `analyzeCurrentGame()`
-  - `apps/web/src/routes/game.tsx` `runAnalysis()`
+  - `apps/web/src/routes/game.tsx` UI callback wiring
 - Adapters:
   - `src/services/analysis/RemoteServiceAnalysisClient.ts`
   - `src/services/analysis/AnnotationStorage.ts`
