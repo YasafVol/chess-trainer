@@ -5,6 +5,7 @@
 - Layer taxonomy and inward dependency rule are locked.
 - TDD Red-Green-Refactor is required execution policy.
 - The active shipment target is a local-first web app with browser-side analysis and IndexedDB persistence.
+- TanStack Router remains the active routing layer for the standalone SPA runtime.
 - Auth, cloud DB, and cross-device sync are explicitly deferred.
 
 ## Open Issues
@@ -19,6 +20,7 @@
 1. Route-centric orchestration in the web app is accepted temporarily for delivery velocity.
 2. Manual browser smoke checks are still a primary quality gate for several high-risk paths.
 3. Mock session and local-only persistence are accepted so the product can ship before cloud identity and sync.
+4. Deferred Convex/auth scaffolding stays in-repo, but active runtime surfaces must not depend on live backend packages to typecheck or build.
 
 ## Deferred Items
 
@@ -34,3 +36,4 @@
 2. Add route-level component coverage for import, game, library, and puzzle flows.
 3. Add deployment smoke coverage before enabling cloud features.
 4. Expand IndexedDB migration tests before schema growth.
+5. Keep deferred backend descriptors explicit so the active web runtime remains isolated from Convex/auth activation work.

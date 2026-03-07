@@ -1,6 +1,6 @@
 # Testing Guide
 
-Last updated: 2026-03-07
+Last updated: 2026-03-08
 
 ## Automated checks
 
@@ -17,7 +17,9 @@ Current meaning:
 
 - `npm run typecheck`: TypeScript build check for `apps/web`
 - `npm run test`: Node-based TDD suite for analysis planning, lifecycle, and storage behavior in `apps/web`
-- `npm run build`: production Vite build for the active web app runtime
+- `npm run build`: production Vite build for the active standalone web app runtime
+
+These checks validate the shipped local-first path only. Deferred Convex/auth scaffolding is not required for local development and must not be needed for these commands to pass.
 
 ## Web app manual checks
 

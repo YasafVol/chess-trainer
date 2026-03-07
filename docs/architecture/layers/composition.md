@@ -6,9 +6,10 @@ Wire runtime entrypoints, dependency construction, and lifecycle registration fo
 
 ## Features / Responsibilities
 
-- App root rendering and router construction
+- App root rendering and TanStack Router construction
 - Mock runtime bootstrap and dependency selection
 - Engine flavor selection and startup behavior
+- Exclude deferred Convex/auth surfaces from the active shipped runtime path
 
 ## Key Files
 
@@ -27,3 +28,4 @@ Wire runtime entrypoints, dependency construction, and lifecycle registration fo
 
 - Mock and future cloud composition paths still live close together in the same runtime tree.
 - Deployment smoke automation is still missing.
+- Deferred backend activation must remain opt-in until auth and remote persistence are back in scope.

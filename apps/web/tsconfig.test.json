@@ -5,10 +5,10 @@
     "outDir": ".tmp-test-build",
     "rootDir": ".",
     "module": "ESNext",
-    "moduleResolution": "bundler",
-    "types": ["node"]
+    "moduleResolution": "bundler"
   },
   "include": [
+    "src/test-support/node-test-shims.d.ts",
     "src/domain/analysisPlan.ts",
     "src/domain/analysisPlan.test.ts",
     "src/domain/analysisRunLifecycle.ts",

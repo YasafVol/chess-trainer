@@ -30,3 +30,4 @@ Define stable data shapes and protocol boundaries shared across the web app and 
 ## Open Risks / Deferred Items
 
 - Some contract ownership still lives in route-adjacent code instead of dedicated contract modules.
+- Deferred backend descriptors exist for future Convex/auth activation, but active runtime contracts do not depend on live backend package types.

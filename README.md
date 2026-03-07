@@ -4,12 +4,12 @@ Chess Trainer is a web chess study app with a local-first runtime backed by Inde
 
 ## Runtime
 
-- React + Vite
-- TanStack Router
-- IndexedDB-backed mock storage for games, analysis, and puzzles
+- React + Vite standalone SPA
+- TanStack Router for route composition, params, and navigation
+- IndexedDB-backed local-first storage for games, analysis, and puzzles
 - Browser-side Stockfish workers for analysis
-- Shared chess-domain utilities in [`packages/chess-core`](/C:/Prog/chess-trainer/packages/chess-core)
-- Vercel deployment wiring via [`vercel.json`](/C:/Prog/chess-trainer/vercel.json)
+- Shared chess-domain utilities in [`packages/chess-core`](packages/chess-core)
+- Vercel deployment wiring via [`vercel.json`](vercel.json)
 
 ## Commands
 
@@ -38,7 +38,7 @@ npm run vercel:deploy:prod
 
 ## Local testing
 
-No auth or backend setup is required for the current runtime. Run:
+No auth or backend setup is required for the active runtime. Run:
 
 ```bash
 npm install
@@ -58,9 +58,9 @@ The current build supports:
 
 ## Environment
 
-No environment variables are required for the current mock runtime.
+No environment variables are required for the active local-first runtime.
 
-Future Convex/auth env placeholders are documented in [`apps/web/.env.example`](/C:/Prog/chess-trainer/apps/web/.env.example), but they are not used by the running app yet.
+Future Convex/auth env placeholders are documented in [`apps/web/.env.example`](apps/web/.env.example), but they are deferred and not used by the shipped web app path.
 
 ## Verification
 
@@ -69,18 +69,20 @@ The current web app passes:
 - TypeScript typecheck in `apps/web`
 - Production Vite build in `apps/web`
 - Node test suite covering analysis planning and lifecycle logic in `apps/web`
-- Root `npm run build` routed through the web app
+- Root `npm run build` routed through the standalone web app
 
 ## Notes
 
-- Mock runtime and reactive local storage live in [`apps/web/src/lib/mockData.ts`](/C:/Prog/chess-trainer/apps/web/src/lib/mockData.ts).
-- IndexedDB schema and repositories live under [`apps/web/src/lib/storage`](/C:/Prog/chess-trainer/apps/web/src/lib/storage).
-- Convex backend scaffolding still lives in [`apps/web/convex`](/C:/Prog/chess-trainer/apps/web/convex), but it is not on the active runtime path.
+- Mock runtime and reactive local storage live in [`apps/web/src/lib/mockData.ts`](apps/web/src/lib/mockData.ts).
+- TanStack Router composition lives in [`apps/web/src/router.tsx`](apps/web/src/router.tsx).
+- IndexedDB schema and repositories live under [`apps/web/src/lib/storage`](apps/web/src/lib/storage).
+- Convex/auth scaffolding still lives in [`apps/web/convex`](apps/web/convex), but it is deferred, not required for local development, and not on the active runtime path.
+- Deferred backend descriptors for the active runtime live in [`apps/web/src/lib/convex.ts`](apps/web/src/lib/convex.ts).
 - The current puzzle generation path uses the persisted primary PV from analysis. A deeper targeted `MultiPV=3` extraction pass is still deferred.
 
 ## Documentation
 
-- FITL docs index: [`docs/README.md`](/C:/Prog/chess-trainer/docs/README.md)
-- Quality and verification docs: [`docs/quality/README.md`](/C:/Prog/chess-trainer/docs/quality/README.md)
-- Decisions and known issues: [`docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md`](/C:/Prog/chess-trainer/docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md)
-- Product plans and transition specs: [`Spec/`](/C:/Prog/chess-trainer/Spec)
+- FITL docs index: [`docs/README.md`](docs/README.md)
+- Quality and verification docs: [`docs/quality/README.md`](docs/quality/README.md)
+- Decisions and known issues: [`docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md`](docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md)
+- Product plans and transition specs: [`Spec/`](Spec/)

@@ -14,12 +14,15 @@ This decision profile establishes FITL Nav governance for the Chess Trainer web 
 5. Definition of Done includes docs, tests, and code.
 6. Web v1 remains local-first with no auth and no cloud DB.
 7. Browser-worker analysis is the active engine path.
+8. TanStack Router is the active navigation/composition layer for the standalone SPA.
+9. Deferred Convex/auth scaffolding may remain in-repo, but active runtime code must not require live backend packages to build.
 
 ## Active Compromises
 
 1. Route files still carry application orchestration in several user flows.
 2. Route-level UI tests are still missing.
 3. Deployment smoke automation is still manual.
+4. Deferred backend scaffolding still sits near the active runtime tree and requires explicit isolation.
 
 ## Deferred Items
 

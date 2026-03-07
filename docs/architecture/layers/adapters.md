@@ -10,6 +10,7 @@ Bridge application use-cases to browser storage, worker execution, and UI integr
 - Reactive local mock-data facade
 - Worker command transport for browser Stockfish
 - Board library integration through an adapter interface
+- Deferred backend descriptor for future Convex/auth activation without active runtime coupling
 
 ## Key Files
 
@@ -19,6 +20,7 @@ Bridge application use-cases to browser storage, worker execution, and UI integr
 - `apps/web/src/lib/storage/repositories/analysisRepo.ts`
 - `apps/web/src/lib/storage/repositories/puzzlesRepo.ts`
 - `apps/web/src/lib/mockData.ts`
+- `apps/web/src/lib/convex.ts`
 - `apps/web/src/engine/engineClient.ts`
 - `apps/web/src/engine/engine.worker.ts`
 - `apps/web/src/board/ChessboardElementAdapter.ts`
@@ -32,3 +34,4 @@ Bridge application use-cases to browser storage, worker execution, and UI integr
 
 - IndexedDB migration coverage is still thin.
 - Worker startup and failure-path coverage need broader automated tests.
+- Deferred backend scaffolding remains nearby in the runtime tree and must stay isolated from build-critical web paths.

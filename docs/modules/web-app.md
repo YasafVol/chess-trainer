@@ -4,9 +4,10 @@
 Standalone web runtime under `apps/web`.
 
 ## Current Runtime Mode
-- Active mode: mock-first local web app.
+- Active mode: standalone local-first web app.
 - Durable data is stored in browser IndexedDB.
-- Convex and Google auth scaffolding remain in the repo but are not on the active runtime path.
+- TanStack Router is the active route composition and navigation layer.
+- Convex and Google auth scaffolding remain in the repo as deferred surfaces, but are not on the active runtime path.
 
 ## Layer Placement
 - Contracts:
@@ -29,6 +30,7 @@ Standalone web runtime under `apps/web`.
 - Adapters:
   - `apps/web/src/lib/storage/*`
   - `apps/web/src/lib/mockData.ts`
+  - `apps/web/src/lib/convex.ts` (deferred backend descriptor only)
   - `apps/web/src/engine/engineClient.ts`
   - `apps/web/src/engine/engine.worker.ts`
   - `apps/web/src/board/ChessboardElementAdapter.ts`
@@ -41,5 +43,6 @@ Standalone web runtime under `apps/web`.
 
 ## Notes
 - Current compromise: import, library, and puzzle application logic is still route-local; extraction is still planned.
+- Active build-critical runtime surfaces do not import live Convex/auth packages.
 - TDD anchor: `apps/web/src/domain/analysisPlan.test.ts`.
 - Shipping target is a Vercel-hosted local-first app before reintroducing cloud sync or auth.

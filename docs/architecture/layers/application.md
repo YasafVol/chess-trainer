@@ -11,6 +11,7 @@ Coordinate domain rules to execute use-cases while remaining UI-agnostic where p
 - Analysis run lifecycle orchestration
 - Library load and refresh orchestration
 - Puzzle generation and review workflows
+- Coordinate local-first flows without requiring deferred Convex/auth services
 
 ## Key Files
 
@@ -32,3 +33,4 @@ Coordinate domain rules to execute use-cases while remaining UI-agnostic where p
 
 - Route files still mix presentation and application logic.
 - Retry and timeout policy for analysis should keep moving into dedicated application services.
+- Import, library, and puzzle orchestration still need extraction from TanStack route components.

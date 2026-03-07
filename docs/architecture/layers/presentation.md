@@ -9,6 +9,7 @@ Render user interfaces, collect user intents, and display system state.
 - Import, library, game, puzzle-list, and puzzle-solve routes
 - Analysis progress, move/eval display, and puzzle review feedback
 - Board controls, move list, and keyboard interactions
+- TanStack Router links, params, and route-driven screen composition
 
 ## Key Files
 

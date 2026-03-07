@@ -56,4 +56,5 @@ This repository uses FITL Nav as the canonical documentation structure. Read doc
 
 ## Notes
 - Root-level operational docs were consolidated into `docs/quality/`, `docs/reference/`, and `docs/decisions/`.
-- The active runtime is the web app under `apps/web`.
+- The active runtime is the standalone TanStack Router web app under `apps/web`.
+- Convex/auth files remain in-repo as deferred scaffolding and are not part of the active local-first runtime path.
