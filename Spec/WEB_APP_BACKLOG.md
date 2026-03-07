@@ -17,7 +17,7 @@
 - Acceptance criteria:
   - `apps/web` starts with `npm run dev`.
   - `packages/chess-core` is importable by the web app.
-  - No changes required to existing Obsidian plugin runtime.
+  - Root scripts resolve cleanly to the web app runtime.
 
 ### WEB-002: Routing shell with TanStack Router
 - Estimate: 0.5 day

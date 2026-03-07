@@ -1,135 +1,31 @@
-# Design, Technical, and Bug Debt
+# Web App Design and Technical Debt
 
-This document tracks design improvements, technical debt, and known bugs that are deferred to future versions or phases.
+This document tracks active design and technical debt for the local-first web app.
 
-**Related Documents**:
-- `Spec/ROADMAP.md` - Complete version roadmap
-- `Spec/archive/V0_IMPLEMENTATION_PLAN.md` - Foundation implementation plan
-- `Spec/archive/V0_5_IMPLEMENTATION_PLAN.md` - Polish & QA follow-up
-- `Spec/V1_IMPLEMENTATION_PLAN.md` - Companion Stockfish service plan
-- `BUGS.md` - Known bugs documentation
+## Current debt areas
 
----
+### 1. Route-local orchestration
 
-## Version 1.0 (Post-V0 Release)
+- Import, library, game, and puzzle routes still carry application logic.
+- Target: extract dedicated application services and add focused tests.
 
-### Game Analysis Features
-- **Stockfish Companion Service**: Local/hosted service providing engine evaluations
-- **Eval Graph**: Visual evaluation bar showing position strength over time
-- **Move Annotations**: Automatic annotations for best moves, mistakes, blunders, critical positions, tactical opportunities
-- **Analysis Note**: Second note created alongside game note with detailed move-by-move analysis, position evaluations, suggested improvements, key moments highlighted
+### 2. UI test coverage
 
-### Technical Requirements
-- Stockfish WASM bundle (~2-3 MB)
-- Background analysis processing
-- Configurable analysis depth
+- The project relies on domain tests plus manual smoke checks.
+- Target: add route-level component tests for import, replay, analysis, and puzzle flows.
 
----
+### 3. Deployment verification
 
-## Phase 2: UI/UX Polish (Deferred)
+- Deployment verification still depends on manual smoke steps.
+- Target: add deployment smoke automation around the Vercel-hosted build.
 
-### Task 2.1: Enhance Import Modal Error Handling
-**Status**: 🟡 MEDIUM  
-**Estimated Time**: 2 hours
+### 4. IndexedDB migration coverage
 
-**Changes Required**:
-- Show inline error messages with line numbers if available
-- Add "Example PGN" helper button/link
-- Improve error message formatting
+- Storage migrations are present but lightly tested.
+- Target: add migration fixtures before expanding the persisted schema further.
 
-**Files to Modify**:
-- `src/ui/ImportModal.ts`
+## Related docs
 
-**Acceptance Criteria**:
-- Clear error messages guide user to fix PGN
-- User can see example PGN format
-
----
-
-### Task 2.2: Improve Renderer UI/UX
-**Status**: 🟡 MEDIUM  
-**Estimated Time**: 3 hours
-
-**Changes Required**:
-- Better button styling and accessibility (ARIA labels)
-- Keyboard shortcuts for controls (arrow keys, spacebar)
-- Responsive layout for mobile
-- Move list formatting improvements
-- Add aria-live region for screen readers
-
-**Files to Modify**:
-- `main.ts` (renderChessBoard method)
-- `styles.css`
-
-**Acceptance Criteria**:
-- Keyboard navigation works
-- Mobile-friendly layout
-- Screen reader accessible
-- Visual feedback for current move
-
----
-
-## Phase 3: Testing & Quality Assurance (Deferred)
-
-### Task 3.1: Add Sample PGN Test Cases
-**Status**: 🟡 MEDIUM  
-**Estimated Time**: 2 hours
-
-**Changes Required**:
-- Add test PGNs to `Spec/samples/`:
-  - Chess.com PGN with comments
-  - Lichess PGN without Elo
-  - PGN with NAGs
-  - PGN with variations
-  - Malformed PGN (for negative tests)
-- Verify all samples parse correctly
-
-**Files to Create/Modify**:
-- `Spec/samples/chesscom-game.pgn`
-- `Spec/samples/lichess-game.pgn`
-- `Spec/samples/complex-game.pgn`
-- `Spec/samples/malformed.pgn`
-
-**Acceptance Criteria**:
-- Sample PGNs cover common scenarios
-- All valid samples import successfully
-- Malformed samples show appropriate errors
-
----
-
-### Task 3.2: Manual QA Checklist
-**Status**: 🟡 MEDIUM  
-**Estimated Time**: 4 hours
-
-**Test Scenarios**:
-1. Basic Import Flow
-2. Validation
-3. Renderer
-4. Edge Cases
-5. Cross-Platform
-
-**Files to Create**:
-- `QA_CHECKLIST.md` (test results document)
-
-**Acceptance Criteria**:
-- Complete QA testing across platforms
-- Document results
-- Verify critical bugs fixed or documented
-
----
-
-## Known Bugs (Documented)
-
-### Hotkey Not Working
-- **Status**: 🔴 Open
-- **Severity**: Medium
-- **Description**: Default hotkey `Mod+Alt+P` does not work
-- **Workaround**: Manual assignment via Settings → Hotkeys
-- **Location**: `BUGS.md`
-
----
-
-## Future Enhancements
-
-See `Spec/ROADMAP.md` for complete version roadmap (V1-V4).
-
+- `Spec/WEB_APP_BACKLOG.md`
+- `Spec/WEB_APP_SMOKE_CHECKLIST.md`
+- `docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md`

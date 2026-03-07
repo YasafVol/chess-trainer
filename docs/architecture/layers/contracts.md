@@ -1,50 +1,32 @@
 # Contracts Layer
 
 ## Purpose
-Define stable data shapes and protocol boundaries shared across plugin, web app, and companion service.
+
+Define stable data shapes and protocol boundaries shared across the web app and shared chess-core package.
 
 ## Features / Responsibilities
-- Define analysis request/response and evaluation structures.
-- Define persisted game/run/ply record shapes.
-- Define board adapter interface and move/drop contracts.
-- Define plugin settings and analysis annotation data types.
 
-## Data / Contracts
-- Plugin:
-  - `ChessTrainerSettings` (`src/types/settings.ts`)
-  - `GameAnalysis`, `MoveAnalysis`, `PositionEvaluation` (`src/types/analysis.ts`)
-- Web:
-  - `GameRecord`, `AnalysisRun`, `PlyAnalysis` (`apps/web/src/domain/types.ts`)
-  - `BoardAdapter` interface (`apps/web/src/board/BoardAdapter.ts`)
-- Service:
-  - `AnalysisRequestSchema`, `AnalysisResponse` (`stockfish-service/src/types.ts`)
-- Shared core exports:
-  - `normalizePgnInput`, `extractHeaders`, `sha1`, `shortHash` (`packages/chess-core/src/index.ts`)
+- Define PGN parsing and header contracts.
+- Define persisted game, run, ply, puzzle, and attempt shapes.
+- Define board adapter and engine message contracts.
 
 ## Key Files
-- `src/types/settings.ts`
-- `src/types/analysis.ts`
+
+- `packages/chess-core/src/index.ts`
+- `packages/chess-core/src/headers.ts`
 - `apps/web/src/domain/types.ts`
 - `apps/web/src/board/BoardAdapter.ts`
-- `stockfish-service/src/types.ts`
-- `packages/chess-core/src/index.ts`
-
-## Internal Flows
-- Plugin UI and service client exchange typed analysis payloads.
-- Web route and worker client exchange typed engine messages.
-- Companion service validates inbound JSON via Zod before engine execution.
-
-## User-Facing Flows
-- Stable contracts prevent data loss across import, analysis, and reload.
-- Contract consistency preserves annotation and library rendering behavior.
+- `apps/web/src/engine/engineClient.ts`
 
 ## Tests / Quality Gates
-- Contract parsing behavior validated through:
-  - `apps/web/src/domain/analysisPlan.test.ts` (domain boundary behavior)
-  - manual companion API checks in `TESTING.md`
-- Required gap:
-  - Add explicit contract-level tests for service schema edge cases and plugin analysis serialization.
+
+- Contract behavior is exercised through:
+  - `apps/web/src/domain/analysisPlan.test.ts`
+  - `apps/web/src/domain/analysisRunLifecycle.test.ts`
+  - `apps/web/src/application/runGameAnalysis.test.ts`
+- Gap:
+  - add explicit import-contract and puzzle-contract tests
 
 ## Open Risks / Deferred Items
-- Contract duplication exists between plugin and web analysis types; partial drift risk.
-- Companion service response is not versioned yet; introduce versioned contract before external hosting.
+
+- Some contract ownership still lives in route-adjacent code instead of dedicated contract modules.

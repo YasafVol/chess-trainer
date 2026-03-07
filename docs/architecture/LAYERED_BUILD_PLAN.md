@@ -1,15 +1,14 @@
 # FITL Nav Layered Build Plan
 
 ## Resolved inputs
-- Repo root: `/Users/yasafv/obsidian-wix/.obsidian/plugins/chess-trainer`
+
+- Repo root: repository root (`chess-trainer`)
 - Main runtime stack:
-  - Obsidian plugin: TypeScript + Obsidian API + esbuild
   - Web app: React 18 + Vite + TanStack Router + IndexedDB
-  - Engine (web): Stockfish Web Worker (`stockfish` npm package)
-  - Companion service: Node.js + Express + native Stockfish binary
+  - Engine: Stockfish Web Worker (`stockfish` npm package)
   - Shared package: `packages/chess-core` (TypeScript)
 - Current project objective:
-  - Keep plugin V1 analysis path stable while executing web-transition v1 (offline import, replay, and in-browser analysis) with explicit boundaries.
+  - Ship a stable local-first web app for import, replay, analysis, and puzzle review.
 - Required quality bar:
   - Red-Green-Refactor per vertical
   - Outer-to-inner dependency discipline
@@ -17,7 +16,7 @@
   - Docs + tests + code all required for completion
 - Deferred scope baseline:
   - Web auth/cloud DB and platform sync out of scope in v1
-  - Puzzle/training, API integrations, and advanced analytics deferred
+  - Advanced analytics and customization deferred
 
 ## Canonical layer order
 1. Contracts
@@ -32,12 +31,12 @@ Cross-cutting lanes:
 - Documentation lane
 
 ## Dependency rule
+
 Only outer layers depend inward:
 - `Composition -> Presentation -> Adapters -> Application -> Domain -> Contracts`
 
-No inward layer may import outward implementation.
+## Build/refactor sequence
 
-## Build/refactor sequence (inside-out)
 For every vertical:
 1. Tests (Red)
 2. Contracts
@@ -53,55 +52,66 @@ For every vertical:
 ## Vertical execution map
 
 ### V1: Import and persist PGN
-1. Red tests for parsing/validation contracts (`chess-core` + plugin validator behavior)
-2. Contract alignment for game record + metadata shapes
-3. Domain normalization/header/hash rules
-4. Application flow for import orchestration
-5. Adapter writes (`Vault` or IndexedDB)
-6. UI/UX submit states and validation display
-7. Wiring command/route entrypoints
+1. Red tests for parsing and persistence contracts
+2. Contract alignment for game record and metadata shapes
+3. Domain normalization, header extraction, and hashing
+4. Application import orchestration
+5. IndexedDB adapter writes
+6. Import route UX and validation display
+7. Router wiring
 8. Green + refactor + docs sync
 
 ### V2: Replay and navigation
-1. Red tests for replay data generation and navigation edge cases
-2. Contract updates for replay move/position models
+1. Red tests for replay timeline and navigation behavior
+2. Contract updates for replay move and board interactions
 3. Domain replay progression rules
 4. Application move-state orchestration
 5. Board adapter integration
-6. Controls and move list UX
-7. Route/plugin processor wiring
+6. Controls, keyboard, and move list UX
+7. Route lifecycle wiring
 8. Green + refactor + docs sync
 
 ### V3: Engine analysis and annotations
-1. Red tests for analysis-plan policy and parsing contracts
-2. Contract updates for run/ply/evaluation structures
-3. Domain logic for planning, retries, quality classification
+1. Red tests for analysis-plan policy and run lifecycle
+2. Contract updates for run, ply, and evaluation structures
+3. Domain rules for planning, retries, and quality classification
 4. Application orchestration for run lifecycle and cancellation
-5. Engine/HTTP/storage adapters
-6. Analysis status/graph/annotation UI
-7. Composition of worker/service/plugin settings
+5. Worker and storage adapters
+6. Analysis status, eval, and graph UI
+7. Engine boot and dependency wiring
 8. Green + refactor + docs sync
 
-### V4: Library and lifecycle management
+### V4: Library and game lifecycle
 1. Red tests for repository ordering and retrieval semantics
-2. Contract updates for listing/filtering and status summaries
+2. Contract updates for listing and summary views
 3. Domain rules for sorting and lifecycle transitions
-4. Application flows for list/open/refresh
+4. Application flows for list, open, refresh, and delete
 5. Storage adapters and migrations
-6. Library and game summary presentation
-7. Router/command wiring
+6. Library presentation
+7. Router and app-shell wiring
+8. Green + refactor + docs sync
+
+### V5: Puzzle generation and review
+1. Red tests for puzzle derivation and scheduling
+2. Contract updates for puzzle, attempt, and schedule shapes
+3. Domain rules for classification and spaced repetition
+4. Application generation and review flows
+5. Puzzle persistence adapters
+6. Puzzle list and solve presentation
+7. Route wiring
 8. Green + refactor + docs sync
 
 ## Quality gates
-- `npm run build` at repo root for plugin integrity
-- Web focused TDD checks: `apps/web` `npm run test:tdd`
-- Manual plugin QA: `QA_CHECKLIST.md`
+
+- `npm run typecheck`
+- `npm run test`
+- `npm run build`
 - Manual web smoke: `Spec/WEB_APP_SMOKE_CHECKLIST.md`
-- V1 companion workflow test: `TESTING.md`
 
 ## Governance hooks
+
 When any vertical changes behavior:
 - Update layer docs under `docs/architecture/layers/`
-- Update vertical doc under `docs/architecture/verticals/`
+- Update vertical docs under `docs/architecture/verticals/`
 - Update module mapping under `docs/modules/`
-- Update decisions/risks under `docs/decisions/` if tradeoffs changed
+- Update decisions docs under `docs/decisions/` if tradeoffs changed

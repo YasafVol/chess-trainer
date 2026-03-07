@@ -1,22 +1,17 @@
 # Presentation Layer
 
 ## Purpose
-Render user interfaces, collect user intents, and display system state without embedding low-level infrastructure.
+
+Render user interfaces, collect user intents, and display system state.
 
 ## Features / Responsibilities
-- Plugin modal/settings UI and markdown chess viewer controls.
-- Web import/library/game/puzzle routes and board control surfaces.
-- Analysis progress, status, move/eval display, and puzzle review feedback.
 
-## Data / Contracts
-- UI input events -> application commands.
-- Render models include game metadata, replay state, analysis summaries, puzzle schedules, and errors.
+- Import, library, game, puzzle-list, and puzzle-solve routes
+- Analysis progress, move/eval display, and puzzle review feedback
+- Board controls, move list, and keyboard interactions
 
 ## Key Files
-- `src/ui/ImportModal.ts`
-- `src/ui/SettingsTab.ts`
-- `src/ui/PromotionModal.ts`
-- `main.ts` (rendered chess board UI and controls)
+
 - `apps/web/src/routes/root.tsx`
 - `apps/web/src/routes/import.tsx`
 - `apps/web/src/routes/library.tsx`
@@ -24,28 +19,17 @@ Render user interfaces, collect user intents, and display system state without e
 - `apps/web/src/routes/puzzles.tsx`
 - `apps/web/src/routes/puzzle.tsx`
 - `apps/web/src/styles.css`
-- `styles.css`
-
-## Internal Flows
-- Modal/button/keyboard interactions trigger import, replay, analysis, and puzzle-solve actions.
-- Route-level state updates repaint board, move list, analysis sections, and puzzle review status.
-- The current web shell presents a mock session state instead of an auth gate.
-
-## User-Facing Flows
-- Import PGN and receive immediate feedback.
-- Navigate moves with controls and keyboard.
-- Start/cancel analysis and inspect evaluation at current ply.
-- Solve generated puzzles and receive spaced-repetition feedback.
+- `apps/web/src/components/InlineLoader.tsx`
+- `apps/web/src/components/useDelayedBusy.ts`
 
 ## Tests / Quality Gates
-- Manual plugin QA checklist (`QA_CHECKLIST.md`).
-- Manual web smoke checklist (`Spec/WEB_APP_SMOKE_CHECKLIST.md`).
+
+- Manual smoke checklist: `Spec/WEB_APP_SMOKE_CHECKLIST.md`
 - Needed:
-  - route-level component tests for import, game, and puzzle views
-  - accessibility checks for move list focus and announcements
+  - route-level component tests
+  - accessibility checks for move-list focus and announcements
 
 ## Open Risks / Deferred Items
-- Plugin hotkey reliability remains open.
-- Move pane focus/scroll behavior remains a deferred UX fix.
-- Presentation currently owns application orchestration in multiple files.
-- Auth-gated UI is intentionally deferred until the mock runtime ships.
+
+- Presentation still owns too much orchestration in several route files.
+- Move-pane focus and scroll behavior still need a dedicated accessibility pass.

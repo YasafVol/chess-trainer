@@ -15,8 +15,8 @@ function winnerLabel(game: GameRecord): string {
   const black = readHeader(game.headers, "Black") ?? "Black";
   const result = readHeader(game.headers, "Result");
 
-  if (result === "1-0") return white + " won";
-  if (result === "0-1") return black + " won";
+  if (result === "1-0") return `${white} won`;
+  if (result === "0-1") return `${black} won`;
   if (result === "1/2-1/2") return "Draw";
   return "Result unknown";
 }
@@ -98,7 +98,7 @@ function formatTimeControl(game: GameRecord): string | null {
     const clock = incrementSeconds > 0
       ? `${formatClock(baseSeconds)} + ${incrementSeconds}s`
       : formatClock(baseSeconds);
-    return `${category} · ${clock}`;
+    return `${category} ${clock}`;
   }
 
   return raw;
@@ -122,11 +122,10 @@ export function LibraryPage() {
         {rows.map((game) => {
           const white = readHeader(game.headers, "White") ?? "White";
           const black = readHeader(game.headers, "Black") ?? "Black";
-          const event = readHeader(game.headers, "Event") ?? "Unknown event";
-          const rating = formatRating(game);
-          const playedOn = formatGameDate(game);
-          const timeControl = formatTimeControl(game);
           const outcome = winnerLabel(game);
+          const rating = formatRating(game);
+          const timeControl = formatTimeControl(game);
+          const playedOn = formatGameDate(game);
 
           return (
             <li key={game.id}>
@@ -138,17 +137,13 @@ export function LibraryPage() {
                 }}
               >
                 <div className="library-card-head">
-                  <div>
-                    <strong>{white} vs {black}</strong>
-                    <p className="muted">{event} · {game.hash}</p>
+                  <strong>{white} vs {black}</strong>
+                  <div className="library-card-meta">
+                    <span>{outcome}</span>
+                    {rating ? <span>{rating}</span> : null}
+                    {timeControl ? <span>{timeControl}</span> : null}
+                    {playedOn ? <span>{playedOn}</span> : null}
                   </div>
-                  <span className="library-card-open">Open</span>
-                </div>
-                <div className="library-card-meta">
-                  <span>{outcome}</span>
-                  {rating ? <span>{rating}</span> : null}
-                  {playedOn ? <span>{playedOn}</span> : null}
-                  {timeControl ? <span>{timeControl}</span> : null}
                 </div>
               </button>
             </li>

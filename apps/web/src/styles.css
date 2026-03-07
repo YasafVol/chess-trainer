@@ -273,6 +273,7 @@ button:hover:not(:disabled) {
   appearance: none;
   background: #ffffff;
   border-color: #e5e7eb;
+  padding: 18px 20px;
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
@@ -280,33 +281,27 @@ button:hover:not(:disabled) {
 .library-card-button:focus-visible {
   background: #ffffff;
   color: #111827;
-  border-color: #9ca3af;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12), 0 10px 24px rgba(15, 23, 42, 0.06);
 }
 
 .library-card-button:focus-visible {
-  outline: 2px solid #1d4ed8;
-  outline-offset: 2px;
+  outline: none;
 }
 
 .library-card-head {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
-}
-
-.library-card-open {
-  color: #1d4ed8;
-  font-weight: 600;
+  gap: 20px;
+  align-items: center;
 }
 
 .library-card-meta {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
-  margin-top: 12px;
 }
 
 .library-card-meta span {
@@ -319,6 +314,7 @@ button:hover:not(:disabled) {
   color: #374151;
   font-size: 0.95rem;
 }
+
 
 
 

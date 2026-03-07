@@ -1,7 +1,7 @@
 # Module: Shared Chess Core Package
 
 ## Scope
-Reusable package under `packages/chess-core` shared by web runtime (and candidate for plugin convergence).
+Reusable package under `packages/chess-core` shared by the web runtime.
 
 ## Layer Placement
 - Contracts:
@@ -21,4 +21,4 @@ Reusable package under `packages/chess-core` shared by web runtime (and candidat
   - package build/export wiring in `packages/chess-core/package.json`
 
 ## Notes
-- This module is the preferred home for shared pure logic currently duplicated in plugin code.
+- This module is the preferred home for pure chess-domain logic reused across web features.

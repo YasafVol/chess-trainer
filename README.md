@@ -1,12 +1,8 @@
 # Chess Trainer
 
-Chess Trainer is currently a web-first chess study app with a working mock runtime backed by local IndexedDB storage. Convex and Google auth are scaffolded in the repo, but they are intentionally deferred until the mock product flow is fully validated.
+Chess Trainer is a web chess study app with a local-first runtime backed by IndexedDB. The repository contains the Vite frontend in `apps/web` and shared chess-domain logic in `packages/chess-core`.
 
-## Active product
-
-The active runtime is [`apps/web`](/C:/Prog/chess-trainer/apps/web). The legacy Obsidian plugin remains in the repository for reference and migration, but root scripts now target the web app by default.
-
-## Current runtime
+## Runtime
 
 - React + Vite
 - TanStack Router
@@ -14,7 +10,6 @@ The active runtime is [`apps/web`](/C:/Prog/chess-trainer/apps/web). The legacy 
 - Browser-side Stockfish workers for analysis
 - Shared chess-domain utilities in [`packages/chess-core`](/C:/Prog/chess-trainer/packages/chess-core)
 - Vercel deployment wiring via [`vercel.json`](/C:/Prog/chess-trainer/vercel.json)
-- Vercel CLI for linking, local Vercel builds, and deploys
 
 ## Commands
 
@@ -41,11 +36,9 @@ npm run vercel:deploy
 npm run vercel:deploy:prod
 ```
 
-Legacy plugin scripts are still available as `npm run plugin:dev` and `npm run plugin:build`.
-
 ## Local testing
 
-No auth or backend setup is required for the current mock app. Run:
+No auth or backend setup is required for the current runtime. Run:
 
 ```bash
 npm install
@@ -84,3 +77,10 @@ The current web app passes:
 - IndexedDB schema and repositories live under [`apps/web/src/lib/storage`](/C:/Prog/chess-trainer/apps/web/src/lib/storage).
 - Convex backend scaffolding still lives in [`apps/web/convex`](/C:/Prog/chess-trainer/apps/web/convex), but it is not on the active runtime path.
 - The current puzzle generation path uses the persisted primary PV from analysis. A deeper targeted `MultiPV=3` extraction pass is still deferred.
+
+## Documentation
+
+- FITL docs index: [`docs/README.md`](/C:/Prog/chess-trainer/docs/README.md)
+- Quality and verification docs: [`docs/quality/README.md`](/C:/Prog/chess-trainer/docs/quality/README.md)
+- Decisions and known issues: [`docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md`](/C:/Prog/chess-trainer/docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md)
+- Product plans and transition specs: [`Spec/`](/C:/Prog/chess-trainer/Spec)

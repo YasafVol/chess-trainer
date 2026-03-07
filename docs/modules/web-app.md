@@ -42,4 +42,4 @@ Standalone web runtime under `apps/web`.
 ## Notes
 - Current compromise: import, library, and puzzle application logic is still route-local; extraction is still planned.
 - TDD anchor: `apps/web/src/domain/analysisPlan.test.ts`.
-- Shipping target is a Vercel-hosted mock app before reintroducing cloud sync or auth.
+- Shipping target is a Vercel-hosted local-first app before reintroducing cloud sync or auth.

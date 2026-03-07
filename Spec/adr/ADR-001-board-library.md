@@ -32,12 +32,12 @@ Use **`chessboard-element`** for web v1.
 
 1. Fewer built-in advanced chess UX features than `chessground`.
 2. More custom behavior code required for richer interactions.
-3. Existing plugin race-condition patterns must be avoided by design.
+3. Existing race-condition patterns must be avoided by design.
 
 ## Guardrails
 
 1. Implement a board adapter interface to keep swap option open.
-2. Do not directly mirror plugin drag/drop lifecycle code.
+2. Do not directly mirror legacy drag/drop lifecycle code.
 3. Add deterministic integration tests for:
    - Legal/illegal drops
    - Promotion flows

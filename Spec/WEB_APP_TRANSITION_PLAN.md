@@ -1,12 +1,12 @@
-# Chess Trainer Web App Transition Plan
+# Chess Trainer Web App Plan
 
 **Date**: 2026-02-25  
-**Status**: Accepted (execution-ready)  
-**Scope**: Web app transition with browser-native analysis. No auth, no cloud DB for v1.
+**Status**: Active  
+**Scope**: Web app with browser-native analysis. No auth, no cloud DB for v1.
 
 ## 1. Product Direction
 
-The plugin evolves into a standalone web app deployed on Vercel with these locked choices:
+Chess Trainer ships as a standalone web app deployed on Vercel with these locked choices:
 
 1. Frontend stack: React + Vite + TanStack Router (SPA).
 2. Analysis runtime: Stockfish in browser Web Worker (no analysis backend in v1).
@@ -22,24 +22,19 @@ Linked decisions:
 
 ## 2. Current Product Feature Map
 
-### 2.1 Implemented Today (Plugin)
+### 2.1 Implemented Today
 
-1. PGN import modal with validation and helper example.
-2. Structured game note generation with metadata extraction.
-3. Interactive board viewer with:
-   - Prev/next/reset/play/flip controls
-   - Move list and current move highlighting
-   - Autoplay
-4. Manual board move support with promotion handling.
-5. Optional Stockfish analysis integration through companion service.
-6. Eval graph + move-quality annotations rendering.
-7. Settings for analysis and board display behavior.
+1. Multi-game PGN import with split-and-preview flow.
+2. Local game persistence in IndexedDB.
+3. Interactive board viewer with replay controls and manual moves.
+4. Browser-side Stockfish analysis with persisted per-ply results.
+5. Puzzle generation and review from analyzed mistakes and blunders.
 
 ### 2.2 Known Gaps / Risk Areas
 
-1. Main runtime is monolithic (`main.ts`) and should not be ported as-is.
-2. Known drag/drop race risk in current board integration path.
-3. Hotkey reliability and move-pane focus issues in plugin UX debt list.
+1. Route-local orchestration still needs extraction into application services.
+2. Route-level UI test coverage is still missing.
+3. Deployment smoke automation is still missing.
 
 ## 3. Web v1 Scope (Locked)
 
@@ -57,8 +52,7 @@ Linked decisions:
 1. Auth.
 2. Convex or any remote DB.
 3. Chess.com/Lichess sync.
-4. Puzzle generation/training mode.
-5. Cloud analysis service.
+4. Cloud analysis service.
 
 ## 4. Planned Feature Roadmap (Web)
 
@@ -94,7 +88,7 @@ Linked decisions:
 
 1. Create app workspace with React + Vite + TanStack Router.
 2. Implement `GameRecord` storage and migration runner for schema versioning.
-3. Port validator + PGN parsing utilities from plugin into web domain module.
+3. Consolidate validator and PGN parsing utilities into the shared web-facing domain module.
 4. Implement import screen with validation status and save action.
 
 **Exit criteria**: user can import PGN and open a saved game from local storage.
