@@ -4,6 +4,10 @@ import type { ImportPreviewGame } from "../domain/types";
 import { buildReplayData, moveToUci } from "../domain/gameReplay";
 import { importBatchLocal, useLocalGames } from "../lib/mockData";
 
+function previewId(preview: Pick<ImportPreviewGame, "index" | "hash">): string {
+  return `${preview.index}:${preview.hash}`;
+}
+
 export function ImportPage() {
   const existingGames = useLocalGames() ?? [];
   const [rawInput, setRawInput] = useState("");
@@ -30,6 +34,11 @@ export function ImportPage() {
         return;
       }
 
+      console.log("[import] build previews", {
+        source,
+        rawLength: rawInput.length
+      });
+
       const parsed = parsePgnCollection(rawInput);
       const next: ImportPreviewGame[] = [];
 
@@ -52,14 +61,23 @@ export function ImportPage() {
             selected: !existingByHash.has(hash),
             source
           });
-        } catch {
-          // Ignore invalid sub-games during preview.
+        } catch (error) {
+          console.warn("[import] failed to build preview for parsed game", {
+            index: game.index,
+            error
+          });
         }
       }
 
       if (cancelled) {
         return;
       }
+
+      console.log("[import] previews ready", {
+        source,
+        count: next.length,
+        selectable: next.filter((preview) => !preview.duplicateOfGameId).length
+      });
 
       setPreviews(next);
       setStatus(
@@ -81,14 +99,26 @@ export function ImportPage() {
       return;
     }
     const text = await file.text();
+    console.log("[import] file selected", {
+      name: file.name,
+      size: file.size
+    });
     setSource("upload");
     setRawInput(text);
   }
 
-  function togglePreview(index: number) {
-    setPreviews((current) =>
-      current.map((preview) => (preview.index === index ? { ...preview, selected: !preview.selected } : preview))
-    );
+  function togglePreview(targetId: string) {
+    setPreviews((current) => {
+      const next = current.map((preview) =>
+        previewId(preview) === targetId ? { ...preview, selected: !preview.selected } : preview
+      );
+      const changed = next.find((preview) => previewId(preview) === targetId);
+      console.log("[import] toggle preview", {
+        targetId,
+        selected: changed?.selected
+      });
+      return next;
+    });
   }
 
   async function onSubmit(event: FormEvent) {
@@ -154,22 +184,45 @@ export function ImportPage() {
 
       {previews.length > 0 ? (
         <div className="preview-list">
-          {previews.map((preview) => (
-            <label key={`${preview.hash}-${preview.index}`} className="preview-card">
-              <input
-                type="checkbox"
-                checked={preview.selected}
-                disabled={!!preview.duplicateOfGameId}
-                onChange={() => togglePreview(preview.index)}
-              />
-              <div>
-                <strong>{preview.headers.White ?? "White"} vs {preview.headers.Black ?? "Black"}</strong>
-                <p className="muted">Hash: {preview.hash} · Moves: {preview.movesUci.length}</p>
-                <p className="muted">{preview.headers.Event ?? "Unknown event"}</p>
-                {preview.duplicateOfGameId ? <p>Already imported as {preview.duplicateOfGameId}.</p> : null}
+          {previews.map((preview) => {
+            const id = previewId(preview);
+            return (
+              <div
+                key={id}
+                className="preview-card"
+                role="button"
+                tabIndex={preview.duplicateOfGameId ? -1 : 0}
+                onClick={() => {
+                  if (!preview.duplicateOfGameId) {
+                    togglePreview(id);
+                  }
+                }}
+                onKeyDown={(event) => {
+                  if (preview.duplicateOfGameId) {
+                    return;
+                  }
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    togglePreview(id);
+                  }
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={preview.selected}
+                  disabled={!!preview.duplicateOfGameId}
+                  onChange={() => togglePreview(id)}
+                  onClick={(event) => event.stopPropagation()}
+                />
+                <div>
+                  <strong>{preview.headers.White ?? "White"} vs {preview.headers.Black ?? "Black"}</strong>
+                  <p className="muted">Hash: {preview.hash} · Moves: {preview.movesUci.length}</p>
+                  <p className="muted">{preview.headers.Event ?? "Unknown event"}</p>
+                  {preview.duplicateOfGameId ? <p>Already imported as {preview.duplicateOfGameId}.</p> : null}
+                </div>
               </div>
-            </label>
-          ))}
+            );
+          })}
         </div>
       ) : null}
     </section>

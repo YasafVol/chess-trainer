@@ -1,16 +1,32 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { Chess } from "chess.js";
 import { ChessboardElementAdapter } from "../board/ChessboardElementAdapter";
 import type { BoardAdapter } from "../board/BoardAdapter";
+import { buildReplayData } from "../domain/gameReplay";
 import { qualityFromAttempt } from "../domain/puzzles";
-import { recordPuzzleAttemptLocal, useLocalPuzzleDetails } from "../lib/mockData";
+import { recordPuzzleAttemptLocal, useLocalGame, useLocalPuzzleDetails } from "../lib/mockData";
+
+function sideLabel(sideToMove: "w" | "b"): string {
+  return sideToMove === "w" ? "White to move" : "Black to move";
+}
+
+function moveLabel(index: number, san: string): string {
+  return `${Math.floor(index / 2) + 1}${index % 2 === 0 ? "." : "..."} ${san}`;
+}
 
 export function PuzzlePage() {
   const { puzzleId } = useParams({ from: "/puzzles/$puzzleId" });
   const puzzleData = useLocalPuzzleDetails(puzzleId);
+  const puzzle = puzzleData?.puzzle ?? null;
+  const game = useLocalGame(puzzle?.gameId ?? "");
   const boardHostRef = useRef<HTMLDivElement | null>(null);
   const boardRef = useRef<BoardAdapter | null>(null);
+  const puzzleRef = useRef<typeof puzzle>(null);
+  const solvedRef = useRef(false);
+  const hintsUsedRef = useRef(0);
+  const hadWrongAttemptRef = useRef(false);
+  const startedAtRef = useRef<number>(Date.now());
   const [status, setStatus] = useState("Play the best move for the side to move.");
   const [hintsUsed, setHintsUsed] = useState(0);
   const [revealed, setRevealed] = useState(false);
@@ -18,30 +34,92 @@ export function PuzzlePage() {
   const [hadWrongAttempt, setHadWrongAttempt] = useState(false);
   const [startedAt, setStartedAt] = useState<number>(() => Date.now());
 
-  const puzzle = puzzleData?.puzzle ?? null;
   const attempts = puzzleData?.attempts ?? [];
   const stats = puzzleData?.stats ?? null;
+
+  const replayData = useMemo(() => {
+    if (!game) {
+      return null;
+    }
+
+    try {
+      return buildReplayData(game.pgn, game.initialFen);
+    } catch {
+      return null;
+    }
+  }, [game]);
+
+  const lastOpponentMove = useMemo(() => {
+    if (!puzzle || !replayData || puzzle.source.ply <= 0) {
+      return null;
+    }
+
+    return replayData.moves[puzzle.source.ply - 1] ?? null;
+  }, [puzzle, replayData]);
+
+  useEffect(() => {
+    puzzleRef.current = puzzle;
+  }, [puzzle]);
+
+  useEffect(() => {
+    solvedRef.current = solved;
+  }, [solved]);
+
+  useEffect(() => {
+    hintsUsedRef.current = hintsUsed;
+  }, [hintsUsed]);
+
+  useEffect(() => {
+    hadWrongAttemptRef.current = hadWrongAttempt;
+  }, [hadWrongAttempt]);
+
+  useEffect(() => {
+    startedAtRef.current = startedAt;
+  }, [startedAt]);
+
+  useEffect(() => {
+    console.log("[puzzle] load", {
+      puzzleId,
+      hasPuzzle: !!puzzle,
+      sideToMove: puzzle?.sideToMove,
+      lastOpponentMove: lastOpponentMove?.san ?? null,
+      classification: puzzle?.classification
+    });
+  }, [lastOpponentMove, puzzle, puzzleId]);
 
   useEffect(() => {
     if (!boardHostRef.current || !puzzle) {
       return;
     }
 
-    const activePuzzle = puzzle;
+    console.log("[puzzle] mount board", {
+      puzzleId: puzzle.id,
+      sideToMove: puzzle.sideToMove
+    });
+
     const board = new ChessboardElementAdapter();
     board.mount(boardHostRef.current);
     boardRef.current = board;
-    board.setPosition(activePuzzle.fen, false);
-    board.setOrientation(activePuzzle.sideToMove === "b" ? "black" : "white");
 
     const unbindDrop = board.onDrop(({ from, to, setAction }) => {
-      if (solved) {
+      const activePuzzle = puzzleRef.current;
+      if (!activePuzzle) {
+        setAction("snapback");
+        return;
+      }
+
+      if (solvedRef.current) {
         setAction("snapback");
         return;
       }
 
       const attemptedMove = `${from}${to}`;
       if (attemptedMove !== activePuzzle.expectedBestMove.slice(0, 4)) {
+        console.log("[puzzle] wrong attempt", {
+          puzzleId: activePuzzle.id,
+          attemptedMove,
+          expectedMove: activePuzzle.expectedBestMove
+        });
         setAction("snapback");
         setHadWrongAttempt(true);
         setStatus(`Not quite. The puzzle expects a stronger move than ${attemptedMove}.`);
@@ -60,6 +138,12 @@ export function PuzzlePage() {
           return;
         }
 
+        console.log("[puzzle] solved", {
+          puzzleId: activePuzzle.id,
+          attemptedMove,
+          expectedLine: activePuzzle.expectedLine
+        });
+
         setAction("drop");
         board.setPosition(chess.fen(), true);
         setSolved(true);
@@ -68,23 +152,42 @@ export function PuzzlePage() {
         void recordPuzzleAttemptLocal({
           puzzleId: activePuzzle.id,
           result: "success",
-          quality: qualityFromAttempt({ result: "success", hintsUsed, revealed: false, firstTry: !hadWrongAttempt }),
-          elapsedMs: Date.now() - startedAt,
-          hintsUsed,
+          quality: qualityFromAttempt({ result: "success", hintsUsed: hintsUsedRef.current, revealed: false, firstTry: !hadWrongAttemptRef.current }),
+          elapsedMs: Date.now() - startedAtRef.current,
+          hintsUsed: hintsUsedRef.current,
           revealed: false,
           attemptedAt: new Date().toISOString()
         });
-      } catch {
+      } catch (error) {
+        console.error("[puzzle] move application failed", { puzzleId: activePuzzle.id, error });
         setAction("snapback");
       }
     });
 
     return () => {
+      console.log("[puzzle] destroy board", { puzzleId: puzzle.id });
       unbindDrop();
       board.destroy();
       boardRef.current = null;
     };
-  }, [hadWrongAttempt, hintsUsed, puzzle, solved, startedAt]);
+  }, [puzzle?.fen, puzzle?.id, puzzle?.sideToMove]);
+
+  useEffect(() => {
+    if (!boardRef.current || !puzzle) {
+      return;
+    }
+
+    const highlightedSquares = lastOpponentMove ? [lastOpponentMove.from, lastOpponentMove.to] : [];
+    console.log("[puzzle] update board", {
+      puzzleId: puzzle.id,
+      sideToMove: puzzle.sideToMove,
+      fen: puzzle.fen,
+      highlightedSquares
+    });
+    boardRef.current.setOrientation(puzzle.sideToMove === "b" ? "black" : "white");
+    boardRef.current.setPosition(puzzle.fen, false);
+    boardRef.current.setHighlightedSquares(highlightedSquares);
+  }, [lastOpponentMove, puzzle]);
 
   useEffect(() => {
     setStatus("Play the best move for the side to move.");
@@ -106,6 +209,10 @@ export function PuzzlePage() {
   const activePuzzle = puzzle;
 
   async function revealSolution() {
+    console.log("[puzzle] reveal solution", {
+      puzzleId: activePuzzle.id,
+      expectedBestMove: activePuzzle.expectedBestMove
+    });
     setRevealed(true);
     setStatus(`Solution: ${activePuzzle.expectedBestMove} · ${activePuzzle.expectedLine.join(" ")}`);
     await recordPuzzleAttemptLocal({
@@ -134,6 +241,8 @@ export function PuzzlePage() {
         </div>
         <div className="moves-pane">
           <h3>Puzzle details</h3>
+          <p className="muted">{sideLabel(activePuzzle.sideToMove)}</p>
+          <p className="muted">Opponent last move: {lastOpponentMove ? moveLabel(activePuzzle.source.ply - 1, lastOpponentMove.san) : "Starting position"}</p>
           <p className="muted">Themes: {activePuzzle.themes.join(", ")}</p>
           <p className="muted">Eval swing: {activePuzzle.evalSwing}</p>
           <p className="muted">Last reviewed: {activePuzzle.schedule.lastReviewedAt ? new Date(activePuzzle.schedule.lastReviewedAt).toLocaleString() : "never"}</p>
@@ -144,3 +253,4 @@ export function PuzzlePage() {
     </section>
   );
 }
+

@@ -13,7 +13,8 @@ const LOCAL_USER: SessionUser = {
 
 const listeners = new Set<() => void>();
 
-function emitChange() {
+function emitChange(reason: string, payload?: Record<string, unknown>) {
+  console.log("[mockData] emit change", { reason, ...payload });
   for (const listener of listeners) {
     listener();
   }
@@ -121,6 +122,11 @@ export async function importBatchLocal(games: Omit<GameRecord, "userId">[]): Pro
   let skippedDuplicates = 0;
   const gameIds: string[] = [];
 
+  console.log("[mockData] import batch", {
+    requested: games.length,
+    existingGames: seenHashes.size
+  });
+
   for (const game of games) {
     if (seenHashes.has(game.hash)) {
       skippedDuplicates += 1;
@@ -134,7 +140,11 @@ export async function importBatchLocal(games: Omit<GameRecord, "userId">[]): Pro
     gameIds.push(nextGame.id);
   }
 
-  emitChange();
+  emitChange("importBatch", {
+    imported,
+    skippedDuplicates,
+    gameIds
+  });
   return {
     imported,
     skippedDuplicates,
@@ -144,15 +154,35 @@ export async function importBatchLocal(games: Omit<GameRecord, "userId">[]): Pro
 }
 
 export async function saveRunLocal(run: AnalysisRun): Promise<void> {
+  console.log("[mockData] save run", {
+    runId: run.id,
+    gameId: run.gameId,
+    status: run.status
+  });
   await saveAnalysisRun(withLocalUser(run));
-  emitChange();
+  emitChange("saveRun", {
+    runId: run.id,
+    gameId: run.gameId,
+    status: run.status
+  });
 }
 
 export async function savePlyLocal(plies: PlyAnalysis[]): Promise<void> {
   for (const ply of plies) {
+    console.log("[mockData] save ply", {
+      runId: ply.runId,
+      gameId: ply.gameId,
+      ply: ply.ply,
+      evaluation: ply.evaluation,
+      bestMoveUci: ply.bestMoveUci
+    });
     await savePlyAnalysis(withLocalUser(ply));
   }
-  emitChange();
+  emitChange("savePly", {
+    count: plies.length,
+    runId: plies[0]?.runId,
+    gameId: plies[0]?.gameId
+  });
 }
 
 function puzzleIdFor(game: GameRecord, ply: PlyAnalysis): string {
@@ -162,6 +192,7 @@ function puzzleIdFor(game: GameRecord, ply: PlyAnalysis): string {
 export async function generatePuzzlesForRunLocal(runId: string, gameId: string): Promise<number> {
   const game = await getGame(gameId);
   if (!game || game.userId !== LOCAL_USER.id) {
+    console.warn("[mockData] cannot generate puzzles for missing game", { runId, gameId });
     return 0;
   }
 
@@ -169,10 +200,21 @@ export async function generatePuzzlesForRunLocal(runId: string, gameId: string):
   const existing = new Set((await listPuzzles()).filter((puzzle) => puzzle.userId === LOCAL_USER.id).map((puzzle) => puzzle.id));
   const now = new Date().toISOString();
   let created = 0;
+  const bankCounts: Record<"mistake" | "blunder", number> = {
+    mistake: 0,
+    blunder: 0
+  };
+
+  console.log("[mockData] generate puzzles", {
+    runId,
+    gameId,
+    availablePlies: plies.length,
+    existingPuzzles: existing.size
+  });
 
   for (const pair of candidatePuzzlePairs(plies)) {
     const classification = classifyEvalSwing(pair.evalSwing);
-    if (!classification || classification === "inaccuracy" || !pair.before.bestMoveUci) {
+    if (!classification || classification === "inaccuracy" || !pair.before.bestMoveUci || !pair.before.playedMoveUci) {
       continue;
     }
 
@@ -199,8 +241,8 @@ export async function generatePuzzlesForRunLocal(runId: string, gameId: string):
       evalSwing: pair.evalSwing,
       expectedBestMove: pair.before.bestMoveUci,
       expectedLine: line,
-      playedBadMove: pair.after.playedMoveUci,
-      themes: inferThemes(line, pair.after.playedMoveUci),
+      playedBadMove: pair.before.playedMoveUci,
+      themes: inferThemes(line, pair.before.playedMoveUci),
       difficulty: initialPuzzleDifficulty({
         evalSwing: pair.evalSwing,
         bestLine: line,
@@ -211,13 +253,29 @@ export async function generatePuzzlesForRunLocal(runId: string, gameId: string):
       updatedAt: now
     };
 
+    console.log("[mockData] create puzzle", {
+      puzzleId: puzzle.id,
+      classification: puzzle.classification,
+      sourcePly: puzzle.source.ply,
+      expectedBestMove: puzzle.expectedBestMove,
+      playedBadMove: puzzle.playedBadMove
+    });
+
     await savePuzzle(puzzle);
     existing.add(puzzle.id);
+    if (puzzle.classification === "mistake" || puzzle.classification === "blunder") {
+      bankCounts[puzzle.classification] += 1;
+    }
     created += 1;
   }
 
   if (created > 0) {
-    emitChange();
+    emitChange("generatePuzzles", {
+      runId,
+      gameId,
+      created,
+      bankCounts
+    });
   }
   return created;
 }
@@ -225,6 +283,7 @@ export async function generatePuzzlesForRunLocal(runId: string, gameId: string):
 export async function recordPuzzleAttemptLocal(args: Omit<PuzzleAttempt, "id" | "userId">): Promise<void> {
   const puzzle = await getPuzzle(args.puzzleId);
   if (!puzzle || puzzle.userId !== LOCAL_USER.id) {
+    console.warn("[mockData] cannot record puzzle attempt for missing puzzle", { puzzleId: args.puzzleId });
     return;
   }
 
@@ -234,11 +293,24 @@ export async function recordPuzzleAttemptLocal(args: Omit<PuzzleAttempt, "id" | 
     userId: LOCAL_USER.id
   };
 
+  console.log("[mockData] record puzzle attempt", {
+    puzzleId: attempt.puzzleId,
+    result: attempt.result,
+    quality: attempt.quality,
+    hintsUsed: attempt.hintsUsed,
+    revealed: attempt.revealed
+  });
+
   await savePuzzleAttempt(attempt);
   await savePuzzle({
     ...puzzle,
     schedule: nextScheduleFromQuality(puzzle.schedule, attempt.quality, attempt.attemptedAt),
     updatedAt: attempt.attemptedAt
   });
-  emitChange();
+  emitChange("recordPuzzleAttempt", {
+    puzzleId: attempt.puzzleId,
+    result: attempt.result,
+    quality: attempt.quality
+  });
 }
+

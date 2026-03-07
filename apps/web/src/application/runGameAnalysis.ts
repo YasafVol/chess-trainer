@@ -123,6 +123,13 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
     policy
   });
 
+  console.log("[analysis] run start", {
+    gameId: args.game.id,
+    runId: run.id,
+    planLength: plan.length,
+    engineFlavor: args.engineFlavor
+  });
+
   await args.saveRun(run);
   args.onRunUpdated?.(run);
 
@@ -134,11 +141,13 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
   try {
     for (const step of plan) {
       if (args.isCancelRequested()) {
+        console.log("[analysis] cancel flag observed", { gameId: args.game.id, runId: run.id, step: step.ply });
         break;
       }
 
       const fen = args.fenPositions[step.ply];
       if (!fen) {
+        console.warn("[analysis] missing fen for step", { gameId: args.game.id, runId: run.id, step: step.ply });
         continue;
       }
 
@@ -146,6 +155,13 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       let result: AnalyzePositionResult | null = null;
       let depthForAttempt = step.depth;
       let attempt = 0;
+
+      console.log("[analysis] analyze step", {
+        gameId: args.game.id,
+        runId: run.id,
+        ply: step.ply,
+        depth: depthForAttempt
+      });
 
       while (attempt <= ANALYSIS_RETRY_LIMIT) {
         try {
@@ -160,6 +176,14 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown engine error";
           const canRetry = attempt < ANALYSIS_RETRY_LIMIT && canRetryFromMessage(message);
+          console.warn("[analysis] engine step failed", {
+            gameId: args.game.id,
+            runId: run.id,
+            ply: step.ply,
+            attempt,
+            message,
+            canRetry
+          });
           if (!canRetry) {
             throw error;
           }
@@ -177,6 +201,7 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       }
 
       if (result.type === "engine:cancelled") {
+        console.log("[analysis] engine cancelled step", { gameId: args.game.id, runId: run.id, ply: step.ply });
         args.markCancelRequested();
         break;
       }
@@ -206,6 +231,12 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       args.onProgress?.({ done, total: plan.length });
 
       if (nowMs() - runStartedAt > policy.foregroundBudgetMs) {
+        console.warn("[analysis] foreground budget exceeded", {
+          gameId: args.game.id,
+          runId: run.id,
+          elapsedMs: nowMs() - runStartedAt,
+          budgetMs: policy.foregroundBudgetMs
+        });
         args.markCancelRequested();
         stoppedByBudget = true;
         break;
@@ -216,6 +247,15 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       run,
       outcome: args.isCancelRequested() ? "cancelled" : "completed",
       completedAt: nowIso(),
+      retriesUsed,
+      stoppedByBudget
+    });
+
+    console.log("[analysis] run finalized", {
+      gameId: args.game.id,
+      runId: finishedRun.id,
+      status: finishedRun.status,
+      done,
       retriesUsed,
       stoppedByBudget
     });
@@ -236,6 +276,13 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       completedAt: nowIso(),
       failureMessage: error instanceof Error ? error.message : "Unknown analysis error"
     });
+
+    console.error("[analysis] run failed", {
+      gameId: args.game.id,
+      runId: failedRun.id,
+      error
+    });
+
     await args.saveRun(failedRun);
     args.onRunUpdated?.(failedRun);
 

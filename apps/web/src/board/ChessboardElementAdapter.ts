@@ -3,6 +3,7 @@ import type { BoardAdapter, BoardDropEvent, BoardOrientation } from "./BoardAdap
 
 type ChessBoardElementLike = HTMLElement & {
   setPosition: (fen: string, animated?: boolean) => void;
+  _highlightSquare?: (square: string, value?: boolean) => void;
 };
 
 type ChessboardDropDetail = {
@@ -19,9 +20,10 @@ function isSquare(value: unknown): value is string {
 export class ChessboardElementAdapter implements BoardAdapter {
   private boardEl: ChessBoardElementLike;
   private mounted = false;
+  private highlightedSquares = new Set<string>();
 
   constructor() {
-    this.boardEl = document.createElement("chess-board") as ChessBoardElementLike;
+    this.boardEl = document.createElement("chess-board") as unknown as ChessBoardElementLike;
     this.boardEl.setAttribute("show-notation", "true");
     this.boardEl.setAttribute("draggable-pieces", "true");
     this.boardEl.setAttribute("drop-off-board", "snapback");
@@ -30,6 +32,7 @@ export class ChessboardElementAdapter implements BoardAdapter {
     this.boardEl.style.maxWidth = "560px";
     this.boardEl.style.aspectRatio = "1 / 1";
     this.boardEl.style.display = "block";
+    this.boardEl.style.setProperty("--highlight-color", "rgba(212, 167, 44, 0.65)");
   }
 
   mount(container: HTMLElement): void {
@@ -44,6 +47,25 @@ export class ChessboardElementAdapter implements BoardAdapter {
 
   setOrientation(orientation: BoardOrientation): void {
     this.boardEl.setAttribute("orientation", orientation);
+  }
+
+  setHighlightedSquares(squares: string[]): void {
+    const validSquares = squares.filter(isSquare);
+    const next = new Set(validSquares);
+
+    for (const square of this.highlightedSquares) {
+      if (!next.has(square)) {
+        this.boardEl._highlightSquare?.(square, false);
+      }
+    }
+
+    for (const square of next) {
+      if (!this.highlightedSquares.has(square)) {
+        this.boardEl._highlightSquare?.(square, true);
+      }
+    }
+
+    this.highlightedSquares = next;
   }
 
   onDrop(handler: (event: BoardDropEvent) => void | Promise<void>): () => void {
@@ -76,7 +98,9 @@ export class ChessboardElementAdapter implements BoardAdapter {
   }
 
   destroy(): void {
+    this.highlightedSquares.clear();
     this.boardEl.remove();
     this.mounted = false;
   }
 }
+

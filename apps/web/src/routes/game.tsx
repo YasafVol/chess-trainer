@@ -35,28 +35,43 @@ export function GamePage() {
   const [analysisRunning, setAnalysisRunning] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [engineReady, setEngineReady] = useState(false);
-  const [parseError, setParseError] = useState<string | null>(null);
 
   const boardHostRef = useRef<HTMLDivElement | null>(null);
   const boardRef = useRef<BoardAdapter | null>(null);
   const engineRef = useRef<EngineClient | null>(null);
   const cancelRequestedRef = useRef(false);
   const engineFlavorRef = useRef<EngineFlavor>(chooseEngineFlavor());
+  const currentPlyRef = useRef(0);
+  const manualFenRef = useRef<string | null>(null);
+  const replayDataRef = useRef<ReturnType<typeof buildReplayData> | null>(null);
 
   const analysisRun = snapshot?.run ?? null;
   const analysisByPly = snapshot?.plies ?? [];
 
-  const replayData = useMemo(() => {
-    if (!game) return null;
+  const replayState = useMemo(() => {
+    if (!game) {
+      return {
+        replayData: null,
+        parseError: null as string | null
+      };
+    }
+
     try {
-      setParseError(null);
-      return buildReplayData(game.pgn, game.initialFen);
+      const replayData = buildReplayData(game.pgn, game.initialFen);
+      return {
+        replayData,
+        parseError: null as string | null
+      };
     } catch (error) {
-      setParseError(error instanceof Error ? error.message : "Failed to parse PGN.");
-      return null;
+      return {
+        replayData: null,
+        parseError: error instanceof Error ? error.message : "Failed to parse PGN."
+      };
     }
   }, [game]);
 
+  const replayData = replayState.replayData;
+  const parseError = replayState.parseError;
   const totalPlies = replayData?.moves.length ?? 0;
   const moveList = replayData?.moves ?? [];
 
@@ -69,35 +84,70 @@ export function GamePage() {
   }, [analysisByPly]);
 
   useEffect(() => {
+    currentPlyRef.current = currentPly;
+  }, [currentPly]);
+
+  useEffect(() => {
+    manualFenRef.current = manualFen;
+  }, [manualFen]);
+
+  useEffect(() => {
+    replayDataRef.current = replayData;
+  }, [replayData]);
+
+  useEffect(() => {
+    console.log("[game] replay state updated", {
+      gameId,
+      hasReplayData: !!replayData,
+      parseError,
+      totalPlies
+    });
+  }, [gameId, parseError, replayData, totalPlies]);
+
+  useEffect(() => {
     const engine = new EngineClient();
     engineRef.current = engine;
     let active = true;
 
+    console.log("[game] initializing engine", {
+      gameId,
+      engineFlavor: engineFlavorRef.current
+    });
+
     engine
       .init(engineFlavorRef.current)
       .then(() => {
-        if (active) setEngineReady(true);
+        if (active) {
+          console.log("[game] engine ready", { gameId, engineFlavor: engineFlavorRef.current });
+          setEngineReady(true);
+        }
       })
       .catch((error) => {
-        if (active) setAnalysisError(error instanceof Error ? error.message : "Engine init failed.");
+        if (active) {
+          console.error("[game] engine init failed", { gameId, error });
+          setAnalysisError(error instanceof Error ? error.message : "Engine init failed.");
+        }
       });
 
     return () => {
       active = false;
       cancelRequestedRef.current = true;
+      console.log("[game] terminating engine", { gameId });
       engine.terminate();
       engineRef.current = null;
     };
-  }, []);
+  }, [gameId]);
 
   useEffect(() => {
-    setCurrentPly(0);
+    const initialPly = replayData && replayData.moves.length > 0 ? 1 : 0;
+    console.log("[game] reset view state", { gameId, initialPly });
+    setCurrentPly(initialPly);
     setFlipped(false);
     setIsPlaying(false);
     setManualFen(null);
     setAnalysisProgress(null);
     setAnalysisError(null);
-  }, [gameId]);
+  }, [gameId, replayData]);
 
   useEffect(() => {
     if (!analysisRun) {
@@ -109,13 +159,23 @@ export function GamePage() {
 
   useEffect(() => {
     if (!boardHostRef.current || !replayData) return;
+
+    console.log("[game] mount board", {
+      gameId,
+      currentPly: currentPlyRef.current,
+      hasManualFen: !!manualFenRef.current
+    });
+
     const board = new ChessboardElementAdapter();
     board.mount(boardHostRef.current);
     boardRef.current = board;
+    board.setOrientation(flipped ? "black" : "white");
+    board.setPosition(manualFenRef.current ?? replayData.fenPositions[currentPlyRef.current] ?? replayData.fenPositions[0], false);
 
     const unbindDrop = board.onDrop(({ from, to, setAction }) => {
-      const baseFen = manualFen ?? replayData.fenPositions[currentPly];
-      if (!baseFen) {
+      const activeReplayData = replayDataRef.current;
+      const baseFen = manualFenRef.current ?? activeReplayData?.fenPositions[currentPlyRef.current];
+      if (!activeReplayData || !baseFen) {
         setAction("snapback");
         return;
       }
@@ -141,26 +201,49 @@ export function GamePage() {
           return;
         }
 
+        console.log("[game] manual board move", {
+          gameId,
+          currentPly: currentPlyRef.current,
+          from: chosenMove.from,
+          to: chosenMove.to,
+          promotion: chosenMove.promotion
+        });
+
         setAction("drop");
         setIsPlaying(false);
         setManualFen(chess.fen());
-      } catch {
+      } catch (error) {
+        console.error("[game] manual board move failed", { gameId, error });
         setAction("snapback");
       }
     });
 
     return () => {
+      console.log("[game] destroy board", { gameId });
       unbindDrop();
       board.destroy();
       boardRef.current = null;
     };
-  }, [currentPly, manualFen, replayData]);
+  }, [gameId, replayData]);
 
   useEffect(() => {
     if (!boardRef.current || !replayData) return;
+
+    const targetFen = manualFen ?? replayData.fenPositions[currentPly] ?? replayData.fenPositions[0];
+    const highlightedMove = !manualFen && currentPly > 0 ? replayData.moves[currentPly - 1] : null;
+    const highlightedSquares = highlightedMove ? [highlightedMove.from, highlightedMove.to] : [];
+    console.log("[game] update board position", {
+      gameId,
+      currentPly,
+      flipped,
+      hasManualFen: !!manualFen,
+      targetFen,
+      highlightedSquares
+    });
     boardRef.current.setOrientation(flipped ? "black" : "white");
-    boardRef.current.setPosition(manualFen ?? replayData.fenPositions[currentPly], true);
-  }, [currentPly, flipped, manualFen, replayData]);
+    boardRef.current.setPosition(targetFen, false);
+    boardRef.current.setHighlightedSquares(highlightedSquares);
+  }, [currentPly, flipped, gameId, manualFen, replayData]);
 
   useEffect(() => {
     if (!isPlaying || !replayData) return;
@@ -185,6 +268,12 @@ export function GamePage() {
     setAnalysisProgress(null);
     setAnalysisStatus("Starting analysis...");
 
+    console.log("[game] analysis start", {
+      gameId: game.id,
+      totalPlies,
+      engineFlavor: engineFlavorRef.current
+    });
+
     try {
       const result = await runGameAnalysis({
         game,
@@ -193,9 +282,22 @@ export function GamePage() {
         engineFlavor: engineFlavorRef.current,
         analyzePosition: (input) => engineRef.current!.analyzePosition(input),
         saveRun: async (run) => {
+          console.log("[game] save analysis run", {
+            gameId: run.gameId,
+            runId: run.id,
+            status: run.status,
+            depth: run.options.depth
+          });
           await saveRunLocal(run);
         },
         savePly: async (ply) => {
+          console.log("[game] save ply analysis", {
+            gameId: ply.gameId,
+            runId: ply.runId,
+            ply: ply.ply,
+            evaluation: ply.evaluation,
+            bestMoveUci: ply.bestMoveUci
+          });
           await savePlyLocal([ply]);
         },
         isCancelRequested: () => cancelRequestedRef.current,
@@ -210,11 +312,24 @@ export function GamePage() {
         }
       });
 
+      console.log("[game] analysis finished", {
+        gameId: game.id,
+        runId: result.finalRun.id,
+        status: result.finalRun.status,
+        savedPositions: result.done
+      });
+
       if (result.finalRun.status === "completed") {
         setAnalysisStatus(`Analysis completed. ${result.done} positions saved.`);
-        await generatePuzzlesForRunLocal(result.finalRun.id, game.id);
+        const createdPuzzles = await generatePuzzlesForRunLocal(result.finalRun.id, game.id);
+        console.log("[game] generated puzzles after analysis", {
+          gameId: game.id,
+          runId: result.finalRun.id,
+          createdPuzzles
+        });
       }
     } catch (error) {
+      console.error("[game] analysis failed", { gameId: game.id, error });
       setAnalysisError(error instanceof Error ? error.message : "Analysis failed.");
     } finally {
       setAnalysisRunning(false);
@@ -224,6 +339,7 @@ export function GamePage() {
 
   async function cancelAnalysis() {
     cancelRequestedRef.current = true;
+    console.log("[game] cancel analysis requested", { gameId });
     setAnalysisRunning(false);
     setAnalysisProgress(null);
     setAnalysisError("Analysis cancelled.");
@@ -285,23 +401,27 @@ export function GamePage() {
 
           <div className="moves-pane" role="region" aria-label="Moves list">
             <ul className="list">
-              {moveList.map((move, index) => (
-                <li key={`${index}-${move.san}`}>
-                  <button
-                    className={`move-btn ${!manualFen && index + 1 === currentPly ? "active" : ""}`}
-                    onClick={() => {
-                      setIsPlaying(false);
-                      setManualFen(null);
-                      setCurrentPly(index + 1);
-                    }}
-                  >
-                    {Math.floor(index / 2) + 1}{index % 2 === 0 ? "." : "..."} {move.san}
-                    {analysisByPlyMap.get(index)
-                      ? ` (${formatEval(analysisByPlyMap.get(index)!.evaluationType, analysisByPlyMap.get(index)!.evaluation)})`
-                      : ""}
-                  </button>
-                </li>
-              ))}
+              {moveList.map((move, index) => {
+                const movePly = index + 1;
+                const moveEval = analysisByPlyMap.get(movePly);
+                return (
+                  <li key={`${index}-${move.san}`}>
+                    <button
+                      className={`move-btn ${!manualFen && movePly === currentPly ? "active" : ""}`}
+                      onClick={() => {
+                        setIsPlaying(false);
+                        setManualFen(null);
+                        setCurrentPly(movePly);
+                      }}
+                    >
+                      {Math.floor(index / 2) + 1}{index % 2 === 0 ? "." : "..."} {move.san}
+                      {moveEval
+                        ? ` (${formatEval(moveEval.evaluationType, moveEval.evaluation)})`
+                        : ""}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
@@ -313,3 +433,5 @@ export function GamePage() {
     </section>
   );
 }
+
+

@@ -13,6 +13,7 @@ export interface BoardAdapter {
   mount(container: HTMLElement): void;
   setPosition(fen: string, animated?: boolean): void;
   setOrientation(orientation: BoardOrientation): void;
+  setHighlightedSquares(squares: string[]): void;
   onDrop(handler: (event: BoardDropEvent) => void | Promise<void>): () => void;
   destroy(): void;
 }
