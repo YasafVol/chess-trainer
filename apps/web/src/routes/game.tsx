@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { Chess } from "chess.js";
 import { ChessboardElementAdapter } from "../board/ChessboardElementAdapter";
+import { InlineLoader } from "../components/InlineLoader";
+import { useDelayedBusy } from "../components/useDelayedBusy";
 import type { BoardAdapter } from "../board/BoardAdapter";
 import { runGameAnalysis } from "../application/runGameAnalysis";
 import { buildReplayData } from "../domain/gameReplay";
@@ -35,6 +37,7 @@ export function GamePage() {
   const [analysisRunning, setAnalysisRunning] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [engineReady, setEngineReady] = useState(false);
+  const showAnalysisLoader = useDelayedBusy(analysisRunning, { delayMs: 250, minVisibleMs: 450 });
 
   const boardHostRef = useRef<HTMLDivElement | null>(null);
   const boardRef = useRef<BoardAdapter | null>(null);
@@ -384,6 +387,9 @@ export function GamePage() {
             </div>
 
             <div className="analysis-inline">
+              {showAnalysisLoader ? (
+                <InlineLoader inline label="Analyzing game" detail="Running Stockfish and saving per-position evaluations." />
+              ) : null}
               {analysisProgress ? <p className="muted">Analysis progress: {analysisProgress.done}/{analysisProgress.total}</p> : null}
               {analysisError ? <p>{analysisError}</p> : null}
               <p className="muted">Engine: {engineReady ? "ready" : "initializing..."}</p>
@@ -433,5 +439,9 @@ export function GamePage() {
     </section>
   );
 }
+
+
+
+
 
 

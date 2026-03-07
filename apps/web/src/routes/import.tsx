@@ -1,5 +1,7 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { parsePgnCollection, shortHash } from "@chess-trainer/chess-core";
+import { InlineLoader } from "../components/InlineLoader";
+import { useDelayedBusy } from "../components/useDelayedBusy";
 import type { ImportPreviewGame } from "../domain/types";
 import { buildReplayData, moveToUci } from "../domain/gameReplay";
 import { importBatchLocal, useLocalGames } from "../lib/mockData";
@@ -13,8 +15,13 @@ export function ImportPage() {
   const [rawInput, setRawInput] = useState("");
   const [status, setStatus] = useState("Paste a PGN or upload a file to begin.");
   const [busy, setBusy] = useState(false);
+  const [isReadingFile, setIsReadingFile] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
   const [previews, setPreviews] = useState<ImportPreviewGame[]>([]);
   const [source, setSource] = useState<"paste" | "upload">("paste");
+
+  const showParseLoader = useDelayedBusy(isReadingFile || isParsing, { delayMs: 180, minVisibleMs: 400 });
+  const showImportLoader = useDelayedBusy(busy, { delayMs: 180, minVisibleMs: 400 });
 
   const existingByHash = useMemo(() => {
     const map = new Map<string, string>();
@@ -31,9 +38,11 @@ export function ImportPage() {
       if (!rawInput.trim()) {
         setPreviews([]);
         setStatus("Paste a PGN or upload a file to begin.");
+        setIsParsing(false);
         return;
       }
 
+      setIsParsing(true);
       console.log("[import] build previews", {
         source,
         rawLength: rawInput.length
@@ -85,6 +94,7 @@ export function ImportPage() {
           ? `Parsed ${next.length} game${next.length === 1 ? "" : "s"}. Select the ones you want to import.`
           : "No valid games were parsed from this PGN input."
       );
+      setIsParsing(false);
     }
 
     void buildPreviews();
@@ -98,13 +108,20 @@ export function ImportPage() {
     if (!file) {
       return;
     }
-    const text = await file.text();
-    console.log("[import] file selected", {
-      name: file.name,
-      size: file.size
-    });
-    setSource("upload");
-    setRawInput(text);
+
+    setIsReadingFile(true);
+    try {
+      const text = await file.text();
+      console.log("[import] file selected", {
+        name: file.name,
+        size: file.size
+      });
+      setSource("upload");
+      setRawInput(text);
+      setStatus(`Loaded ${file.name}. Parsing PGN…`);
+    } finally {
+      setIsReadingFile(false);
+    }
   }
 
   function togglePreview(targetId: string) {
@@ -133,6 +150,7 @@ export function ImportPage() {
 
     setBusy(true);
     try {
+      setStatus(`Importing ${selected.length} game${selected.length === 1 ? "" : "s"}…`);
       const now = new Date().toISOString();
       const result = await importBatchLocal(
         selected.map((preview) => ({
@@ -181,6 +199,8 @@ export function ImportPage() {
         </div>
       </form>
       <p>{status}</p>
+      {showParseLoader ? <InlineLoader label="Processing PGN" detail="Reading and splitting the collection into individual games." /> : null}
+      {showImportLoader ? <InlineLoader label="Importing games" detail="Saving selected games into the local library." /> : null}
 
       {previews.length > 0 ? (
         <div className="preview-list">

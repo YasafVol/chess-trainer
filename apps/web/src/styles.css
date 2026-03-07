@@ -220,3 +220,39 @@ button:hover:not(:disabled) {
     max-height: 260px;
   }
 }
+.inline-loader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #fffdf6;
+  margin-top: 12px;
+}
+
+.inline-loader-compact {
+  margin-top: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+}
+
+.inline-loader-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid #d6d3c7;
+  border-top-color: #9a7b0a;
+  animation: loader-spin 0.8s linear infinite;
+  flex: 0 0 auto;
+}
+
+@keyframes loader-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
