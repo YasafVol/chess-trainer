@@ -75,6 +75,7 @@ function canRetryFromMessage(message: string): boolean {
 }
 
 export function buildRunningRun(input: {
+  game: GameRecord;
   gameId: string;
   engineFlavor: string;
   createId: () => string;
@@ -87,6 +88,7 @@ export function buildRunningRun(input: {
 }): AnalysisRun {
   return {
     id: input.createId(),
+    userId: input.game.userId,
     gameId: input.gameId,
     schemaVersion: 1,
     engineName: "Stockfish",
@@ -113,6 +115,7 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
   args.onProgress?.({ done: 0, total: plan.length });
 
   const run = buildRunningRun({
+    game: args.game,
     gameId: args.game.id,
     engineFlavor: args.engineFlavor,
     createId,
@@ -180,6 +183,7 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
 
       const plyRecord: PlyAnalysis = {
         id: createId(),
+        userId: args.game.userId,
         runId: run.id,
         gameId: args.game.id,
         ply: step.ply,

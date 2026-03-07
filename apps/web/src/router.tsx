@@ -1,12 +1,10 @@
-import {
-  createRootRoute,
-  createRoute,
-  createRouter
-} from "@tanstack/react-router";
+import { createRootRoute, createRoute, createRouter } from "@tanstack/react-router";
 import { RootLayout } from "./routes/root";
 import { ImportPage } from "./routes/import";
 import { LibraryPage } from "./routes/library";
 import { GamePage } from "./routes/game";
+import { PuzzlesPage } from "./routes/puzzles";
+import { PuzzlePage } from "./routes/puzzle";
 
 const rootRoute = createRootRoute({
   component: RootLayout
@@ -30,7 +28,19 @@ const gameRoute = createRoute({
   component: GamePage
 });
 
-const routeTree = rootRoute.addChildren([importRoute, libraryRoute, gameRoute]);
+const puzzlesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/puzzles",
+  component: PuzzlesPage
+});
+
+const puzzleRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/puzzles/$puzzleId",
+  component: PuzzlePage
+});
+
+const routeTree = rootRoute.addChildren([importRoute, libraryRoute, gameRoute, puzzlesRoute, puzzleRoute]);
 
 export const router = createRouter({
   routeTree,

@@ -6,12 +6,14 @@ import type { AnalysisRun, GameRecord, PlyAnalysis } from "../domain/types.js";
 function sampleGame(movesUci: string[]): GameRecord {
   return {
     id: "game-1",
+    userId: "user-1",
     schemaVersion: 1,
     hash: "abc123",
     pgn: "1. e4 e5 *",
     headers: {},
     initialFen: "startpos",
     movesUci,
+    source: "paste",
     createdAt: "2026-03-05T10:00:00.000Z",
     updatedAt: "2026-03-05T10:00:00.000Z"
   };

@@ -5,7 +5,7 @@
     "outDir": ".tmp-test-build",
     "rootDir": ".",
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "types": ["node"]
   },
   "include": [
@@ -15,10 +15,7 @@
     "src/domain/analysisRunLifecycle.test.ts",
     "src/application/runGameAnalysis.ts",
     "src/application/runGameAnalysis.test.ts",
-    "src/domain/types.ts",
-    "src/lib/storage/db.ts",
-    "src/lib/storage/migrations.ts",
-    "src/lib/storage/repositories/analysisRepo.ts",
-    "src/lib/storage/repositories/analysisRepo.test.ts"
-  ]
+    "src/domain/types.ts"
+  ],
+  "exclude": []
 }

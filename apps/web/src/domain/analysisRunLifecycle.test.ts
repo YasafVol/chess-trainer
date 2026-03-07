@@ -6,6 +6,7 @@ import type { AnalysisRun } from "./types.js";
 function sampleRun(status: AnalysisRun["status"] = "running"): AnalysisRun {
   return {
     id: "run-1",
+    userId: "user-1",
     gameId: "game-1",
     schemaVersion: 1,
     engineName: "Stockfish",

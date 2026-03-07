@@ -33,7 +33,7 @@ export function getDb(): Promise<IDBDatabase> {
 }
 
 export function withStore<T>(
-  storeName: "games" | "analysisRuns" | "analysisByPly" | "appMeta",
+  storeName: "games" | "analysisRuns" | "analysisByPly" | "puzzles" | "puzzleAttempts" | "appMeta",
   mode: IDBTransactionMode,
   operation: (store: IDBObjectStore) => Promise<T>
 ): Promise<T> {

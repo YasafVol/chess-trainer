@@ -1,4 +1,4 @@
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export type Migration = {
   toVersion: number;
@@ -30,6 +30,23 @@ export const migrations: Migration[] = [
 
       if (!db.objectStoreNames.contains("appMeta")) {
         db.createObjectStore("appMeta", { keyPath: "key" });
+      }
+    }
+  },
+  {
+    toVersion: 2,
+    apply: (db) => {
+      if (!db.objectStoreNames.contains("puzzles")) {
+        const puzzles = db.createObjectStore("puzzles", { keyPath: "id" });
+        puzzles.createIndex("by_updatedAt", "updatedAt", { unique: false });
+        puzzles.createIndex("by_gameId", "gameId", { unique: false });
+        puzzles.createIndex("by_dueAt", "schedule.dueAt", { unique: false });
+      }
+
+      if (!db.objectStoreNames.contains("puzzleAttempts")) {
+        const attempts = db.createObjectStore("puzzleAttempts", { keyPath: "id" });
+        attempts.createIndex("by_puzzleId", "puzzleId", { unique: false });
+        attempts.createIndex("by_attemptedAt", "attemptedAt", { unique: false });
       }
     }
   }

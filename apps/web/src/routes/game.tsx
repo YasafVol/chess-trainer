@@ -1,69 +1,50 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { Chess } from "chess.js";
-import type { AnalysisRun, GameRecord, PlyAnalysis } from "../domain/types";
-import { getGame } from "../lib/storage/repositories/gamesRepo";
-import {
-  getLatestAnalysisRunByGameId,
-  listPlyAnalysisByRunId,
-  saveAnalysisRun,
-  savePlyAnalysis
-} from "../lib/storage/repositories/analysisRepo";
-import { ANALYSIS_POLICY } from "../domain/analysisPolicy";
-import { buildReplayData } from "../domain/gameReplay";
-import { runGameAnalysis } from "../application/runGameAnalysis";
 import { ChessboardElementAdapter } from "../board/ChessboardElementAdapter";
 import type { BoardAdapter } from "../board/BoardAdapter";
+import { runGameAnalysis } from "../application/runGameAnalysis";
+import { buildReplayData } from "../domain/gameReplay";
 import { EngineClient, type EngineFlavor } from "../engine/engineClient";
+import { generatePuzzlesForRunLocal, savePlyLocal, saveRunLocal, useLocalAnalysisSnapshot, useLocalGame } from "../lib/mockData";
 
-function formatEval(evaluationType: "cp" | "mate", evaluation: number): string {
-  if (evaluationType === "mate") {
-    return `M${evaluation > 0 ? "+" : ""}${evaluation}`;
-  }
+function chooseEngineFlavor(): EngineFlavor {
+  const isMobile = typeof navigator !== "undefined" && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile) return "stockfish-18-lite-single";
+  if (typeof crossOriginIsolated !== "undefined" && crossOriginIsolated) return "stockfish-18";
+  return "stockfish-18-single";
+}
+
+function formatEval(type: "cp" | "mate", evaluation: number): string {
+  if (type === "mate") return `M${evaluation > 0 ? "+" : ""}${evaluation}`;
   const cp = evaluation / 100;
   return `${cp >= 0 ? "+" : ""}${cp.toFixed(2)}`;
 }
 
-function chooseEngineFlavor(): EngineFlavor {
-  const isMobile =
-    typeof navigator !== "undefined" &&
-    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  if (isMobile) {
-    return "stockfish-18-lite-single";
-  }
-
-  if (typeof crossOriginIsolated !== "undefined" && crossOriginIsolated) {
-    return "stockfish-18";
-  }
-
-  return "stockfish-18-single";
-}
-
-function formatRunStatus(run: AnalysisRun): string {
-  return `${run.engineName} ${run.engineVersion} (${run.engineFlavor}) depth=${run.options.depth} status=${run.status}`;
-}
-
 export function GamePage() {
   const { gameId } = useParams({ from: "/game/$gameId" });
-  const [game, setGame] = useState<GameRecord | null>(null);
-  const [analysisRun, setAnalysisRun] = useState<AnalysisRun | null>(null);
-  const [analysisByPly, setAnalysisByPly] = useState<PlyAnalysis[]>([]);
-  const [analysisStatus, setAnalysisStatus] = useState<string>("No analysis run yet.");
-  const [analysisProgress, setAnalysisProgress] = useState<{ done: number; total: number } | null>(null);
-  const [analysisRunning, setAnalysisRunning] = useState(false);
-  const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const [engineReady, setEngineReady] = useState(false);
+  const game = useLocalGame(gameId);
+  const snapshot = useLocalAnalysisSnapshot(gameId);
+
   const [currentPly, setCurrentPly] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [manualFen, setManualFen] = useState<string | null>(null);
+  const [analysisStatus, setAnalysisStatus] = useState("No analysis run yet.");
+  const [analysisProgress, setAnalysisProgress] = useState<{ done: number; total: number } | null>(null);
+  const [analysisRunning, setAnalysisRunning] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [engineReady, setEngineReady] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
+
   const boardHostRef = useRef<HTMLDivElement | null>(null);
   const boardRef = useRef<BoardAdapter | null>(null);
   const engineRef = useRef<EngineClient | null>(null);
   const cancelRequestedRef = useRef(false);
   const engineFlavorRef = useRef<EngineFlavor>(chooseEngineFlavor());
+
+  const analysisRun = snapshot?.run ?? null;
+  const analysisByPly = snapshot?.plies ?? [];
 
   const replayData = useMemo(() => {
     if (!game) return null;
@@ -80,38 +61,25 @@ export function GamePage() {
   const moveList = replayData?.moves ?? [];
 
   const analysisByPlyMap = useMemo(() => {
-    const map = new Map<number, PlyAnalysis>();
+    const map = new Map<number, (typeof analysisByPly)[number]>();
     for (const ply of analysisByPly) {
       map.set(ply.ply, ply);
     }
     return map;
   }, [analysisByPly]);
 
-  async function refreshAnalysisState(targetGameId: string): Promise<void> {
-    const run = await getLatestAnalysisRunByGameId(targetGameId);
-    const plies = run ? await listPlyAnalysisByRunId(run.id) : [];
-    setAnalysisRun(run);
-    setAnalysisByPly(plies);
-    if (!run) {
-      setAnalysisStatus("No analysis run yet.");
-      return;
-    }
-    setAnalysisStatus(formatRunStatus(run));
-  }
-
   useEffect(() => {
     const engine = new EngineClient();
     engineRef.current = engine;
     let active = true;
+
     engine
       .init(engineFlavorRef.current)
       .then(() => {
-        if (!active) return;
-        setEngineReady(true);
+        if (active) setEngineReady(true);
       })
       .catch((error) => {
-        if (!active) return;
-        setAnalysisError(error instanceof Error ? error.message : "Engine init failed.");
+        if (active) setAnalysisError(error instanceof Error ? error.message : "Engine init failed.");
       });
 
     return () => {
@@ -123,11 +91,6 @@ export function GamePage() {
   }, []);
 
   useEffect(() => {
-    getGame(gameId).then(setGame).catch(() => setGame(null));
-    refreshAnalysisState(gameId).catch(() => setAnalysisStatus("Failed to load analysis summary."));
-  }, [gameId]);
-
-  useEffect(() => {
     setCurrentPly(0);
     setFlipped(false);
     setIsPlaying(false);
@@ -135,6 +98,14 @@ export function GamePage() {
     setAnalysisProgress(null);
     setAnalysisError(null);
   }, [gameId]);
+
+  useEffect(() => {
+    if (!analysisRun) {
+      setAnalysisStatus("No analysis run yet.");
+      return;
+    }
+    setAnalysisStatus(`${analysisRun.engineName} ${analysisRun.engineVersion} depth=${analysisRun.options.depth} status=${analysisRun.status}`);
+  }, [analysisRun]);
 
   useEffect(() => {
     if (!boardHostRef.current || !replayData) return;
@@ -162,14 +133,8 @@ export function GamePage() {
           return;
         }
 
-        const chosenMove =
-          candidateMoves.find((move) => move.promotion === "q") ?? candidateMoves[0];
-
-        const result = chess.move({
-          from: chosenMove.from,
-          to: chosenMove.to,
-          promotion: chosenMove.promotion
-        });
+        const chosenMove = candidateMoves.find((move) => move.promotion === "q") ?? candidateMoves[0];
+        const result = chess.move({ from: chosenMove.from, to: chosenMove.to, promotion: chosenMove.promotion });
 
         if (!result) {
           setAction("snapback");
@@ -189,149 +154,75 @@ export function GamePage() {
       board.destroy();
       boardRef.current = null;
     };
-  }, [replayData, gameId, currentPly, manualFen]);
+  }, [currentPly, manualFen, replayData]);
 
   useEffect(() => {
-    if (!replayData || !boardRef.current) return;
-    const safePly = Math.max(0, Math.min(currentPly, totalPlies));
-    const fen = manualFen ?? replayData.fenPositions[safePly];
-    if (!fen) return;
+    if (!boardRef.current || !replayData) return;
     boardRef.current.setOrientation(flipped ? "black" : "white");
-    boardRef.current.setPosition(fen, true);
-  }, [currentPly, flipped, replayData, totalPlies, manualFen]);
+    boardRef.current.setPosition(manualFen ?? replayData.fenPositions[currentPly], true);
+  }, [currentPly, flipped, manualFen, replayData]);
 
   useEffect(() => {
     if (!isPlaying || !replayData) return;
-    const timer = window.setInterval(() => {
-      setCurrentPly((ply) => {
-        if (ply >= totalPlies) {
-          setIsPlaying(false);
-          return ply;
-        }
-        return ply + 1;
-      });
-    }, 500);
-    return () => clearInterval(timer);
-  }, [isPlaying, replayData, totalPlies]);
+    if (currentPly >= totalPlies) {
+      setIsPlaying(false);
+      return;
+    }
+    const timeoutId = window.setTimeout(() => {
+      setCurrentPly((ply) => Math.min(totalPlies, ply + 1));
+    }, 550);
+    return () => window.clearTimeout(timeoutId);
+  }, [currentPly, isPlaying, replayData, totalPlies]);
 
-  useEffect(() => {
-    const onVisibility = () => {
-      if (document.hidden && analysisRunning) {
-        cancelRequestedRef.current = true;
-        void engineRef.current?.cancel().catch(() => undefined);
-      }
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, [analysisRunning]);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const isTypingTarget =
-        target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable;
-      if (isTypingTarget) return;
-
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        setIsPlaying(false);
-        setManualFen(null);
-        setCurrentPly((ply) => Math.max(0, ply - 1));
-        return;
-      }
-
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        setIsPlaying(false);
-        setManualFen(null);
-        setCurrentPly((ply) => Math.min(totalPlies, ply + 1));
-        return;
-      }
-
-      if (event.key === "Home") {
-        event.preventDefault();
-        setIsPlaying(false);
-        setManualFen(null);
-        setCurrentPly(0);
-        return;
-      }
-
-      if (event.key === " " || event.code === "Space") {
-        event.preventDefault();
-        setManualFen(null);
-        setIsPlaying((playing) => !playing);
-        return;
-      }
-
-      if (event.key.toLowerCase() === "f") {
-        event.preventDefault();
-        setFlipped((value) => !value);
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [totalPlies]);
-
-  async function runAnalysis(): Promise<void> {
-    if (!game || !replayData || !engineRef.current || analysisRunning) {
+  async function runAnalysis() {
+    if (!game || !replayData || !engineRef.current) {
       return;
     }
 
     cancelRequestedRef.current = false;
     setAnalysisRunning(true);
     setAnalysisError(null);
+    setAnalysisProgress(null);
+    setAnalysisStatus("Starting analysis...");
 
     try {
       const result = await runGameAnalysis({
         game,
         fenPositions: replayData.fenPositions,
-        moveSanList: moveList.map((move) => move.san),
+        moveSanList: replayData.moves.map((move) => move.san),
         engineFlavor: engineFlavorRef.current,
         analyzePosition: (input) => engineRef.current!.analyzePosition(input),
-        saveRun: saveAnalysisRun,
-        savePly: savePlyAnalysis,
+        saveRun: async (run) => {
+          await saveRunLocal(run);
+        },
+        savePly: async (ply) => {
+          await savePlyLocal([ply]);
+        },
         isCancelRequested: () => cancelRequestedRef.current,
         markCancelRequested: () => {
           cancelRequestedRef.current = true;
         },
-        onRetryStatus: (message) => {
-          setAnalysisStatus(message);
-        },
-        onRunUpdated: (run) => {
-          setAnalysisRun(run);
-          setAnalysisStatus(formatRunStatus(run));
-        },
-        onPlySaved: (plyRecord) => {
-          setAnalysisByPly((prev) => {
-            const map = new Map<number, PlyAnalysis>();
-            for (const item of prev) map.set(item.ply, item);
-            map.set(plyRecord.ply, plyRecord);
-            return Array.from(map.values()).sort((a, b) => a.ply - b.ply);
-          });
-        },
-        onProgress: (progress) => {
-          setAnalysisProgress(progress);
+        onProgress: (progress) => setAnalysisProgress(progress),
+        onRetryStatus: (message) => setAnalysisStatus(message),
+        onRunUpdated: (run) => setAnalysisStatus(`${run.status} at depth ${run.options.depth}`),
+        onPlySaved: (ply) => {
+          setAnalysisStatus(`Saved ply ${ply.ply}/${totalPlies}`);
         }
       });
 
-      if (result.finalRun.status === "failed") {
-        setAnalysisError(result.finalRun.error ?? "Analysis failed.");
-      } else if (result.stoppedByBudget) {
-        setAnalysisError("Stopped after runtime budget. Run analysis again to continue.");
-      } else if (result.retriesUsed > 0) {
-        setAnalysisError(`Analysis completed with ${result.retriesUsed} ${result.retriesUsed === 1 ? "retry" : "retries"}.`);
+      if (result.finalRun.status === "completed") {
+        setAnalysisStatus(`Analysis completed. ${result.done} positions saved.`);
+        await generatePuzzlesForRunLocal(result.finalRun.id, game.id);
       }
     } catch (error) {
       setAnalysisError(error instanceof Error ? error.message : "Analysis failed.");
     } finally {
       setAnalysisRunning(false);
       setAnalysisProgress(null);
-      await refreshAnalysisState(game.id).catch(() => undefined);
     }
   }
 
-  async function cancelAnalysis(): Promise<void> {
+  async function cancelAnalysis() {
     cancelRequestedRef.current = true;
     setAnalysisRunning(false);
     setAnalysisProgress(null);
@@ -339,147 +230,84 @@ export function GamePage() {
     try {
       await engineRef.current?.cancel();
     } catch {
-      // no-op
+      // ignore cancel failure
     }
+  }
+
+  if (game === undefined || snapshot === undefined) {
+    return <section className="page"><p>Loading game…</p></section>;
+  }
+
+  if (!game) {
+    return <section className="page"><p>Game not found.</p></section>;
   }
 
   return (
     <section className="page">
-      <h2>Game {gameId}</h2>
-      {!game ? <p>Game not found.</p> : null}
-      {game ? (
-        <>
-          <p>
-            <strong>{game.headers.White ?? "White"}</strong> vs <strong>{game.headers.Black ?? "Black"}</strong>
-          </p>
-          <p>Hash: {game.hash}</p>
-          {parseError ? <p>{parseError}</p> : null}
-          {replayData ? (
-            <div className="game-layout">
-              <div>
-                <div ref={boardHostRef} className="board-host" />
-                <div className="controls">
-                  <button
-                    onClick={() => {
-                      setIsPlaying(false);
-                      setManualFen(null);
-                      setCurrentPly((ply) => Math.max(0, ply - 1));
-                    }}
-                  >
-                    Prev
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsPlaying(false);
-                      setManualFen(null);
-                      setCurrentPly((ply) => Math.min(totalPlies, ply + 1));
-                    }}
-                  >
-                    Next
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsPlaying(false);
-                      setManualFen(null);
-                      setCurrentPly(0);
-                    }}
-                  >
-                    Reset
-                  </button>
-                  <button
-                    onClick={() => {
-                      setManualFen(null);
-                      setIsPlaying((playing) => !playing);
-                    }}
-                  >
-                    {isPlaying ? "Pause" : "Play"}
-                  </button>
-                  <button onClick={() => setFlipped((v) => !v)}>Flip</button>
-                  {!analysisRunning ? (
-                    <button onClick={() => void runAnalysis()} disabled={!engineReady || !replayData}>
-                      Analyze game
-                    </button>
-                  ) : (
-                    <button onClick={() => void cancelAnalysis()}>Cancel analysis</button>
-                  )}
-                  {manualFen ? (
-                    <button onClick={() => setManualFen(null)}>Back to line</button>
-                  ) : null}
-                  <span className="muted">
-                    Ply {currentPly}/{totalPlies}
-                  </span>
-                </div>
-                <div className="analysis-inline">
-                  {analysisProgress ? (
-                    <p className="muted">
-                      Analysis progress: {analysisProgress.done}/{analysisProgress.total}
-                    </p>
-                  ) : null}
-                  {analysisError ? <p>{analysisError}</p> : null}
-                  <p className="muted">Engine: {engineReady ? "ready" : "initializing..."}</p>
-                  {analysisByPlyMap.get(currentPly) ? (
-                    <>
-                      <p>
-                        Current eval:{" "}
-                        <strong>
-                          {formatEval(
-                            analysisByPlyMap.get(currentPly)!.evaluationType,
-                            analysisByPlyMap.get(currentPly)!.evaluation
-                          )}
-                        </strong>
-                      </p>
-                      <p className="muted">
-                        Best move: {analysisByPlyMap.get(currentPly)!.bestMoveUci ?? "n/a"} | Depth{" "}
-                        {analysisByPlyMap.get(currentPly)!.depth}
-                        {analysisByPlyMap.get(currentPly)!.timeMs
-                          ? ` | ${analysisByPlyMap.get(currentPly)!.timeMs}ms`
-                          : ""}
-                      </p>
-                      {analysisByPlyMap.get(currentPly)!.pvUci.length > 0 ? (
-                        <p className="muted">PV: {analysisByPlyMap.get(currentPly)!.pvUci.join(" ")}</p>
-                      ) : null}
-                    </>
-                  ) : (
-                    <p className="muted">No eval at current ply.</p>
-                  )}
-                </div>
-              </div>
-              <div className="moves-pane" role="region" aria-label="Moves list">
-                <ul className="list">
-                  {moveList.map((move, index) => (
-                    <li key={`${index}-${move.san}`}>
-                      <button
-                        className={`move-btn ${!manualFen && index + 1 === currentPly ? "active" : ""}`}
-                        onClick={() => {
-                          setIsPlaying(false);
-                          setManualFen(null);
-                          setCurrentPly(index + 1);
-                        }}
-                      >
-                        {Math.floor(index / 2) + 1}
-                        {index % 2 === 0 ? "." : "..."} {move.san}
-                        {analysisByPlyMap.get(index + 1)
-                          ? ` (${formatEval(
-                              analysisByPlyMap.get(index + 1)!.evaluationType,
-                              analysisByPlyMap.get(index + 1)!.evaluation
-                            )})`
-                          : ""}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+      <h2>{game.headers.White ?? "White"} vs {game.headers.Black ?? "Black"}</h2>
+      <p className="muted">Hash: {game.hash}</p>
+      {parseError ? <p>{parseError}</p> : null}
+
+      {replayData ? (
+        <div className="game-layout">
+          <div>
+            <div ref={boardHostRef} className="board-host" />
+            <div className="controls">
+              <button onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.max(0, ply - 1)); }}>Prev</button>
+              <button onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.min(totalPlies, ply + 1)); }}>Next</button>
+              <button onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly(0); }}>Reset</button>
+              <button onClick={() => { setManualFen(null); setIsPlaying((playing) => !playing); }}>{isPlaying ? "Pause" : "Play"}</button>
+              <button onClick={() => setFlipped((value) => !value)}>Flip</button>
+              {!analysisRunning ? (
+                <button onClick={() => void runAnalysis()} disabled={!engineReady}>Analyze game</button>
+              ) : (
+                <button onClick={() => void cancelAnalysis()}>Cancel analysis</button>
+              )}
+              {manualFen ? <button onClick={() => setManualFen(null)}>Back to line</button> : null}
+              <span className="muted">Ply {currentPly}/{totalPlies}</span>
             </div>
-          ) : null}
-        </>
+
+            <div className="analysis-inline">
+              {analysisProgress ? <p className="muted">Analysis progress: {analysisProgress.done}/{analysisProgress.total}</p> : null}
+              {analysisError ? <p>{analysisError}</p> : null}
+              <p className="muted">Engine: {engineReady ? "ready" : "initializing..."}</p>
+              {analysisByPlyMap.get(currentPly) ? (
+                <>
+                  <p>Current eval: <strong>{formatEval(analysisByPlyMap.get(currentPly)!.evaluationType, analysisByPlyMap.get(currentPly)!.evaluation)}</strong></p>
+                  <p className="muted">Best move: {analysisByPlyMap.get(currentPly)!.bestMoveUci ?? "n/a"} · Depth {analysisByPlyMap.get(currentPly)!.depth}</p>
+                  {analysisByPlyMap.get(currentPly)!.pvUci.length > 0 ? <p className="muted">PV: {analysisByPlyMap.get(currentPly)!.pvUci.join(" ")}</p> : null}
+                </>
+              ) : (
+                <p className="muted">No eval at current ply.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="moves-pane" role="region" aria-label="Moves list">
+            <ul className="list">
+              {moveList.map((move, index) => (
+                <li key={`${index}-${move.san}`}>
+                  <button
+                    className={`move-btn ${!manualFen && index + 1 === currentPly ? "active" : ""}`}
+                    onClick={() => {
+                      setIsPlaying(false);
+                      setManualFen(null);
+                      setCurrentPly(index + 1);
+                    }}
+                  >
+                    {Math.floor(index / 2) + 1}{index % 2 === 0 ? "." : "..."} {move.san}
+                    {analysisByPlyMap.get(index)
+                      ? ` (${formatEval(analysisByPlyMap.get(index)!.evaluationType, analysisByPlyMap.get(index)!.evaluation)})`
+                      : ""}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       ) : null}
-      <h3>Analysis policy</h3>
-      <ul>
-        <li>Default depth: {ANALYSIS_POLICY.defaultDepth}</li>
-        <li>Long game threshold: {ANALYSIS_POLICY.longGameMinPlies} plies</li>
-        <li>Very long threshold: {ANALYSIS_POLICY.veryLongGameMinPlies} plies</li>
-      </ul>
-      <h3>Latest analysis</h3>
+
+      <h3>Analysis status</h3>
       <p>{analysisStatus}</p>
       {analysisRun?.error ? <p>{analysisRun.error}</p> : null}
     </section>

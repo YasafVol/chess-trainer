@@ -3,6 +3,11 @@
 ## Scope
 Standalone web runtime under `apps/web`.
 
+## Current Runtime Mode
+- Active mode: mock-first local web app.
+- Durable data is stored in browser IndexedDB.
+- Convex and Google auth scaffolding remain in the repo but are not on the active runtime path.
+
 ## Layer Placement
 - Contracts:
   - `apps/web/src/domain/types.ts`
@@ -13,14 +18,17 @@ Standalone web runtime under `apps/web`.
   - `apps/web/src/domain/analysisPlan.ts`
   - `apps/web/src/domain/analysisRunLifecycle.ts`
   - `apps/web/src/domain/gameReplay.ts`
+  - `apps/web/src/domain/puzzles.ts`
 - Application:
   - `apps/web/src/application/runGameAnalysis.ts`
   - remaining orchestration currently in:
     - `apps/web/src/routes/import.tsx`
     - `apps/web/src/routes/game.tsx`
     - `apps/web/src/routes/library.tsx`
+    - `apps/web/src/routes/puzzle.tsx`
 - Adapters:
   - `apps/web/src/lib/storage/*`
+  - `apps/web/src/lib/mockData.ts`
   - `apps/web/src/engine/engineClient.ts`
   - `apps/web/src/engine/engine.worker.ts`
   - `apps/web/src/board/ChessboardElementAdapter.ts`
@@ -32,5 +40,6 @@ Standalone web runtime under `apps/web`.
   - `apps/web/src/router.tsx`
 
 ## Notes
-- Current compromise: import and library application logic is still route-local; extraction is still planned.
+- Current compromise: import, library, and puzzle application logic is still route-local; extraction is still planned.
 - TDD anchor: `apps/web/src/domain/analysisPlan.test.ts`.
+- Shipping target is a Vercel-hosted mock app before reintroducing cloud sync or auth.

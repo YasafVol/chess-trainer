@@ -1,33 +1,56 @@
 {
-	"name": "obsidian-chess-trainer",
-	"version": "0.2.6",
-	"description": "Import PGN chess games and create interactive notes with playable boards and move analysis.",
-	"main": "main.js",
-	"scripts": {
-		"dev": "node esbuild.config.mjs",
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"analyze": "npm run build && echo 'Bundle analysis completed during build'",
-		"test": "jest",
-		"version": "node version-bump.mjs && git add manifest.json versions.json"
-	},
-	"keywords": [
-		"obsidian",
-		"plugin",
-		"chess",
-		"pgn",
-		"games",
-		"training"
-	],
-	"author": "Chess Trainer Team",
-	"license": "MIT",
-	"devDependencies": {
-		"@types/node": "^16.11.6",
-		"@typescript-eslint/eslint-plugin": "5.29.0",
-		"@typescript-eslint/parser": "5.29.0",
-		"builtin-modules": "3.3.0",
-		"esbuild": "0.17.3",
-		"obsidian": "latest",
-		"tslib": "2.4.0",
-		"typescript": "4.7.4"
-	}
+  "name": "chess-trainer",
+  "version": "0.2.6",
+  "private": true,
+  "description": "Chess Trainer web app for PGN import, analysis, and puzzle review.",
+  "workspaces": [
+    "apps/web",
+    "packages/chess-core"
+  ],
+  "scripts": {
+    "dev": "npm --prefix apps/web run dev",
+    "build": "npm --prefix apps/web run build",
+    "typecheck": "npm --prefix apps/web run typecheck",
+    "test": "npm --prefix apps/web run test:tdd",
+    "convex:dev": "npm --prefix apps/web run convex:dev",
+    "convex:deploy": "npm --prefix apps/web run convex:deploy",
+    "vercel:whoami": "vercel whoami",
+    "vercel:login": "vercel login",
+    "vercel:link": "vercel link",
+    "vercel:pull": "vercel pull --yes",
+    "vercel:dev": "vercel dev",
+    "vercel:build": "vercel build",
+    "vercel:deploy": "vercel deploy",
+    "vercel:deploy:prod": "vercel deploy --prod",
+    "web:dev": "npm --prefix apps/web run dev",
+    "web:build": "npm --prefix apps/web run build",
+    "plugin:dev": "node esbuild.config.mjs",
+    "plugin:build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "plugin:analyze": "npm run plugin:build && echo 'Bundle analysis completed during build'",
+    "plugin:version": "node version-bump.mjs && git add manifest.json versions.json"
+  },
+  "keywords": [
+    "chess",
+    "pgn",
+    "analysis",
+    "puzzles",
+    "convex",
+    "vercel"
+  ],
+  "author": "Chess Trainer Team",
+  "license": "MIT",
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "@typescript-eslint/eslint-plugin": "5.29.0",
+    "@typescript-eslint/parser": "5.29.0",
+    "builtin-modules": "3.3.0",
+    "esbuild": "0.17.3",
+    "obsidian": "latest",
+    "tslib": "2.4.0",
+    "typescript": "4.7.4"
+  }
 }

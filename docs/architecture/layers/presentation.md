@@ -5,12 +5,12 @@ Render user interfaces, collect user intents, and display system state without e
 
 ## Features / Responsibilities
 - Plugin modal/settings UI and markdown chess viewer controls.
-- Web import/library/game routes and board control surfaces.
-- Analysis progress, status, and move/eval display.
+- Web import/library/game/puzzle routes and board control surfaces.
+- Analysis progress, status, move/eval display, and puzzle review feedback.
 
 ## Data / Contracts
 - UI input events -> application commands.
-- Render models include game metadata, replay state, analysis summaries, and errors.
+- Render models include game metadata, replay state, analysis summaries, puzzle schedules, and errors.
 
 ## Key Files
 - `src/ui/ImportModal.ts`
@@ -21,26 +21,31 @@ Render user interfaces, collect user intents, and display system state without e
 - `apps/web/src/routes/import.tsx`
 - `apps/web/src/routes/library.tsx`
 - `apps/web/src/routes/game.tsx`
+- `apps/web/src/routes/puzzles.tsx`
+- `apps/web/src/routes/puzzle.tsx`
 - `apps/web/src/styles.css`
 - `styles.css`
 
 ## Internal Flows
-- Modal/button/keyboard interactions trigger import, replay, and analysis actions.
-- Route-level state updates repaint board, move list, and analysis sections.
+- Modal/button/keyboard interactions trigger import, replay, analysis, and puzzle-solve actions.
+- Route-level state updates repaint board, move list, analysis sections, and puzzle review status.
+- The current web shell presents a mock session state instead of an auth gate.
 
 ## User-Facing Flows
 - Import PGN and receive immediate feedback.
 - Navigate moves with controls and keyboard.
 - Start/cancel analysis and inspect evaluation at current ply.
+- Solve generated puzzles and receive spaced-repetition feedback.
 
 ## Tests / Quality Gates
 - Manual plugin QA checklist (`QA_CHECKLIST.md`).
 - Manual web smoke checklist (`Spec/WEB_APP_SMOKE_CHECKLIST.md`).
 - Needed:
-  - route-level component tests for import and game views
-  - accessibility checks for move list focus and announcements.
+  - route-level component tests for import, game, and puzzle views
+  - accessibility checks for move list focus and announcements
 
 ## Open Risks / Deferred Items
 - Plugin hotkey reliability remains open.
 - Move pane focus/scroll behavior remains a deferred UX fix.
 - Presentation currently owns application orchestration in multiple files.
+- Auth-gated UI is intentionally deferred until the mock runtime ships.

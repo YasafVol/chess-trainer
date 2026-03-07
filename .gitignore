@@ -21,7 +21,13 @@ data.json
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
 
+# Vercel local project metadata
+.vercel
+
 # Web app scaffold build artifacts
 apps/web/node_modules
 apps/web/dist
 apps/web/tsconfig.tsbuildinfo
+apps/web/.tmp-test-build
+.vercel
+.env*.local

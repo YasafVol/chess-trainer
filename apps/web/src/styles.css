@@ -1,7 +1,9 @@
 :root {
   font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
   color: #111827;
-  background: #f4f4f2;
+  background:
+    radial-gradient(circle at top left, rgba(209, 213, 219, 0.55), transparent 32%),
+    linear-gradient(180deg, #f6f2ea 0%, #efede7 100%);
 }
 
 * {
@@ -12,15 +14,64 @@ body {
   margin: 0;
 }
 
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 1px solid #111827;
+  background: #111827;
+  color: #f9fafb;
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  background: #1f2937;
+}
+
 .app-shell {
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
   min-height: 100vh;
   padding: 24px;
 }
 
+.shell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.session-box,
+.inline-actions,
+.stack-gap {
+  display: flex;
+  gap: 12px;
+}
+
+.session-box,
+.stack-gap {
+  flex-wrap: wrap;
+}
+
+.stack-gap {
+  flex-direction: column;
+}
+
 .top-nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 14px;
   margin-bottom: 20px;
 }
@@ -29,6 +80,7 @@ body {
   text-decoration: none;
   color: #1f2937;
   border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
 }
 
 .top-nav a:hover {
@@ -36,10 +88,18 @@ body {
 }
 
 .page {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 16px 44px rgba(15, 23, 42, 0.08);
+}
+
+.empty-state {
+  border: 1px dashed #9ca3af;
+  border-radius: 18px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.55);
 }
 
 .muted {
@@ -50,6 +110,44 @@ body {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-row,
+.preview-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+}
+
+.preview-card {
+  justify-content: flex-start;
+}
+
+.preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.full-width-textarea {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 14px;
+  padding: 12px;
+  background: #fff;
 }
 
 .game-layout {
@@ -71,18 +169,16 @@ body {
   align-items: center;
 }
 
-.analysis-inline {
+.analysis-inline,
+.moves-pane {
   margin-top: 10px;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fafafa;
+  border-radius: 12px;
+  background: rgba(249, 250, 251, 0.9);
 }
 
 .moves-pane {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 10px;
   max-height: 560px;
   overflow-y: auto;
 }
@@ -92,8 +188,9 @@ body {
   text-align: left;
   border: 1px solid transparent;
   background: transparent;
-  padding: 4px 6px;
-  border-radius: 6px;
+  color: #111827;
+  padding: 6px 8px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -107,11 +204,19 @@ body {
 }
 
 @media (max-width: 900px) {
+  .app-shell {
+    padding: 16px;
+  }
+
+  .shell-header {
+    flex-direction: column;
+  }
+
   .game-layout {
     grid-template-columns: 1fr;
   }
 
   .moves-pane {
-    max-height: 240px;
+    max-height: 260px;
   }
 }

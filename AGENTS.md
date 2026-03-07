@@ -41,6 +41,13 @@ Cross-cutting lanes:
   3. Refactor: improve structure while keeping tests green.
 - If a change cannot start with a test, document why in the related vertical doc and add the closest possible contract/integration test first.
 
+## Deployment verification
+
+- After every `git push`, check the linked Vercel project for the resulting deployment status.
+- Verify whether the new deployment succeeded, failed, or is still building before ending the task.
+- If the deployment failed, inspect the Vercel deployment details/logs and report the failure cause clearly.
+- Do not consider a push complete until Vercel status has been checked and reported.
+
 ### Mandatory doc-update policy
 
 - Any non-trivial code change must update FITL Nav docs in the same PR:
@@ -303,3 +310,5 @@ this.registerInterval(window.setInterval(() => { /* ... */ }, 1000));
 - Developer policies: https://docs.obsidian.md/Developer+policies
 - Plugin guidelines: https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines
 - Style guide: https://help.obsidian.md/style-guide
+
+
