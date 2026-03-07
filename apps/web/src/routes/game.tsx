@@ -11,16 +11,28 @@ import { EngineClient, type EngineFlavor } from "../engine/engineClient";
 import { generatePuzzlesForRunLocal, savePlyLocal, saveRunLocal, useLocalAnalysisSnapshot, useLocalGame } from "../lib/mockData";
 
 function chooseEngineFlavor(): EngineFlavor {
-  const isMobile = typeof navigator !== "undefined" && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (isMobile) return "stockfish-18-lite-single";
-  if (typeof crossOriginIsolated !== "undefined" && crossOriginIsolated) return "stockfish-18";
-  return "stockfish-18-single";
+  // TODO: revisit flavor selection once the deployed app has reliable COOP/COEP and engine asset caching.
+  return "stockfish-18-lite-single";
 }
 
 function formatEval(type: "cp" | "mate", evaluation: number): string {
   if (type === "mate") return `M${evaluation > 0 ? "+" : ""}${evaluation}`;
   const cp = evaluation / 100;
   return `${cp >= 0 ? "+" : ""}${cp.toFixed(2)}`;
+}
+
+function formatUnknownError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return "Unknown error";
+  }
 }
 
 export function GamePage() {
@@ -36,6 +48,7 @@ export function GamePage() {
   const [analysisProgress, setAnalysisProgress] = useState<{ done: number; total: number } | null>(null);
   const [analysisRunning, setAnalysisRunning] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [boardError, setBoardError] = useState<string | null>(null);
   const [engineReady, setEngineReady] = useState(false);
   const showAnalysisLoader = useDelayedBusy(analysisRunning, { delayMs: 250, minVisibleMs: 450 });
 
@@ -112,6 +125,7 @@ export function GamePage() {
     engineRef.current = engine;
     let active = true;
 
+    setEngineReady(false);
     console.log("[game] initializing engine", {
       gameId,
       engineFlavor: engineFlavorRef.current
@@ -127,8 +141,14 @@ export function GamePage() {
       })
       .catch((error) => {
         if (active) {
-          console.error("[game] engine init failed", { gameId, error });
-          setAnalysisError(error instanceof Error ? error.message : "Engine init failed.");
+          const message = formatUnknownError(error);
+          console.error("[game] engine init failed", {
+            gameId,
+            engineFlavor: engineFlavorRef.current,
+            message,
+            error
+          });
+          setAnalysisError(`Engine initialization failed: ${message}`);
         }
       });
 
@@ -150,6 +170,7 @@ export function GamePage() {
     setManualFen(null);
     setAnalysisProgress(null);
     setAnalysisError(null);
+    setBoardError(null);
   }, [gameId, replayData]);
 
   useEffect(() => {
@@ -163,69 +184,106 @@ export function GamePage() {
   useEffect(() => {
     if (!boardHostRef.current || !replayData) return;
 
-    console.log("[game] mount board", {
-      gameId,
-      currentPly: currentPlyRef.current,
-      hasManualFen: !!manualFenRef.current
-    });
+    const host = boardHostRef.current;
+    let active = true;
+    let unbindDrop: (() => void) | null = null;
+    let localBoard: BoardAdapter | null = null;
 
-    const board = new ChessboardElementAdapter();
-    board.mount(boardHostRef.current);
-    boardRef.current = board;
-    board.setOrientation(flipped ? "black" : "white");
-    board.setPosition(manualFenRef.current ?? replayData.fenPositions[currentPlyRef.current] ?? replayData.fenPositions[0], false);
+    setBoardError(null);
 
-    const unbindDrop = board.onDrop(({ from, to, setAction }) => {
-      const activeReplayData = replayDataRef.current;
-      const baseFen = manualFenRef.current ?? activeReplayData?.fenPositions[currentPlyRef.current];
-      if (!activeReplayData || !baseFen) {
-        setAction("snapback");
-        return;
-      }
-
+    void (async () => {
       try {
-        const chess = new Chess(baseFen);
-        const candidateMoves = (chess.moves({ square: from as any, verbose: true } as any) as unknown as Array<{
-          from: string;
-          to: string;
-          promotion?: string;
-        }>).filter((move) => move.to === to);
+        if (typeof customElements !== "undefined") {
+          console.log("[game] waiting for chess-board definition", {
+            gameId,
+            alreadyDefined: !!customElements.get("chess-board")
+          });
+          await customElements.whenDefined("chess-board");
+        }
 
-        if (candidateMoves.length === 0) {
-          setAction("snapback");
+        if (!active) {
           return;
         }
 
-        const chosenMove = candidateMoves.find((move) => move.promotion === "q") ?? candidateMoves[0];
-        const result = chess.move({ from: chosenMove.from, to: chosenMove.to, promotion: chosenMove.promotion });
-
-        if (!result) {
-          setAction("snapback");
-          return;
-        }
-
-        console.log("[game] manual board move", {
+        console.log("[game] mount board", {
           gameId,
           currentPly: currentPlyRef.current,
-          from: chosenMove.from,
-          to: chosenMove.to,
-          promotion: chosenMove.promotion
+          hasManualFen: !!manualFenRef.current,
+          customElementDefined: typeof customElements !== "undefined" ? !!customElements.get("chess-board") : false
         });
 
-        setAction("drop");
-        setIsPlaying(false);
-        setManualFen(chess.fen());
+        const board = new ChessboardElementAdapter();
+        board.mount(host);
+        boardRef.current = board;
+        localBoard = board;
+        board.setOrientation(flipped ? "black" : "white");
+        board.setPosition(manualFenRef.current ?? replayData.fenPositions[currentPlyRef.current] ?? replayData.fenPositions[0], false);
+
+        unbindDrop = board.onDrop(({ from, to, setAction }) => {
+          const activeReplayData = replayDataRef.current;
+          const baseFen = manualFenRef.current ?? activeReplayData?.fenPositions[currentPlyRef.current];
+          if (!activeReplayData || !baseFen) {
+            setAction("snapback");
+            return;
+          }
+
+          try {
+            const chess = new Chess(baseFen);
+            const candidateMoves = (chess.moves({ square: from as any, verbose: true } as any) as unknown as Array<{
+              from: string;
+              to: string;
+              promotion?: string;
+            }>).filter((move) => move.to === to);
+
+            if (candidateMoves.length === 0) {
+              setAction("snapback");
+              return;
+            }
+
+            const chosenMove = candidateMoves.find((move) => move.promotion === "q") ?? candidateMoves[0];
+            const result = chess.move({ from: chosenMove.from, to: chosenMove.to, promotion: chosenMove.promotion });
+
+            if (!result) {
+              setAction("snapback");
+              return;
+            }
+
+            console.log("[game] manual board move", {
+              gameId,
+              currentPly: currentPlyRef.current,
+              from: chosenMove.from,
+              to: chosenMove.to,
+              promotion: chosenMove.promotion
+            });
+
+            setAction("drop");
+            setIsPlaying(false);
+            setManualFen(chess.fen());
+          } catch (error) {
+            console.error("[game] manual board move failed", { gameId, error });
+            setAction("snapback");
+          }
+        });
       } catch (error) {
-        console.error("[game] manual board move failed", { gameId, error });
-        setAction("snapback");
+        const message = formatUnknownError(error);
+        console.error("[game] board mount failed", {
+          gameId,
+          message,
+          error,
+          customElementDefined: typeof customElements !== "undefined" ? !!customElements.get("chess-board") : false
+        });
+        setBoardError(`Board failed to render: ${message}`);
       }
-    });
+    })();
 
     return () => {
+      active = false;
       console.log("[game] destroy board", { gameId });
-      unbindDrop();
-      board.destroy();
-      boardRef.current = null;
+      unbindDrop?.();
+      localBoard?.destroy();
+      if (boardRef.current === localBoard) {
+        boardRef.current = null;
+      }
     };
   }, [gameId, replayData]);
 
@@ -332,8 +390,9 @@ export function GamePage() {
         });
       }
     } catch (error) {
-      console.error("[game] analysis failed", { gameId: game.id, error });
-      setAnalysisError(error instanceof Error ? error.message : "Analysis failed.");
+      const message = formatUnknownError(error);
+      console.error("[game] analysis failed", { gameId: game.id, message, error });
+      setAnalysisError(message);
     } finally {
       setAnalysisRunning(false);
       setAnalysisProgress(null);
@@ -371,6 +430,7 @@ export function GamePage() {
         <div className="game-layout">
           <div>
             <div ref={boardHostRef} className="board-host" />
+            {boardError ? <p>{boardError}</p> : null}
             <div className="controls">
               <button onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.max(0, ply - 1)); }}>Prev</button>
               <button onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.min(totalPlies, ply + 1)); }}>Next</button>
@@ -392,7 +452,7 @@ export function GamePage() {
               ) : null}
               {analysisProgress ? <p className="muted">Analysis progress: {analysisProgress.done}/{analysisProgress.total}</p> : null}
               {analysisError ? <p>{analysisError}</p> : null}
-              <p className="muted">Engine: {engineReady ? "ready" : "initializing..."}</p>
+              <p className="muted">Engine: {engineReady ? "ready" : `initializing (${engineFlavorRef.current})...`}</p>
               {analysisByPlyMap.get(currentPly) ? (
                 <>
                   <p>Current eval: <strong>{formatEval(analysisByPlyMap.get(currentPly)!.evaluationType, analysisByPlyMap.get(currentPly)!.evaluation)}</strong></p>
@@ -439,9 +499,3 @@ export function GamePage() {
     </section>
   );
 }
-
-
-
-
-
-

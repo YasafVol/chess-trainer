@@ -46,6 +46,19 @@ function newRequestId(): string {
   return crypto.randomUUID();
 }
 
+function formatWorkerError(event: Event | ErrorEvent): string {
+  if (!(event instanceof ErrorEvent)) {
+    return "Engine worker error";
+  }
+
+  return [
+    event.message,
+    event.filename,
+    event.lineno ? `line ${event.lineno}` : "",
+    event.colno ? `col ${event.colno}` : ""
+  ].filter(Boolean).join(" | ") || "Engine worker error";
+}
+
 export class EngineClient {
   private worker: Worker;
   private pending = new Map<string, PendingResolver>();
@@ -66,8 +79,7 @@ export class EngineClient {
       resolver.resolve(message);
     };
     this.worker.onerror = (event: Event | ErrorEvent) => {
-      const message = event instanceof ErrorEvent ? event.message : "Engine worker error";
-      this.rejectAllPending(new Error(message || "Engine worker error"));
+      this.rejectAllPending(new Error(formatWorkerError(event)));
     };
   }
 
@@ -77,7 +89,7 @@ export class EngineClient {
       type: "engine:init",
       requestId,
       payload: { flavor }
-    }, 20_000).then(() => undefined);
+    }, 45_000).then(() => undefined);
   }
 
   analyzePosition(input: {
