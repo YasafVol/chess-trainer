@@ -268,14 +268,18 @@ button:hover:not(:disabled) {
   width: 100%;
   text-align: left;
   cursor: pointer;
-  color: inherit;
+  color: #111827;
   font: inherit;
   appearance: none;
-  transition: border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+  background: #ffffff;
+  border-color: #e5e7eb;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .library-card-button:hover,
 .library-card-button:focus-visible {
+  background: #ffffff;
+  color: #111827;
   border-color: #9ca3af;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
 }
@@ -315,5 +319,6 @@ button:hover:not(:disabled) {
   color: #374151;
   font-size: 0.95rem;
 }
+
 
 
