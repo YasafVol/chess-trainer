@@ -162,7 +162,7 @@ export function GamePage() {
   }, [gameId]);
 
   useEffect(() => {
-    const initialPly = replayData && replayData.moves.length > 0 ? 1 : 0;
+    const initialPly = 0;
     console.log("[game] reset view state", { gameId, initialPly });
     setCurrentPly(initialPly);
     setFlipped(false);
@@ -443,7 +443,7 @@ export function GamePage() {
                 <button onClick={() => void cancelAnalysis()}>Cancel analysis</button>
               )}
               {manualFen ? <button onClick={() => setManualFen(null)}>Back to line</button> : null}
-              <span className="muted">Ply {currentPly}/{totalPlies}</span>
+              <span className="muted">Position {currentPly}/{totalPlies}</span>
             </div>
 
             <div className="analysis-inline">
@@ -499,3 +499,4 @@ export function GamePage() {
     </section>
   );
 }
+
