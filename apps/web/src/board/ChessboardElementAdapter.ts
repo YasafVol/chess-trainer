@@ -3,6 +3,7 @@ import type { BoardAdapter, BoardDropEvent, BoardOrientation } from "./BoardAdap
 
 type ChessBoardElementLike = HTMLElement & {
   setPosition: (fen: string, animated?: boolean) => void;
+  resize: () => void;
   _highlightSquare?: (square: string, value?: boolean) => void;
 };
 
@@ -29,7 +30,8 @@ export class ChessboardElementAdapter implements BoardAdapter {
     this.boardEl.setAttribute("drop-off-board", "snapback");
     this.boardEl.setAttribute("animation-duration", "180");
     this.boardEl.style.width = "100%";
-    this.boardEl.style.maxWidth = "560px";
+    this.boardEl.style.height = "100%";
+    this.boardEl.style.maxWidth = "100%";
     this.boardEl.style.aspectRatio = "1 / 1";
     this.boardEl.style.display = "block";
     this.boardEl.style.setProperty("--highlight-color", "rgba(212, 167, 44, 0.65)");
@@ -47,6 +49,10 @@ export class ChessboardElementAdapter implements BoardAdapter {
 
   setOrientation(orientation: BoardOrientation): void {
     this.boardEl.setAttribute("orientation", orientation);
+  }
+
+  resize(): void {
+    this.boardEl.resize();
   }
 
   setHighlightedSquares(squares: string[]): void {
@@ -103,4 +109,3 @@ export class ChessboardElementAdapter implements BoardAdapter {
     this.mounted = false;
   }
 }
-

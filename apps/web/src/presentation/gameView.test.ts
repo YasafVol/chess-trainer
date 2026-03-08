@@ -11,13 +11,13 @@ const replayData: ReplayData = {
   ]
 };
 
-test("buildReplayPositionItems exposes the start position as an active selectable item", () => {
+test("buildReplayPositionItems begins with the first actual move and keeps ply zero internal only", () => {
   const items = buildReplayPositionItems(replayData, 0, null);
 
-  assert.equal(items[0]?.label, "Start");
-  assert.equal(items[0]?.ply, 0);
-  assert.equal(items[0]?.isActive, true);
-  assert.equal(items[1]?.label, "1. e4");
+  assert.equal(items.length, 2);
+  assert.equal(items[0]?.label, "1. e4");
+  assert.equal(items[0]?.ply, 1);
+  assert.equal(items[0]?.isActive, false);
 });
 
 test("resolveBoardPresentation falls back to the initial position for ply zero", () => {

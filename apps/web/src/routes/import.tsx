@@ -118,7 +118,7 @@ export function ImportPage() {
       });
       setSource("upload");
       setRawInput(text);
-      setStatus(`Loaded ${file.name}. Parsing PGN…`);
+      setStatus(`Loaded ${file.name}. Parsing PGN...`);
     } finally {
       setIsReadingFile(false);
     }
@@ -150,7 +150,7 @@ export function ImportPage() {
 
     setBusy(true);
     try {
-      setStatus(`Importing ${selected.length} game${selected.length === 1 ? "" : "s"}…`);
+      setStatus(`Importing ${selected.length} game${selected.length === 1 ? "" : "s"}...`);
       const now = new Date().toISOString();
       const result = await importBatchLocal(
         selected.map((preview) => ({
@@ -193,7 +193,7 @@ export function ImportPage() {
         />
         <div className="inline-actions">
           <input type="file" accept=".pgn,text/plain" onChange={onFileChange} />
-          <button type="submit" disabled={busy || previews.every((preview) => !preview.selected || !!preview.duplicateOfGameId)}>
+          <button className="action-button" type="submit" disabled={busy || previews.every((preview) => !preview.selected || !!preview.duplicateOfGameId)}>
             {busy ? "Importing..." : "Import selected games"}
           </button>
         </div>
@@ -236,7 +236,7 @@ export function ImportPage() {
                 />
                 <div>
                   <strong>{preview.headers.White ?? "White"} vs {preview.headers.Black ?? "Black"}</strong>
-                  <p className="muted">Hash: {preview.hash} · Moves: {preview.movesUci.length}</p>
+                  <p className="muted">Hash: {preview.hash} - Moves: {preview.movesUci.length}</p>
                   <p className="muted">{preview.headers.Event ?? "Unknown event"}</p>
                   {preview.duplicateOfGameId ? <p>Already imported as {preview.duplicateOfGameId}.</p> : null}
                 </div>

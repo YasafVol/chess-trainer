@@ -5,6 +5,7 @@ import { ChessboardElementAdapter } from "../board/ChessboardElementAdapter";
 import { InlineLoader } from "../components/InlineLoader";
 import { useDelayedBusy } from "../components/useDelayedBusy";
 import type { BoardAdapter } from "../board/BoardAdapter";
+import { startBoardResizeSync } from "../board/boardResize";
 import { runGameAnalysis } from "../application/runGameAnalysis";
 import { buildReplayData } from "../domain/gameReplay";
 import { EngineClient, type EngineFlavor } from "../engine/engineClient";
@@ -197,6 +198,7 @@ export function GamePage() {
     const host = boardHostRef.current;
     let active = true;
     let unbindDrop: (() => void) | null = null;
+    let stopBoardResizeSync: (() => void) | null = null;
     let localBoard: BoardAdapter | null = null;
 
     setBoardError(null);
@@ -234,6 +236,7 @@ export function GamePage() {
           board.setHighlightedSquares(initialBoardPresentation.highlightedSquares);
         }
 
+        stopBoardResizeSync = startBoardResizeSync(host, board);
         setBoardMountVersion((version) => version + 1);
 
         unbindDrop = board.onDrop(({ from, to, setAction }) => {
@@ -296,6 +299,7 @@ export function GamePage() {
     return () => {
       active = false;
       console.log("[game] destroy board", { gameId });
+      stopBoardResizeSync?.();
       unbindDrop?.();
       localBoard?.destroy();
       if (boardRef.current === localBoard) {
@@ -452,17 +456,17 @@ export function GamePage() {
             <div ref={boardHostRef} className="board-host" />
             {boardError ? <p>{boardError}</p> : null}
             <div className="controls">
-              <button onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.max(0, ply - 1)); }}>Prev</button>
-              <button onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.min(totalPlies, ply + 1)); }}>Next</button>
-              <button onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly(0); }}>Reset</button>
-              <button onClick={() => { setManualFen(null); setIsPlaying((playing) => !playing); }}>{isPlaying ? "Pause" : "Play"}</button>
-              <button onClick={() => setFlipped((value) => !value)}>Flip</button>
+              <button className="action-button" onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.max(0, ply - 1)); }}>Prev</button>
+              <button className="action-button" onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.min(totalPlies, ply + 1)); }}>Next</button>
+              <button className="action-button" onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly(0); }}>Reset</button>
+              <button className="action-button" onClick={() => { setManualFen(null); setIsPlaying((playing) => !playing); }}>{isPlaying ? "Pause" : "Play"}</button>
+              <button className="action-button" onClick={() => setFlipped((value) => !value)}>Flip</button>
               {!analysisRunning ? (
-                <button onClick={() => void runAnalysis()} disabled={!engineReady}>Analyze game</button>
+                <button className="action-button" onClick={() => void runAnalysis()} disabled={!engineReady}>Analyze game</button>
               ) : (
-                <button onClick={() => void cancelAnalysis()}>Cancel analysis</button>
+                <button className="action-button" onClick={() => void cancelAnalysis()}>Cancel analysis</button>
               )}
-              {manualFen ? <button onClick={() => setManualFen(null)}>Back to line</button> : null}
+              {manualFen ? <button className="action-button" onClick={() => setManualFen(null)}>Back to line</button> : null}
               <span className="muted">Position {currentPly}/{totalPlies}</span>
             </div>
 

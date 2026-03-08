@@ -20,24 +20,6 @@ textarea {
   font: inherit;
 }
 
-button {
-  border: 1px solid #111827;
-  background: #111827;
-  color: #f9fafb;
-  border-radius: 999px;
-  padding: 0.65rem 1rem;
-  cursor: pointer;
-}
-
-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-button:hover:not(:disabled) {
-  background: #1f2937;
-}
-
 .app-shell {
   max-width: 1180px;
   margin: 0 auto;
@@ -179,11 +161,16 @@ button:hover:not(:disabled) {
 }
 
 .board-host {
+  width: min(100%, 560px);
+  min-width: min(100%, 280px);
+  min-height: 280px;
+  aspect-ratio: 1 / 1;
+  display: block;
+}
+
+.board-host > * {
   width: 100%;
-  max-width: 560px;
-  min-height: 320px;
-  display: flex;
-  align-items: stretch;
+  height: 100%;
 }
 
 .controls {
@@ -224,6 +211,32 @@ button:hover:not(:disabled) {
   background: #f3f4f6;
   color: #374151;
   font-size: 0.95rem;
+}
+
+.action-button {
+  border: 1px solid #111827;
+  background: #111827;
+  color: #f9fafb;
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.action-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.action-button:hover:not(:disabled),
+.action-button:focus-visible {
+  background: #1f2937;
+  border-color: #1f2937;
+}
+
+.action-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.12);
 }
 
 .move-btn {
@@ -307,16 +320,17 @@ button:hover:not(:disabled) {
   width: 100%;
   text-align: left;
   cursor: pointer;
+  border: 1px solid #e5e7eb;
   color: #111827;
   font: inherit;
   appearance: none;
   background: #ffffff;
-  border-color: #e5e7eb;
   padding: 18px 20px;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .library-card-button:hover,
+.library-card-button:active,
 .library-card-button:focus-visible {
   background: #ffffff;
   color: #111827;
@@ -353,6 +367,5 @@ button:hover:not(:disabled) {
   color: #374151;
   font-size: 0.95rem;
 }
-
 
 

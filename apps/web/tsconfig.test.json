@@ -17,6 +17,11 @@
     "src/application/runGameAnalysis.test.ts",
     "src/domain/types.ts",
     "src/domain/gameReplay.ts",
+    "src/board/BoardAdapter.ts",
+    "src/board/ChessboardElementAdapter.ts",
+    "src/board/ChessboardElementAdapter.test.ts",
+    "src/board/boardResize.ts",
+    "src/board/boardResize.test.ts",
     "src/presentation/gameView.ts",
     "src/presentation/gameView.test.ts"
   ],

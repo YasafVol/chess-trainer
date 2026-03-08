@@ -14,3 +14,10 @@ declare module "node:assert/strict" {
   const assert: AssertStrict;
   export default assert;
 }
+
+declare module "jsdom" {
+  export class JSDOM {
+    window: Window & typeof globalThis & { close(): void };
+    constructor(html?: string, options?: { pretendToBeVisual?: boolean });
+  }
+}

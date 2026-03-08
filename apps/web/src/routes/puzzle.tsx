@@ -3,6 +3,7 @@ import { useParams } from "@tanstack/react-router";
 import { Chess } from "chess.js";
 import { ChessboardElementAdapter } from "../board/ChessboardElementAdapter";
 import type { BoardAdapter } from "../board/BoardAdapter";
+import { startBoardResizeSync } from "../board/boardResize";
 import { buildReplayData } from "../domain/gameReplay";
 import { qualityFromAttempt } from "../domain/puzzles";
 import { recordPuzzleAttemptLocal, useLocalGame, useLocalPuzzleDetails } from "../lib/mockData";
@@ -100,6 +101,7 @@ export function PuzzlePage() {
     const board = new ChessboardElementAdapter();
     board.mount(boardHostRef.current);
     boardRef.current = board;
+    const stopBoardResizeSync = startBoardResizeSync(boardHostRef.current, board);
 
     const unbindDrop = board.onDrop(({ from, to, setAction }) => {
       const activePuzzle = puzzleRef.current;
@@ -166,6 +168,7 @@ export function PuzzlePage() {
 
     return () => {
       console.log("[puzzle] destroy board", { puzzleId: puzzle.id });
+      stopBoardResizeSync();
       unbindDrop();
       board.destroy();
       boardRef.current = null;
@@ -199,7 +202,7 @@ export function PuzzlePage() {
   }, [puzzleId]);
 
   if (puzzleData === undefined) {
-    return <section className="page"><p>Loading puzzle…</p></section>;
+    return <section className="page"><p>Loading puzzle...</p></section>;
   }
 
   if (!puzzle) {
@@ -214,7 +217,7 @@ export function PuzzlePage() {
       expectedBestMove: activePuzzle.expectedBestMove
     });
     setRevealed(true);
-    setStatus(`Solution: ${activePuzzle.expectedBestMove} · ${activePuzzle.expectedLine.join(" ")}`);
+    setStatus(`Solution: ${activePuzzle.expectedBestMove} - ${activePuzzle.expectedLine.join(" ")}`);
     await recordPuzzleAttemptLocal({
       puzzleId: activePuzzle.id,
       result: "fail",
@@ -229,13 +232,13 @@ export function PuzzlePage() {
   return (
     <section className="page">
       <h2>{activePuzzle.classification.toUpperCase()} puzzle</h2>
-      <p className="muted">Difficulty {activePuzzle.difficulty}/5 · Due {new Date(activePuzzle.schedule.dueAt).toLocaleString()}</p>
+      <p className="muted">Difficulty {activePuzzle.difficulty}/5 - Due {new Date(activePuzzle.schedule.dueAt).toLocaleString()}</p>
       <div className="game-layout">
         <div>
           <div ref={boardHostRef} className="board-host" />
           <div className="controls">
-            <button onClick={() => { setHintsUsed((value) => value + 1); setStatus(`Hint: look at ${activePuzzle.expectedBestMove.slice(0, 2)}.`); }}>Hint</button>
-            <button onClick={() => void revealSolution()} disabled={revealed}>Reveal</button>
+            <button className="action-button" onClick={() => { setHintsUsed((value) => value + 1); setStatus(`Hint: look at ${activePuzzle.expectedBestMove.slice(0, 2)}.`); }}>Hint</button>
+            <button className="action-button" onClick={() => void revealSolution()} disabled={revealed}>Reveal</button>
           </div>
           <p>{status}</p>
         </div>
@@ -253,4 +256,3 @@ export function PuzzlePage() {
     </section>
   );
 }
-

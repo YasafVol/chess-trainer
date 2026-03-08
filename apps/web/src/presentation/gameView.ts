@@ -51,14 +51,7 @@ export function buildGameMetaChips(game: Pick<GameRecord, "headers">, totalPlies
 }
 
 export function buildReplayPositionItems(replayData: ReplayData, currentPly: number, manualFen: string | null): ReplayPositionItem[] {
-  const items: ReplayPositionItem[] = [
-    {
-      key: "ply-0",
-      ply: 0,
-      label: "Start",
-      isActive: manualFen === null && currentPly === 0
-    }
-  ];
+  const items: ReplayPositionItem[] = [];
 
   replayData.moves.forEach((move, index) => {
     const ply = index + 1;
