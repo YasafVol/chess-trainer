@@ -77,14 +77,34 @@ button:hover:not(:disabled) {
 }
 
 .top-nav a {
+  position: relative;
   text-decoration: none;
   color: #1f2937;
-  border-bottom: 2px solid transparent;
-  padding-bottom: 2px;
+  padding-bottom: 8px;
 }
 
-.top-nav a:hover {
-  border-bottom-color: #1f2937;
+.top-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  border-radius: 999px;
+  background: #111827;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 120ms ease;
+}
+
+.top-nav a:hover::after,
+.top-nav a[data-status="active"]::after {
+  transform: scaleX(1);
+}
+
+.top-nav a[data-status="active"] {
+  color: #111827;
+  font-weight: 600;
 }
 
 .page {
@@ -188,6 +208,24 @@ button:hover:not(:disabled) {
   overflow-y: auto;
 }
 
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
 .move-btn {
   width: 100%;
   text-align: left;
@@ -205,7 +243,8 @@ button:hover:not(:disabled) {
 
 .move-btn.active {
   border-color: #1f2937;
-  background: #eef2ff;
+  background: #e8ecf8;
+  font-weight: 600;
 }
 
 @media (max-width: 900px) {
@@ -314,7 +353,6 @@ button:hover:not(:disabled) {
   color: #374151;
   font-size: 0.95rem;
 }
-
 
 
 

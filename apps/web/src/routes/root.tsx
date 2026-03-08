@@ -18,9 +18,9 @@ export function RootLayout() {
       </header>
 
       <nav className="top-nav" aria-label="Main navigation">
-        <Link to="/">Import</Link>
-        <Link to="/library">Library</Link>
-        <Link to="/puzzles">Puzzles</Link>
+        <Link to="/" activeOptions={{ exact: true }}>Import</Link>
+        <Link to="/library" activeOptions={{ exact: true }}>Library</Link>
+        <Link to="/puzzles" activeOptions={{ exact: true }}>Puzzles</Link>
       </nav>
 
       <main>

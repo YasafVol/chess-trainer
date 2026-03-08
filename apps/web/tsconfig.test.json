@@ -15,7 +15,10 @@
     "src/domain/analysisRunLifecycle.test.ts",
     "src/application/runGameAnalysis.ts",
     "src/application/runGameAnalysis.test.ts",
-    "src/domain/types.ts"
+    "src/domain/types.ts",
+    "src/domain/gameReplay.ts",
+    "src/presentation/gameView.ts",
+    "src/presentation/gameView.test.ts"
   ],
   "exclude": []
 }

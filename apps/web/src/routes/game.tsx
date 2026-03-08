@@ -9,6 +9,7 @@ import { runGameAnalysis } from "../application/runGameAnalysis";
 import { buildReplayData } from "../domain/gameReplay";
 import { EngineClient, type EngineFlavor } from "../engine/engineClient";
 import { generatePuzzlesForRunLocal, savePlyLocal, saveRunLocal, useLocalAnalysisSnapshot, useLocalGame } from "../lib/mockData";
+import { buildGameMetaChips, buildReplayPositionItems, resolveBoardPresentation } from "../presentation/gameView";
 
 function chooseEngineFlavor(): EngineFlavor {
   // TODO: revisit flavor selection once the deployed app has reliable COOP/COEP and engine asset caching.
@@ -50,6 +51,7 @@ export function GamePage() {
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [boardError, setBoardError] = useState<string | null>(null);
   const [engineReady, setEngineReady] = useState(false);
+  const [boardMountVersion, setBoardMountVersion] = useState(0);
   const showAnalysisLoader = useDelayedBusy(analysisRunning, { delayMs: 250, minVisibleMs: 450 });
 
   const boardHostRef = useRef<HTMLDivElement | null>(null);
@@ -89,7 +91,15 @@ export function GamePage() {
   const replayData = replayState.replayData;
   const parseError = replayState.parseError;
   const totalPlies = replayData?.moves.length ?? 0;
-  const moveList = replayData?.moves ?? [];
+  const gameMetaChips = useMemo(() => (game ? buildGameMetaChips(game, totalPlies) : []), [game, totalPlies]);
+  const replayPositionItems = useMemo(
+    () => (replayData ? buildReplayPositionItems(replayData, currentPly, manualFen) : []),
+    [currentPly, manualFen, replayData]
+  );
+  const boardPresentation = useMemo(
+    () => resolveBoardPresentation(replayData, currentPly, manualFen),
+    [currentPly, manualFen, replayData]
+  );
 
   const analysisByPlyMap = useMemo(() => {
     const map = new Map<number, (typeof analysisByPly)[number]>();
@@ -217,7 +227,14 @@ export function GamePage() {
         boardRef.current = board;
         localBoard = board;
         board.setOrientation(flipped ? "black" : "white");
-        board.setPosition(manualFenRef.current ?? replayData.fenPositions[currentPlyRef.current] ?? replayData.fenPositions[0], false);
+
+        const initialBoardPresentation = resolveBoardPresentation(replayData, currentPlyRef.current, manualFenRef.current);
+        if (initialBoardPresentation) {
+          board.setPosition(initialBoardPresentation.targetFen, false);
+          board.setHighlightedSquares(initialBoardPresentation.highlightedSquares);
+        }
+
+        setBoardMountVersion((version) => version + 1);
 
         unbindDrop = board.onDrop(({ from, to, setAction }) => {
           const activeReplayData = replayDataRef.current;
@@ -288,23 +305,20 @@ export function GamePage() {
   }, [gameId, replayData]);
 
   useEffect(() => {
-    if (!boardRef.current || !replayData) return;
+    if (!boardRef.current || !boardPresentation) return;
 
-    const targetFen = manualFen ?? replayData.fenPositions[currentPly] ?? replayData.fenPositions[0];
-    const highlightedMove = !manualFen && currentPly > 0 ? replayData.moves[currentPly - 1] : null;
-    const highlightedSquares = highlightedMove ? [highlightedMove.from, highlightedMove.to] : [];
     console.log("[game] update board position", {
       gameId,
       currentPly,
       flipped,
       hasManualFen: !!manualFen,
-      targetFen,
-      highlightedSquares
+      targetFen: boardPresentation.targetFen,
+      highlightedSquares: boardPresentation.highlightedSquares
     });
     boardRef.current.setOrientation(flipped ? "black" : "white");
-    boardRef.current.setPosition(targetFen, false);
-    boardRef.current.setHighlightedSquares(highlightedSquares);
-  }, [currentPly, flipped, gameId, manualFen, replayData]);
+    boardRef.current.setPosition(boardPresentation.targetFen, false);
+    boardRef.current.setHighlightedSquares(boardPresentation.highlightedSquares);
+  }, [boardMountVersion, boardPresentation, currentPly, flipped, gameId, manualFen]);
 
   useEffect(() => {
     if (!isPlaying || !replayData) return;
@@ -413,7 +427,7 @@ export function GamePage() {
   }
 
   if (game === undefined || snapshot === undefined) {
-    return <section className="page"><p>Loading game…</p></section>;
+    return <section className="page"><p>Loading game...</p></section>;
   }
 
   if (!game) {
@@ -423,7 +437,13 @@ export function GamePage() {
   return (
     <section className="page">
       <h2>{game.headers.White ?? "White"} vs {game.headers.Black ?? "Black"}</h2>
-      <p className="muted">Hash: {game.hash}</p>
+      <div className="chip-row" aria-label="Game details">
+        {gameMetaChips.map((chip) => (
+          <span key={chip.id} className="chip">
+            {chip.text}
+          </span>
+        ))}
+      </div>
       {parseError ? <p>{parseError}</p> : null}
 
       {replayData ? (
@@ -456,7 +476,7 @@ export function GamePage() {
               {analysisByPlyMap.get(currentPly) ? (
                 <>
                   <p>Current eval: <strong>{formatEval(analysisByPlyMap.get(currentPly)!.evaluationType, analysisByPlyMap.get(currentPly)!.evaluation)}</strong></p>
-                  <p className="muted">Best move: {analysisByPlyMap.get(currentPly)!.bestMoveUci ?? "n/a"} · Depth {analysisByPlyMap.get(currentPly)!.depth}</p>
+                  <p className="muted">Best move: {analysisByPlyMap.get(currentPly)!.bestMoveUci ?? "n/a"} - Depth {analysisByPlyMap.get(currentPly)!.depth}</p>
                   {analysisByPlyMap.get(currentPly)!.pvUci.length > 0 ? <p className="muted">PV: {analysisByPlyMap.get(currentPly)!.pvUci.join(" ")}</p> : null}
                 </>
               ) : (
@@ -467,20 +487,19 @@ export function GamePage() {
 
           <div className="moves-pane" role="region" aria-label="Moves list">
             <ul className="list">
-              {moveList.map((move, index) => {
-                const movePly = index + 1;
-                const moveEval = analysisByPlyMap.get(movePly);
+              {replayPositionItems.map((item) => {
+                const moveEval = analysisByPlyMap.get(item.ply);
                 return (
-                  <li key={`${index}-${move.san}`}>
+                  <li key={item.key}>
                     <button
-                      className={`move-btn ${!manualFen && movePly === currentPly ? "active" : ""}`}
+                      className={`move-btn ${item.isActive ? "active" : ""}`}
                       onClick={() => {
                         setIsPlaying(false);
                         setManualFen(null);
-                        setCurrentPly(movePly);
+                        setCurrentPly(item.ply);
                       }}
                     >
-                      {Math.floor(index / 2) + 1}{index % 2 === 0 ? "." : "..."} {move.san}
+                      {item.label}
                       {moveEval
                         ? ` (${formatEval(moveEval.evaluationType, moveEval.evaluation)})`
                         : ""}
@@ -499,4 +518,3 @@ export function GamePage() {
     </section>
   );
 }
-
