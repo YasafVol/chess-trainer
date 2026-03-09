@@ -9,6 +9,7 @@ export type GameMetaChip = {
 export type ReplayPositionItem = {
   key: string;
   ply: number;
+  analysisPly: number;
   label: string;
   isActive: boolean;
 };
@@ -58,6 +59,7 @@ export function buildReplayPositionItems(replayData: ReplayData, currentPly: num
     items.push({
       key: `ply-${ply}-${move.san}`,
       ply,
+      analysisPly: index,
       label: `${Math.floor(index / 2) + 1}${index % 2 === 0 ? "." : "..."} ${move.san}`,
       isActive: manualFen === null && currentPly === ply
     });

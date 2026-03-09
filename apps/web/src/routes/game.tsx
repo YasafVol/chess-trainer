@@ -23,6 +23,43 @@ function formatEval(type: "cp" | "mate", evaluation: number): string {
   return `${cp >= 0 ? "+" : ""}${cp.toFixed(2)}`;
 }
 
+function formatMoveEval(
+  ply: {
+    evaluationType: "cp" | "mate";
+    evaluation: number;
+    playedMoveEvaluationType?: "cp" | "mate";
+    playedMoveEvaluation?: number;
+  } | undefined
+): string {
+  if (!ply) {
+    return "";
+  }
+
+  if (
+    ply.playedMoveEvaluationType === undefined ||
+    ply.playedMoveEvaluation === undefined
+  ) {
+    return formatEval(ply.evaluationType, ply.evaluation);
+  }
+
+  if (ply.playedMoveEvaluationType === "cp" && ply.evaluationType === "cp") {
+    const loss = Math.max(0, ply.evaluation - ply.playedMoveEvaluation);
+    if (loss < 10) {
+      return "best";
+    }
+    return `loss ${Math.round(loss)}cp`;
+  }
+
+  if (ply.playedMoveEvaluationType === "mate" && ply.evaluationType === "mate") {
+    if (ply.playedMoveEvaluation === ply.evaluation) {
+      return "best";
+    }
+    return `mate shift ${ply.evaluation - ply.playedMoveEvaluation}`;
+  }
+
+  return `${formatEval(ply.playedMoveEvaluationType, ply.playedMoveEvaluation)} vs best ${formatEval(ply.evaluationType, ply.evaluation)}`;
+}
+
 function formatUnknownError(error: unknown): string {
   if (error instanceof Error) {
     return error.message;
@@ -53,9 +90,9 @@ export function GamePage() {
   const [boardError, setBoardError] = useState<string | null>(null);
   const [engineReady, setEngineReady] = useState(false);
   const [boardMountVersion, setBoardMountVersion] = useState(0);
+  const [boardHost, setBoardHost] = useState<HTMLDivElement | null>(null);
   const showAnalysisLoader = useDelayedBusy(analysisRunning, { delayMs: 250, minVisibleMs: 450 });
 
-  const boardHostRef = useRef<HTMLDivElement | null>(null);
   const boardRef = useRef<BoardAdapter | null>(null);
   const engineRef = useRef<EngineClient | null>(null);
   const cancelRequestedRef = useRef(false);
@@ -193,9 +230,9 @@ export function GamePage() {
   }, [analysisRun]);
 
   useEffect(() => {
-    if (!boardHostRef.current || !replayData) return;
+    if (!boardHost || !replayData) return;
 
-    const host = boardHostRef.current;
+    const host = boardHost;
     let active = true;
     let unbindDrop: (() => void) | null = null;
     let stopBoardResizeSync: (() => void) | null = null;
@@ -306,7 +343,7 @@ export function GamePage() {
         boardRef.current = null;
       }
     };
-  }, [gameId, replayData]);
+  }, [boardHost, gameId, replayData]);
 
   useEffect(() => {
     if (!boardRef.current || !boardPresentation) return;
@@ -453,7 +490,7 @@ export function GamePage() {
       {replayData ? (
         <div className="game-layout">
           <div>
-            <div ref={boardHostRef} className="board-host" />
+            <div ref={setBoardHost} className="board-host" />
             {boardError ? <p>{boardError}</p> : null}
             <div className="controls">
               <button className="action-button" onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.max(0, ply - 1)); }}>Prev</button>
@@ -492,7 +529,7 @@ export function GamePage() {
           <div className="moves-pane" role="region" aria-label="Moves list">
             <ul className="list">
               {replayPositionItems.map((item) => {
-                const moveEval = analysisByPlyMap.get(item.ply);
+                const moveEval = analysisByPlyMap.get(item.analysisPly);
                 return (
                   <li key={item.key}>
                     <button
@@ -505,7 +542,7 @@ export function GamePage() {
                     >
                       {item.label}
                       {moveEval
-                        ? ` (${formatEval(moveEval.evaluationType, moveEval.evaluation)})`
+                        ? ` (${formatMoveEval(moveEval)})`
                         : ""}
                     </button>
                   </li>

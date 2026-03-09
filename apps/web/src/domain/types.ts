@@ -45,6 +45,10 @@ export type PlyAnalysis = {
   ply: number;
   fen: string;
   playedMoveUci?: string;
+  playedMoveEvaluationType?: "cp" | "mate";
+  playedMoveEvaluation?: number;
+  playedMoveDepth?: number;
+  playedMovePvUci?: string[];
   bestMoveUci?: string;
   evaluationType: "cp" | "mate";
   evaluation: number;

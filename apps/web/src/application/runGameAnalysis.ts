@@ -11,6 +11,7 @@ type AnalyzePositionInput = {
   depth: number;
   multiPV: number;
   movetimeMs?: number;
+  searchMovesUci?: string[];
 };
 
 type AnalyzePositionResult =
@@ -72,6 +73,52 @@ function canRetryFromMessage(message: string): boolean {
     lowered.includes("engine worker error") ||
     lowered.includes("another analysis is already running")
   );
+}
+
+async function analyzeWithRetry(args: {
+  analyzePosition: (input: AnalyzePositionInput) => Promise<AnalyzePositionResult>;
+  input: AnalyzePositionInput;
+  gameId: string;
+  runId: string;
+  ply: number;
+  retriesUsedRef: { value: number };
+  onRetryStatus?: (message: string) => void;
+  waitMs: (ms: number) => Promise<void>;
+}): Promise<AnalyzePositionResult> {
+  let depthForAttempt = args.input.depth;
+  let attempt = 0;
+
+  while (attempt <= ANALYSIS_RETRY_LIMIT) {
+    try {
+      return await args.analyzePosition({
+        ...args.input,
+        depth: depthForAttempt
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown engine error";
+      const canRetry = attempt < ANALYSIS_RETRY_LIMIT && canRetryFromMessage(message);
+      console.warn("[analysis] engine step failed", {
+        gameId: args.gameId,
+        runId: args.runId,
+        ply: args.ply,
+        attempt,
+        message,
+        canRetry,
+        searchMovesUci: args.input.searchMovesUci
+      });
+      if (!canRetry) {
+        throw error;
+      }
+
+      args.retriesUsedRef.value += 1;
+      attempt += 1;
+      depthForAttempt = lowerDepthForRetry(depthForAttempt);
+      args.onRetryStatus?.(`Retrying ply ${args.ply} after engine timeout/error (depth ${depthForAttempt})...`);
+      await args.waitMs(80);
+    }
+  }
+
+  throw new Error("Engine returned no result");
 }
 
 export function buildRunningRun(input: {
@@ -137,6 +184,7 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
   let done = 0;
   let retriesUsed = 0;
   let stoppedByBudget = false;
+  const retriesUsedRef = { value: 0 };
 
   try {
     for (const step of plan) {
@@ -152,58 +200,88 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       }
 
       const startedStepAt = nowMs();
-      let result: AnalyzePositionResult | null = null;
-      let depthForAttempt = step.depth;
-      let attempt = 0;
+      const playedMoveUci = args.game.movesUci[step.ply];
 
       console.log("[analysis] analyze step", {
         gameId: args.game.id,
         runId: run.id,
         ply: step.ply,
-        depth: depthForAttempt
+        depth: step.depth,
+        playedMoveUci
       });
 
-      while (attempt <= ANALYSIS_RETRY_LIMIT) {
-        try {
-          result = await args.analyzePosition({
-            fen,
-            movesUci: args.game.movesUci.slice(0, step.ply),
-            depth: depthForAttempt,
-            multiPV: policy.defaultMultiPV,
-            movetimeMs: policy.softPerPositionMaxMs
-          });
-          break;
-        } catch (error) {
-          const message = error instanceof Error ? error.message : "Unknown engine error";
-          const canRetry = attempt < ANALYSIS_RETRY_LIMIT && canRetryFromMessage(message);
-          console.warn("[analysis] engine step failed", {
-            gameId: args.game.id,
-            runId: run.id,
-            ply: step.ply,
-            attempt,
-            message,
-            canRetry
-          });
-          if (!canRetry) {
-            throw error;
-          }
-
-          retriesUsed += 1;
-          attempt += 1;
-          depthForAttempt = lowerDepthForRetry(depthForAttempt);
-          args.onRetryStatus?.(`Retrying ply ${step.ply} after engine timeout/error (depth ${depthForAttempt})...`);
-          await waitMs(80);
-        }
-      }
-
-      if (!result) {
-        throw new Error("Engine returned no result");
-      }
+      const result = await analyzeWithRetry({
+        analyzePosition: args.analyzePosition,
+        input: {
+          fen,
+          movesUci: args.game.movesUci.slice(0, step.ply),
+          depth: step.depth,
+          multiPV: policy.defaultMultiPV,
+          movetimeMs: policy.softPerPositionMaxMs
+        },
+        gameId: args.game.id,
+        runId: run.id,
+        ply: step.ply,
+        retriesUsedRef,
+        onRetryStatus: args.onRetryStatus,
+        waitMs
+      });
 
       if (result.type === "engine:cancelled") {
         console.log("[analysis] engine cancelled step", { gameId: args.game.id, runId: run.id, ply: step.ply });
         args.markCancelRequested();
         break;
+      }
+
+      let playedMoveAnalysis:
+        | {
+            evaluationType: "cp" | "mate";
+            evaluation: number;
+            depth: number;
+            pvUci: string[];
+          }
+        | undefined;
+
+      if (playedMoveUci) {
+        if (result.payload.bestMoveUci === playedMoveUci) {
+          playedMoveAnalysis = {
+            evaluationType: result.payload.evaluationType,
+            evaluation: result.payload.evaluation,
+            depth: result.payload.depth,
+            pvUci: result.payload.pvUci
+          };
+        } else {
+          const playedMoveResult = await analyzeWithRetry({
+            analyzePosition: args.analyzePosition,
+            input: {
+              fen,
+              movesUci: args.game.movesUci.slice(0, step.ply),
+              depth: step.depth,
+              multiPV: 1,
+              movetimeMs: policy.softPerPositionMaxMs,
+              searchMovesUci: [playedMoveUci]
+            },
+            gameId: args.game.id,
+            runId: run.id,
+            ply: step.ply,
+            retriesUsedRef,
+            onRetryStatus: args.onRetryStatus,
+            waitMs
+          });
+
+          if (playedMoveResult.type === "engine:cancelled") {
+            console.log("[analysis] engine cancelled played-move search", { gameId: args.game.id, runId: run.id, ply: step.ply });
+            args.markCancelRequested();
+            break;
+          }
+
+          playedMoveAnalysis = {
+            evaluationType: playedMoveResult.payload.evaluationType,
+            evaluation: playedMoveResult.payload.evaluation,
+            depth: playedMoveResult.payload.depth,
+            pvUci: playedMoveResult.payload.pvUci
+          };
+        }
       }
 
       const plyRecord: PlyAnalysis = {
@@ -213,7 +291,11 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
         gameId: args.game.id,
         ply: step.ply,
         fen,
-        playedMoveUci: args.game.movesUci[step.ply],
+        playedMoveUci,
+        playedMoveEvaluationType: playedMoveAnalysis?.evaluationType,
+        playedMoveEvaluation: playedMoveAnalysis?.evaluation,
+        playedMoveDepth: playedMoveAnalysis?.depth,
+        playedMovePvUci: playedMoveAnalysis?.pvUci,
         bestMoveUci: result.payload.bestMoveUci,
         evaluationType: result.payload.evaluationType,
         evaluation: result.payload.evaluation,
@@ -247,7 +329,7 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       run,
       outcome: args.isCancelRequested() ? "cancelled" : "completed",
       completedAt: nowIso(),
-      retriesUsed,
+      retriesUsed: retriesUsedRef.value,
       stoppedByBudget
     });
 
@@ -256,7 +338,7 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       runId: finishedRun.id,
       status: finishedRun.status,
       done,
-      retriesUsed,
+      retriesUsed: retriesUsedRef.value,
       stoppedByBudget
     });
 
@@ -266,7 +348,7 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
     return {
       finalRun: finishedRun,
       done,
-      retriesUsed,
+      retriesUsed: retriesUsedRef.value,
       stoppedByBudget
     };
   } catch (error) {

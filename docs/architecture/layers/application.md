@@ -8,7 +8,7 @@ Coordinate domain rules to execute use-cases while remaining UI-agnostic where p
 
 - Import orchestration from validation through persistence
 - Replay progression and current-ply transitions
-- Analysis run lifecycle orchestration
+- Analysis run lifecycle orchestration, including best-line search plus restricted played-move search when needed
 - Library load and refresh orchestration
 - Puzzle generation and review workflows
 - Coordinate local-first flows without requiring deferred Convex/auth services
@@ -34,3 +34,4 @@ Coordinate domain rules to execute use-cases while remaining UI-agnostic where p
 - Route files still mix presentation and application logic.
 - Retry and timeout policy for analysis should keep moving into dedicated application services.
 - Import, library, and puzzle orchestration still need extraction from TanStack route components.
+- Played-move analysis doubles some engine work for non-best moves; future optimization should consider caching or selective depth reduction.

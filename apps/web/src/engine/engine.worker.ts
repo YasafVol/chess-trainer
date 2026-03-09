@@ -15,6 +15,7 @@ type AnalyzePositionMessage = {
     depth: number;
     multiPV: number;
     movetimeMs?: number;
+    searchMovesUci?: string[];
   };
 };
 
@@ -117,6 +118,30 @@ function parseBestmoveLine(line: string): string | undefined {
     return undefined;
   }
   return candidate.toLowerCase();
+}
+
+function buildGoCommand(input: {
+  depth: number;
+  movetimeMs?: number;
+  searchMovesUci?: string[];
+}): string {
+  const parts = ["go"];
+
+  if (input.movetimeMs && input.movetimeMs > 0) {
+    parts.push("movetime", String(input.movetimeMs));
+  } else {
+    parts.push("depth", String(Math.max(1, input.depth)));
+  }
+
+  const searchMoves = (input.searchMovesUci ?? [])
+    .filter((move) => isUciMove(move))
+    .map((move) => move.toLowerCase());
+
+  if (searchMoves.length > 0) {
+    parts.push("searchmoves", ...searchMoves);
+  }
+
+  return parts.join(" ");
 }
 
 function splitEngineOutput(raw: unknown): string[] {
@@ -450,11 +475,11 @@ self.onmessage = async (event: MessageEvent<WorkerInbound>) => {
         };
       });
 
-      if (message.payload.movetimeMs && message.payload.movetimeMs > 0) {
-        sendEngineCommand(`go movetime ${message.payload.movetimeMs}`);
-      } else {
-        sendEngineCommand(`go depth ${Math.max(1, message.payload.depth)}`);
-      }
+      sendEngineCommand(buildGoCommand({
+        depth: message.payload.depth,
+        movetimeMs: message.payload.movetimeMs,
+        searchMovesUci: message.payload.searchMovesUci
+      }));
 
       const outbound = await completion;
       clearTimeout(bestMoveTimeout);

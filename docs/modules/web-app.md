@@ -34,8 +34,10 @@ Standalone web runtime under `apps/web`.
   - `apps/web/src/engine/engineClient.ts`
   - `apps/web/src/engine/engine.worker.ts`
   - `apps/web/src/board/ChessboardElementAdapter.ts`
+  - `apps/web/src/board/boardResize.ts`
 - Presentation:
   - route components in `apps/web/src/routes/*.tsx`
+  - replay presentation helpers in `apps/web/src/presentation/*`
   - `apps/web/src/styles.css`
 - Composition:
   - `apps/web/src/main.tsx`
@@ -45,4 +47,7 @@ Standalone web runtime under `apps/web`.
 - Current compromise: import, library, and puzzle application logic is still route-local; extraction is still planned.
 - Active build-critical runtime surfaces do not import live Convex/auth packages.
 - TDD anchor: `apps/web/src/domain/analysisPlan.test.ts`.
+- Replay board mounting now depends on explicit host-resize synchronization instead of implicit first-paint sizing from the third-party board element.
+- Game analysis now stores both unrestricted best-line evaluations and restricted played-move evaluations so move rows can show move quality instead of only resulting-position scores.
+- A read-only `/backoffice` route now exposes the currently hardcoded analysis and puzzle-definition constants so admins can inspect shipped values before dynamic config is introduced.
 - Shipping target is a Vercel-hosted local-first app before reintroducing cloud sync or auth.

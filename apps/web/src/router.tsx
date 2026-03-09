@@ -5,6 +5,7 @@ import { LibraryPage } from "./routes/library";
 import { GamePage } from "./routes/game";
 import { PuzzlesPage } from "./routes/puzzles";
 import { PuzzlePage } from "./routes/puzzle";
+import { BackofficePage } from "./routes/backoffice";
 
 const rootRoute = createRootRoute({
   component: RootLayout
@@ -40,7 +41,13 @@ const puzzleRoute = createRoute({
   component: PuzzlePage
 });
 
-const routeTree = rootRoute.addChildren([importRoute, libraryRoute, gameRoute, puzzlesRoute, puzzleRoute]);
+const backofficeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/backoffice",
+  component: BackofficePage
+});
+
+const routeTree = rootRoute.addChildren([importRoute, libraryRoute, gameRoute, puzzlesRoute, puzzleRoute, backofficeRoute]);
 
 export const router = createRouter({
   routeTree,

@@ -6,9 +6,10 @@ Render user interfaces, collect user intents, and display system state.
 
 ## Features / Responsibilities
 
-- Import, library, game, puzzle-list, and puzzle-solve routes
+- Import, library, game, puzzle-list, puzzle-solve, and backoffice routes
 - Analysis progress, move/eval display, and puzzle review feedback
-- Board controls, move list, and keyboard interactions
+- Read-only admin config inspection for analysis depths, limits, and classification definitions
+- Board controls, move list, late-mounted board-host wiring, and keyboard interactions
 - TanStack Router links, params, and route-driven screen composition
 
 ## Key Files
@@ -19,6 +20,8 @@ Render user interfaces, collect user intents, and display system state.
 - `apps/web/src/routes/game.tsx`
 - `apps/web/src/routes/puzzles.tsx`
 - `apps/web/src/routes/puzzle.tsx`
+- `apps/web/src/routes/backoffice.tsx`
+- `apps/web/src/presentation/backofficeView.ts`
 - `apps/web/src/styles.css`
 - `apps/web/src/components/InlineLoader.tsx`
 - `apps/web/src/components/useDelayedBusy.ts`
@@ -29,8 +32,10 @@ Render user interfaces, collect user intents, and display system state.
 - Needed:
   - route-level component tests
   - accessibility checks for move-list focus and announcements
+- Current route-adjacent coverage verifies replay rendering without a synthetic start row and verifies the backoffice config sections derived from hardcoded source constants.
 
 ## Open Risks / Deferred Items
 
 - Presentation still owns too much orchestration in several route files.
 - Move-pane focus and scroll behavior still need a dedicated accessibility pass.
+- Backoffice values are still read-only and sourced from code constants rather than persisted admin state.

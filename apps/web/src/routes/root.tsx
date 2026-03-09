@@ -21,6 +21,7 @@ export function RootLayout() {
         <Link to="/" activeOptions={{ exact: true }}>Import</Link>
         <Link to="/library" activeOptions={{ exact: true }}>Library</Link>
         <Link to="/puzzles" activeOptions={{ exact: true }}>Puzzles</Link>
+        <Link to="/backoffice" activeOptions={{ exact: true }}>Backoffice</Link>
       </nav>
 
       <main>

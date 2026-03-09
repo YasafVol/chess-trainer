@@ -1,5 +1,9 @@
 export const ANALYSIS_POLICY = {
   defaultDepth: 16,
+  longGameDepth: 14,
+  veryLongGameDepth: 12,
+  retryDepthStep: 2,
+  retryMinDepth: 8,
   defaultMultiPV: 1,
   defaultThreadsMobile: 1,
   defaultHashMbMobile: 16,

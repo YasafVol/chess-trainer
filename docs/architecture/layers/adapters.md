@@ -8,8 +8,8 @@ Bridge application use-cases to browser storage, worker execution, and UI integr
 
 - IndexedDB persistence for games, analysis runs, puzzles, and puzzle attempts
 - Reactive local mock-data facade
-- Worker command transport for browser Stockfish
-- Board library integration through an adapter interface
+- Worker command transport for browser Stockfish, including `searchmoves`-based played-move analysis
+- Board library integration through an adapter interface, including explicit resize synchronization for late-mounted hosts
 - Deferred backend descriptor for future Convex/auth activation without active runtime coupling
 
 ## Key Files
@@ -29,6 +29,8 @@ Bridge application use-cases to browser storage, worker execution, and UI integr
 
 - Adapter tests should mock browser and worker boundaries and assert contract transformations.
 - Current automated adapter coverage exists for analysis repository behavior.
+- Board adapter coverage now includes resize delegation and host-resize synchronization tests.
+- Analysis orchestration coverage now asserts restricted-move searches for played-move evaluation.
 
 ## Open Risks / Deferred Items
 

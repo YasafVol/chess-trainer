@@ -17,6 +17,7 @@ test("buildReplayPositionItems begins with the first actual move and keeps ply z
   assert.equal(items.length, 2);
   assert.equal(items[0]?.label, "1. e4");
   assert.equal(items[0]?.ply, 1);
+  assert.equal(items[0]?.analysisPly, 0);
   assert.equal(items[0]?.isActive, false);
 });
 

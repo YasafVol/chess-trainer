@@ -213,6 +213,70 @@ textarea {
   font-size: 0.95rem;
 }
 
+.config-notice,
+.config-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.config-notice {
+  padding: 16px 18px;
+}
+
+.config-sections {
+  display: grid;
+  gap: 16px;
+}
+
+.config-section {
+  padding: 18px;
+}
+
+.config-section-header {
+  margin-bottom: 14px;
+}
+
+.config-section-header h3 {
+  margin-bottom: 4px;
+}
+
+.config-section-header p {
+  margin: 0;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.config-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  color: #111827;
+}
+
+.config-help {
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
 .action-button {
   border: 1px solid #111827;
   background: #111827;
@@ -255,8 +319,9 @@ textarea {
 }
 
 .move-btn.active {
-  border-color: #1f2937;
-  background: #e8ecf8;
+  border-color: #0f5bd8;
+  background: #dbeafe;
+  color: #0f172a;
   font-weight: 600;
 }
 
@@ -367,5 +432,3 @@ textarea {
   color: #374151;
   font-size: 0.95rem;
 }
-
-

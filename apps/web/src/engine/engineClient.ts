@@ -98,6 +98,7 @@ export class EngineClient {
     depth: number;
     multiPV: number;
     movetimeMs?: number;
+    searchMovesUci?: string[];
   }): Promise<EngineResultMessage | EngineCancelledMessage> {
     const requestId = newRequestId();
     return this.awaitMessage(requestId, {

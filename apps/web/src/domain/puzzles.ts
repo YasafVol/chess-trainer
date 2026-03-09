@@ -1,16 +1,21 @@
 import type { PlyAnalysis, Puzzle, PuzzleAttempt, PuzzleClassification, PuzzleScheduleState } from "./types";
 
 const DEFAULT_EASE = 2.5;
+export const PUZZLE_CLASSIFICATION_THRESHOLDS = {
+  inaccuracy: 50,
+  mistake: 100,
+  blunder: 200
+} as const;
 
 export function classifyEvalSwing(evalSwing: number): PuzzleClassification | null {
   const abs = Math.abs(evalSwing);
-  if (abs >= 200) {
+  if (abs >= PUZZLE_CLASSIFICATION_THRESHOLDS.blunder) {
     return "blunder";
   }
-  if (abs >= 100) {
+  if (abs >= PUZZLE_CLASSIFICATION_THRESHOLDS.mistake) {
     return "mistake";
   }
-  if (abs >= 50) {
+  if (abs >= PUZZLE_CLASSIFICATION_THRESHOLDS.inaccuracy) {
     return "inaccuracy";
   }
   return null;

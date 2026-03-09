@@ -34,7 +34,7 @@ export class ChessboardElementAdapter implements BoardAdapter {
     this.boardEl.style.maxWidth = "100%";
     this.boardEl.style.aspectRatio = "1 / 1";
     this.boardEl.style.display = "block";
-    this.boardEl.style.setProperty("--highlight-color", "rgba(212, 167, 44, 0.65)");
+    this.boardEl.style.setProperty("--highlight-color", "rgba(0, 173, 181, 0.92)");
   }
 
   mount(container: HTMLElement): void {

@@ -34,6 +34,27 @@ function resultMessage() {
   };
 }
 
+function resultMessageFor(input: {
+  bestMoveUci: string;
+  evaluation: number;
+  evaluationType?: "cp" | "mate";
+  depth?: number;
+  pvUci?: string[];
+}) {
+  return {
+    type: "engine:result" as const,
+    payload: {
+      bestMoveUci: input.bestMoveUci,
+      evaluationType: input.evaluationType ?? "cp",
+      evaluation: input.evaluation,
+      depth: input.depth ?? 16,
+      nodes: 1000,
+      nps: 2000,
+      pvUci: input.pvUci ?? [input.bestMoveUci]
+    }
+  };
+}
+
 test("runGameAnalysis retries once with lowered depth after timeout-like error", async () => {
   const calls: number[] = [];
   const savedRuns: AnalysisRun[] = [];
@@ -103,6 +124,80 @@ test("runGameAnalysis finalizes as cancelled when engine emits cancelled", async
   assert.equal(output.finalRun.status, "cancelled");
   assert.equal(savedPlies.length, 0);
   assert.equal(savedRuns.length, 2);
+});
+
+test("runGameAnalysis records played move evaluation via searchmoves when played move is not best", async () => {
+  const savedPlies: PlyAnalysis[] = [];
+  const inputs: Array<{ fen: string; searchMovesUci?: string[] }> = [];
+
+  const output = await runGameAnalysis({
+    game: sampleGame(["e2e4"]),
+    fenPositions: ["start", "after-e4"],
+    moveSanList: ["e4"],
+    engineFlavor: "stockfish-18-single",
+    analyzePosition: async (input) => {
+      inputs.push({ fen: input.fen, searchMovesUci: input.searchMovesUci });
+      if (input.searchMovesUci?.[0] === "e2e4") {
+        return resultMessageFor({
+          bestMoveUci: "e2e4",
+          evaluation: -35,
+          pvUci: ["e2e4", "e7e5"]
+        });
+      }
+      return resultMessageFor({
+        bestMoveUci: "d2d4",
+        evaluation: 28,
+        pvUci: ["d2d4", "d7d5"]
+      });
+    },
+    saveRun: async () => undefined,
+    savePly: async (ply) => {
+      savedPlies.push(ply);
+    },
+    isCancelRequested: () => false,
+    markCancelRequested: () => undefined,
+    createId: (() => {
+      let i = 0;
+      return () => `id-${++i}`;
+    })()
+  });
+
+  assert.equal(output.finalRun.status, "completed");
+  assert.deepEqual(inputs.map((entry) => entry.searchMovesUci ?? []), [[], ["e2e4"], []]);
+  assert.equal(savedPlies[0]?.bestMoveUci, "d2d4");
+  assert.equal(savedPlies[0]?.playedMoveEvaluation, -35);
+  assert.equal(savedPlies[0]?.playedMoveEvaluationType, "cp");
+  assert.deepEqual(savedPlies[0]?.playedMovePvUci, ["e2e4", "e7e5"]);
+});
+
+test("runGameAnalysis reuses the unrestricted score when played move is already best", async () => {
+  const savedPlies: PlyAnalysis[] = [];
+  const inputs: Array<{ searchMovesUci?: string[] }> = [];
+
+  await runGameAnalysis({
+    game: sampleGame(["e2e4"]),
+    fenPositions: ["start", "after-e4"],
+    moveSanList: ["e4"],
+    engineFlavor: "stockfish-18-single",
+    analyzePosition: async (input) => {
+      inputs.push({ searchMovesUci: input.searchMovesUci });
+      return resultMessageFor({
+        bestMoveUci: "e2e4",
+        evaluation: 42,
+        pvUci: ["e2e4", "e7e5"]
+      });
+    },
+    saveRun: async () => undefined,
+    savePly: async (ply) => {
+      savedPlies.push(ply);
+    },
+    isCancelRequested: () => false,
+    markCancelRequested: () => undefined
+  });
+
+  assert.deepEqual(inputs.map((entry) => entry.searchMovesUci ?? []), [[], []]);
+  assert.equal(savedPlies[0]?.playedMoveEvaluation, 42);
+  assert.equal(savedPlies[0]?.bestMoveUci, "e2e4");
 });
 
 test("runGameAnalysis stops by runtime budget and marks run cancelled with budget message", async () => {

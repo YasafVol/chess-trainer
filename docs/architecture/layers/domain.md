@@ -10,7 +10,7 @@ Own chess-specific rules and pure decision logic independent of UI and storage t
 - Replay state derivation
 - Analysis policy and plan generation
 - Analysis run lifecycle rules
-- Puzzle classification and review scheduling
+- Puzzle classification thresholds, definitions, and review scheduling
 
 ## Key Files
 
@@ -29,7 +29,7 @@ Own chess-specific rules and pure decision logic independent of UI and storage t
 - `apps/web/src/domain/analysisRunLifecycle.test.ts`
 - Gap:
   - add `gameReplay.ts` edge-case tests
-  - add puzzle-domain tests
+  - add direct puzzle-domain tests around threshold definitions
 
 ## Open Risks / Deferred Items
 

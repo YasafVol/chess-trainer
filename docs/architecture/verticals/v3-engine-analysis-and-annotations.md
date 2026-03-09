@@ -10,7 +10,7 @@ Provide actionable engine feedback per position so users can identify mistakes, 
 - Domain: analysis policy, plan rules, and run lifecycle logic
 - Application: run orchestration, cancellation, retries, and progress updates
 - Adapters: worker client, worker runtime, and analysis repositories
-- Presentation: analysis controls, progress, and per-ply evaluation display
+- Presentation: analysis controls, progress, per-ply evaluation display, and read-only admin visibility into current engine depth/limit settings
 - Composition: engine flavor selection and startup wiring
 
 ## Tests and Acceptance Criteria
