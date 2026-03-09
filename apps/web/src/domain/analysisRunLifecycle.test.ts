@@ -56,11 +56,12 @@ test("finalizeRun marks cancelled run with budget stop message", () => {
     run: sampleRun(),
     outcome: "cancelled",
     completedAt: "2026-03-05T00:10:00.000Z",
-    stoppedByBudget: true
+    stoppedByBudget: true,
+    foregroundBudgetMs: 72000
   });
 
   assert.equal(finalized.status, "cancelled");
-  assert.equal(finalized.error, "Stopped after foreground runtime budget; rerun to continue refining.");
+  assert.equal(finalized.error, "Stopped after scaled foreground runtime budget (72000ms); rerun to continue refining.");
 });
 
 test("finalizeRun marks failed run with explicit failure message", () => {

@@ -10,6 +10,7 @@ export type FinalizeRunInput = {
   completedAt: string;
   retriesUsed?: number;
   stoppedByBudget?: boolean;
+  foregroundBudgetMs?: number;
   failureMessage?: string;
 };
 
@@ -39,13 +40,16 @@ export function transitionRunStatus(current: RunStatus, event: RunEvent): RunSta
   return current;
 }
 
-function completionMessage(input: Pick<FinalizeRunInput, "outcome" | "retriesUsed" | "stoppedByBudget" | "failureMessage">): string | undefined {
+function completionMessage(
+  input: Pick<FinalizeRunInput, "outcome" | "retriesUsed" | "stoppedByBudget" | "foregroundBudgetMs" | "failureMessage">
+): string | undefined {
   if (input.outcome === "failed") {
     return input.failureMessage ?? "Unknown analysis error";
   }
 
   if (input.stoppedByBudget) {
-    return "Stopped after foreground runtime budget; rerun to continue refining.";
+    const budgetText = input.foregroundBudgetMs ? `${input.foregroundBudgetMs}ms` : "current limit";
+    return `Stopped after scaled foreground runtime budget (${budgetText}); rerun to continue refining.`;
   }
 
   if ((input.retriesUsed ?? 0) > 0) {

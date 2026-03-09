@@ -1,0 +1,17 @@
+[Event "Live Chess"]
+[Site "Chess.com"]
+[Date "2026.03.09"]
+[Round "-"]
+[White "yasafvolinsky"]
+[Black "karadase"]
+[Result "1-0"]
+[WhiteElo "995"]
+[BlackElo "972"]
+[TimeControl "600"]
+[EndTime "14:43:29 GMT+0000"]
+[Termination "yasafvolinsky won by resignation"]
+
+1. d4 e6 2. e4 d5 3. e5 Nc6 4. Nf3 a6 5. c4 f6 6. exf6 gxf6 7. Nc3 Bb4 8. a3
+Bxc3+ 9. bxc3 e5 10. dxe5 Nxe5 11. Nxe5 fxe5 12. cxd5 Nf6 13. Bc4 Ne4 14. Qh5+
+Kf8 15. Qxe5 Nf6 16. Bg5 Qe7 17. Bh6+ Kf7 18. d6+ Qe6 19. Bxe6+ Bxe6 20. dxc7
+Rac8 21. Bg5 Rhd8 22. cxd8=N+ Rxd8 23. Qxf6+ 1-0

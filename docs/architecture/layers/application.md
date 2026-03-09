@@ -9,6 +9,7 @@ Coordinate domain rules to execute use-cases while remaining UI-agnostic where p
 - Import orchestration from validation through persistence
 - Replay progression and current-ply transitions
 - Analysis run lifecycle orchestration, including best-line search plus restricted played-move search when needed
+- Scaled foreground-budget calculation and ply-based analysis progress reporting
 - Library load and refresh orchestration
 - Puzzle generation and review workflows
 - Coordinate local-first flows without requiring deferred Convex/auth services

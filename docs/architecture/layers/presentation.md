@@ -7,9 +7,9 @@ Render user interfaces, collect user intents, and display system state.
 ## Features / Responsibilities
 
 - Import, library, game, puzzle-list, puzzle-solve, and backoffice routes
-- Analysis progress, move/eval display, and puzzle review feedback
+- Analysis progress, move/eval display, eval bar, eval graph, and puzzle review feedback
 - Read-only admin config inspection for analysis depths, limits, and classification definitions
-- Board controls, move list, late-mounted board-host wiring, and keyboard interactions
+- Board controls, SAN/NAG-style move annotations, late-mounted board-host wiring, and keyboard interactions
 - TanStack Router links, params, and route-driven screen composition
 
 ## Key Files
@@ -21,6 +21,7 @@ Render user interfaces, collect user intents, and display system state.
 - `apps/web/src/routes/puzzles.tsx`
 - `apps/web/src/routes/puzzle.tsx`
 - `apps/web/src/routes/backoffice.tsx`
+- `apps/web/src/presentation/analysisView.ts`
 - `apps/web/src/presentation/backofficeView.ts`
 - `apps/web/src/styles.css`
 - `apps/web/src/components/InlineLoader.tsx`
@@ -32,7 +33,7 @@ Render user interfaces, collect user intents, and display system state.
 - Needed:
   - route-level component tests
   - accessibility checks for move-list focus and announcements
-- Current route-adjacent coverage verifies replay rendering without a synthetic start row and verifies the backoffice config sections derived from hardcoded source constants.
+- Current route-adjacent coverage verifies replay rendering without a synthetic start row, the eval-bar/graph helper state, and the backoffice config sections derived from hardcoded source constants.
 
 ## Open Risks / Deferred Items
 

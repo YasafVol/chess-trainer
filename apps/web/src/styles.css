@@ -160,9 +160,22 @@ textarea {
   margin-top: 12px;
 }
 
+.board-analysis-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.board-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
 .board-host {
-  width: min(100%, 560px);
-  min-width: min(100%, 280px);
+  width: 100%;
+  min-width: 0;
   min-height: 280px;
   aspect-ratio: 1 / 1;
   display: block;
@@ -171,6 +184,141 @@ textarea {
 .board-host > * {
   width: 100%;
   height: 100%;
+}
+
+.eval-bar-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.eval-bar-track {
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 280px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background:
+    linear-gradient(180deg, #f8fafc 0%, #f8fafc 50%, #111827 50%, #111827 100%);
+}
+
+.eval-bar-fill {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  transition: top 120ms ease, height 120ms ease;
+}
+
+.eval-bar-fill.white {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(226, 232, 240, 0.95));
+}
+
+.eval-bar-fill.black {
+  background: linear-gradient(180deg, rgba(31, 41, 55, 0.85), rgba(15, 23, 42, 0.98));
+}
+
+.eval-bar-fill.neutral {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+.eval-bar-center-line,
+.eval-bar-marker {
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+.eval-bar-center-line {
+  top: 50%;
+  border-top: 1px solid rgba(148, 163, 184, 0.45);
+}
+
+.eval-bar-marker {
+  border-top: 2px solid #0f5bd8;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+
+.eval-bar-label,
+.eval-bar-value {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.eval-bar-label {
+  color: #475569;
+}
+
+.eval-bar-value {
+  color: #0f172a;
+}
+
+.eval-graph-panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.eval-graph-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  align-items: baseline;
+}
+
+.eval-graph {
+  display: block;
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(248, 250, 252, 0.92) 0%, rgba(241, 245, 249, 0.92) 100%);
+}
+
+.eval-graph-baseline,
+.eval-graph-current,
+.eval-graph-path,
+.eval-graph-point {
+  vector-effect: non-scaling-stroke;
+}
+
+.eval-graph-baseline {
+  stroke: rgba(100, 116, 139, 0.45);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.eval-graph-current {
+  stroke: rgba(15, 91, 216, 0.28);
+  stroke-width: 1.2;
+}
+
+.eval-graph-path {
+  fill: none;
+  stroke: #0f5bd8;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.eval-graph-point {
+  fill: #ffffff;
+  stroke: #0f5bd8;
+  stroke-width: 1.6;
+  cursor: pointer;
+  transition: transform 120ms ease, fill 120ms ease, stroke 120ms ease;
+}
+
+.eval-graph-point:hover,
+.eval-graph-point.selected {
+  fill: #0f5bd8;
+  stroke: #0f172a;
 }
 
 .controls {
@@ -336,6 +484,16 @@ textarea {
 
   .game-layout {
     grid-template-columns: 1fr;
+  }
+
+  .board-row {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .eval-graph-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .moves-pane {

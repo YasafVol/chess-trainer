@@ -2,62 +2,20 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { Chess } from "chess.js";
 import { ChessboardElementAdapter } from "../board/ChessboardElementAdapter";
-import { InlineLoader } from "../components/InlineLoader";
-import { useDelayedBusy } from "../components/useDelayedBusy";
 import type { BoardAdapter } from "../board/BoardAdapter";
 import { startBoardResizeSync } from "../board/boardResize";
 import { runGameAnalysis } from "../application/runGameAnalysis";
+import { InlineLoader } from "../components/InlineLoader";
+import { useDelayedBusy } from "../components/useDelayedBusy";
 import { buildReplayData } from "../domain/gameReplay";
 import { EngineClient, type EngineFlavor } from "../engine/engineClient";
 import { generatePuzzlesForRunLocal, savePlyLocal, saveRunLocal, useLocalAnalysisSnapshot, useLocalGame } from "../lib/mockData";
+import { buildEvalBarState, buildEvalGraphState, buildMoveAnnotation, formatEval } from "../presentation/analysisView";
 import { buildGameMetaChips, buildReplayPositionItems, resolveBoardPresentation } from "../presentation/gameView";
 
 function chooseEngineFlavor(): EngineFlavor {
   // TODO: revisit flavor selection once the deployed app has reliable COOP/COEP and engine asset caching.
   return "stockfish-18-lite-single";
-}
-
-function formatEval(type: "cp" | "mate", evaluation: number): string {
-  if (type === "mate") return `M${evaluation > 0 ? "+" : ""}${evaluation}`;
-  const cp = evaluation / 100;
-  return `${cp >= 0 ? "+" : ""}${cp.toFixed(2)}`;
-}
-
-function formatMoveEval(
-  ply: {
-    evaluationType: "cp" | "mate";
-    evaluation: number;
-    playedMoveEvaluationType?: "cp" | "mate";
-    playedMoveEvaluation?: number;
-  } | undefined
-): string {
-  if (!ply) {
-    return "";
-  }
-
-  if (
-    ply.playedMoveEvaluationType === undefined ||
-    ply.playedMoveEvaluation === undefined
-  ) {
-    return formatEval(ply.evaluationType, ply.evaluation);
-  }
-
-  if (ply.playedMoveEvaluationType === "cp" && ply.evaluationType === "cp") {
-    const loss = Math.max(0, ply.evaluation - ply.playedMoveEvaluation);
-    if (loss < 10) {
-      return "best";
-    }
-    return `loss ${Math.round(loss)}cp`;
-  }
-
-  if (ply.playedMoveEvaluationType === "mate" && ply.evaluationType === "mate") {
-    if (ply.playedMoveEvaluation === ply.evaluation) {
-      return "best";
-    }
-    return `mate shift ${ply.evaluation - ply.playedMoveEvaluation}`;
-  }
-
-  return `${formatEval(ply.playedMoveEvaluationType, ply.playedMoveEvaluation)} vs best ${formatEval(ply.evaluationType, ply.evaluation)}`;
 }
 
 function formatUnknownError(error: unknown): string {
@@ -74,6 +32,16 @@ function formatUnknownError(error: unknown): string {
   }
 }
 
+function formatBudgetLabel(budgetMs: number | undefined): string {
+  if (!budgetMs) {
+    return "n/a";
+  }
+  if (budgetMs % 1000 === 0) {
+    return `${budgetMs / 1000}s`;
+  }
+  return `${budgetMs}ms`;
+}
+
 export function GamePage() {
   const { gameId } = useParams({ from: "/game/$gameId" });
   const game = useLocalGame(gameId);
@@ -84,7 +52,12 @@ export function GamePage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [manualFen, setManualFen] = useState<string | null>(null);
   const [analysisStatus, setAnalysisStatus] = useState("No analysis run yet.");
-  const [analysisProgress, setAnalysisProgress] = useState<{ done: number; total: number } | null>(null);
+  const [analysisProgress, setAnalysisProgress] = useState<{
+    done: number;
+    total: number;
+    lastCompletedPly: number | null;
+    totalPlies: number;
+  } | null>(null);
   const [analysisRunning, setAnalysisRunning] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [boardError, setBoardError] = useState<string | null>(null);
@@ -146,6 +119,9 @@ export function GamePage() {
     }
     return map;
   }, [analysisByPly]);
+  const currentAnalysis = analysisByPlyMap.get(currentPly);
+  const evalBarState = useMemo(() => buildEvalBarState(currentAnalysis), [currentAnalysis]);
+  const evalGraphState = useMemo(() => buildEvalGraphState(analysisByPly, currentPly), [analysisByPly, currentPly]);
 
   useEffect(() => {
     currentPlyRef.current = currentPly;
@@ -226,7 +202,9 @@ export function GamePage() {
       setAnalysisStatus("No analysis run yet.");
       return;
     }
-    setAnalysisStatus(`${analysisRun.engineName} ${analysisRun.engineVersion} depth=${analysisRun.options.depth} status=${analysisRun.status}`);
+    setAnalysisStatus(
+      `${analysisRun.engineName} ${analysisRun.engineVersion} depth=${analysisRun.options.depth} budget=${formatBudgetLabel(analysisRun.options.foregroundBudgetMs)} status=${analysisRun.status}`
+    );
   }, [analysisRun]);
 
   useEffect(() => {
@@ -373,6 +351,12 @@ export function GamePage() {
     return () => window.clearTimeout(timeoutId);
   }, [currentPly, isPlaying, replayData, totalPlies]);
 
+  function jumpToPly(ply: number) {
+    setIsPlaying(false);
+    setManualFen(null);
+    setCurrentPly(Math.max(0, Math.min(totalPlies, ply)));
+  }
+
   async function runAnalysis() {
     if (!game || !replayData || !engineRef.current) {
       return;
@@ -422,9 +406,11 @@ export function GamePage() {
         },
         onProgress: (progress) => setAnalysisProgress(progress),
         onRetryStatus: (message) => setAnalysisStatus(message),
-        onRunUpdated: (run) => setAnalysisStatus(`${run.status} at depth ${run.options.depth}`),
+        onRunUpdated: (run) => {
+          setAnalysisStatus(`${run.status} at depth ${run.options.depth} (budget ${formatBudgetLabel(run.options.foregroundBudgetMs)})`);
+        },
         onPlySaved: (ply) => {
-          setAnalysisStatus(`Saved ply ${ply.ply}/${totalPlies}`);
+          setAnalysisStatus(`Analyzed ply ${ply.ply}/${totalPlies}`);
         }
       });
 
@@ -490,12 +476,86 @@ export function GamePage() {
       {replayData ? (
         <div className="game-layout">
           <div>
-            <div ref={setBoardHost} className="board-host" />
+            <div className="board-analysis-stack">
+              <div className="board-row">
+                <div className="eval-bar-panel" aria-label="Evaluation bar">
+                  <div className="eval-bar-label eval-bar-label-top">W</div>
+                  <div className="eval-bar-track" role="img" aria-label={`Current evaluation ${evalBarState.scoreText}`}>
+                    <div
+                      className={`eval-bar-fill ${evalBarState.fillSide}`}
+                      style={{
+                        top: `${evalBarState.fillTopPercent}%`,
+                        height: `${evalBarState.fillPercent}%`
+                      }}
+                    />
+                    <div className="eval-bar-center-line" />
+                    <div className="eval-bar-marker" style={{ top: `${evalBarState.markerPercent}%` }} />
+                  </div>
+                  <div className="eval-bar-label eval-bar-label-bottom">B</div>
+                  <div className="eval-bar-value">{evalBarState.scoreText}</div>
+                </div>
+
+                <div ref={setBoardHost} className="board-host" />
+              </div>
+
+              <section className="eval-graph-panel" aria-label="Game evaluation graph">
+                <div className="eval-graph-header">
+                  <strong>Eval graph</strong>
+                  <span className="muted">
+                    {evalGraphState.selectedPoint
+                      ? `Ply ${evalGraphState.selectedPoint.ply}: ${evalGraphState.selectedPoint.scoreText}`
+                      : analysisByPly.length > 0
+                        ? "Select a saved point to jump to that position."
+                        : "Run analysis to populate the graph."}
+                  </span>
+                </div>
+
+                {evalGraphState.points.length > 0 ? (
+                  <svg className="eval-graph" viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="Clickable game evaluation graph">
+                    <line className="eval-graph-baseline" x1="0" y1="50" x2="100" y2="50" />
+                    {evalGraphState.selectedPoint ? (
+                      <line
+                        className="eval-graph-current"
+                        x1={evalGraphState.selectedPoint.x}
+                        y1="0"
+                        x2={evalGraphState.selectedPoint.x}
+                        y2="100"
+                      />
+                    ) : null}
+                    <path className="eval-graph-path" d={evalGraphState.path} />
+                    {evalGraphState.points.map((point) => (
+                      <circle
+                        key={point.ply}
+                        className={`eval-graph-point ${point.isSelected ? "selected" : ""}`}
+                        cx={point.x}
+                        cy={point.y}
+                        r={point.isSelected ? 2.8 : 2}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Jump to ply ${point.ply}, evaluation ${point.scoreText}`}
+                        onClick={() => jumpToPly(point.ply)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            jumpToPly(point.ply);
+                          }
+                        }}
+                      >
+                        <title>Ply {point.ply}: {point.scoreText}</title>
+                      </circle>
+                    ))}
+                  </svg>
+                ) : (
+                  <p className="muted">No saved analysis points yet.</p>
+                )}
+              </section>
+            </div>
+
             {boardError ? <p>{boardError}</p> : null}
             <div className="controls">
-              <button className="action-button" onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.max(0, ply - 1)); }}>Prev</button>
-              <button className="action-button" onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly((ply) => Math.min(totalPlies, ply + 1)); }}>Next</button>
-              <button className="action-button" onClick={() => { setIsPlaying(false); setManualFen(null); setCurrentPly(0); }}>Reset</button>
+              <button className="action-button" onClick={() => jumpToPly(currentPly - 1)}>Prev</button>
+              <button className="action-button" onClick={() => jumpToPly(currentPly + 1)}>Next</button>
+              <button className="action-button" onClick={() => jumpToPly(0)}>Reset</button>
               <button className="action-button" onClick={() => { setManualFen(null); setIsPlaying((playing) => !playing); }}>{isPlaying ? "Pause" : "Play"}</button>
               <button className="action-button" onClick={() => setFlipped((value) => !value)}>Flip</button>
               {!analysisRunning ? (
@@ -511,14 +571,14 @@ export function GamePage() {
               {showAnalysisLoader ? (
                 <InlineLoader inline label="Analyzing game" detail="Running Stockfish and saving per-position evaluations." />
               ) : null}
-              {analysisProgress ? <p className="muted">Analysis progress: {analysisProgress.done}/{analysisProgress.total}</p> : null}
+              {analysisProgress ? <p className="muted">Analysis progress: ply {analysisProgress.lastCompletedPly ?? 0}/{analysisProgress.totalPlies}</p> : null}
               {analysisError ? <p>{analysisError}</p> : null}
               <p className="muted">Engine: {engineReady ? "ready" : `initializing (${engineFlavorRef.current})...`}</p>
-              {analysisByPlyMap.get(currentPly) ? (
+              {currentAnalysis ? (
                 <>
-                  <p>Current eval: <strong>{formatEval(analysisByPlyMap.get(currentPly)!.evaluationType, analysisByPlyMap.get(currentPly)!.evaluation)}</strong></p>
-                  <p className="muted">Best move: {analysisByPlyMap.get(currentPly)!.bestMoveUci ?? "n/a"} - Depth {analysisByPlyMap.get(currentPly)!.depth}</p>
-                  {analysisByPlyMap.get(currentPly)!.pvUci.length > 0 ? <p className="muted">PV: {analysisByPlyMap.get(currentPly)!.pvUci.join(" ")}</p> : null}
+                  <p>Current eval: <strong>{formatEval(currentAnalysis.evaluationType, currentAnalysis.evaluation)}</strong></p>
+                  <p className="muted">Best move: {currentAnalysis.bestMoveUci ?? "n/a"} - Depth {currentAnalysis.depth}</p>
+                  {currentAnalysis.pvUci.length > 0 ? <p className="muted">PV: {currentAnalysis.pvUci.join(" ")}</p> : null}
                 </>
               ) : (
                 <p className="muted">No eval at current ply.</p>
@@ -530,20 +590,16 @@ export function GamePage() {
             <ul className="list">
               {replayPositionItems.map((item) => {
                 const moveEval = analysisByPlyMap.get(item.analysisPly);
+                const moveAnnotation = buildMoveAnnotation(moveEval);
                 return (
                   <li key={item.key}>
                     <button
                       className={`move-btn ${item.isActive ? "active" : ""}`}
-                      onClick={() => {
-                        setIsPlaying(false);
-                        setManualFen(null);
-                        setCurrentPly(item.ply);
-                      }}
+                      title={moveAnnotation.label ? `${moveAnnotation.label}${moveAnnotation.lossCp ? ` (${Math.round(moveAnnotation.lossCp)}cp loss)` : ""}` : undefined}
+                      onClick={() => jumpToPly(item.ply)}
                     >
                       {item.label}
-                      {moveEval
-                        ? ` (${formatMoveEval(moveEval)})`
-                        : ""}
+                      {moveAnnotation.suffix}
                     </button>
                   </li>
                 );

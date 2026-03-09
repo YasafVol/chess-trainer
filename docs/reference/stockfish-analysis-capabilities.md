@@ -1,6 +1,6 @@
 # Stockfish Analysis Capabilities
 
-Last updated: 2026-03-07
+Last updated: 2026-03-09
 
 ## Scope
 
@@ -21,13 +21,14 @@ Reference summary of the analysis data currently surfaced by the browser-worker 
   - status
   - retries used
   - engine flavor
+  - computed foreground budget
   - completion or cancellation reason
 
 ## How the web app uses it
 
 - `apps/web/src/application/runGameAnalysis.ts` orchestrates per-ply analysis runs.
 - `apps/web/src/engine/engineClient.ts` transports worker messages.
-- `apps/web/src/routes/game.tsx` renders progress, current-ply evaluation, and run summaries.
+- `apps/web/src/routes/game.tsx` renders progress, current-ply evaluation, a vertical eval bar, a clickable game eval graph, SAN/NAG-style move suffixes, and run summaries.
 - `apps/web/src/lib/mockData.ts` persists runs and per-ply results locally.
 - Puzzle generation currently uses the persisted primary PV and eval swing, not a deeper targeted extraction pass.
 

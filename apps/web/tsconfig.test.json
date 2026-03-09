@@ -12,6 +12,7 @@
     "src/domain/analysisPlan.ts",
     "src/domain/analysisPlan.test.ts",
     "src/domain/analysisPolicy.ts",
+    "src/domain/analysisPolicy.test.ts",
     "src/domain/analysisRunLifecycle.ts",
     "src/domain/analysisRunLifecycle.test.ts",
     "src/domain/puzzles.ts",
@@ -26,6 +27,8 @@
     "src/board/boardResize.test.ts",
     "src/presentation/backofficeView.ts",
     "src/presentation/backofficeView.test.ts",
+    "src/presentation/analysisView.ts",
+    "src/presentation/analysisView.test.ts",
     "src/presentation/gameView.ts",
     "src/presentation/gameView.test.ts"
   ],

@@ -85,10 +85,16 @@ export function buildBackofficeConfigSections(): BackofficeConfigSection[] {
           help: "Soft movetime budget for each engine request."
         },
         {
-          key: "foregroundBudgetMs",
-          label: "Foreground budget (ms)",
-          value: String(ANALYSIS_POLICY.foregroundBudgetMs),
-          help: "Stops long foreground runs before they monopolize the session."
+          key: "baseForegroundBudgetMs",
+          label: "Base foreground budget (ms)",
+          value: String(ANALYSIS_POLICY.baseForegroundBudgetMs),
+          help: "Minimum runtime budget before per-ply scaling is applied."
+        },
+        {
+          key: "foregroundBudgetPerPlyMs",
+          label: "Foreground budget per ply (ms)",
+          value: String(ANALYSIS_POLICY.foregroundBudgetPerPlyMs),
+          help: "Additional runtime budget granted as a multiple of game length."
         }
       ]
     },

@@ -1,6 +1,6 @@
 import { buildAnalysisPlan, lowerDepthForRetry } from "../domain/analysisPlan.js";
 import { finalizeRun } from "../domain/analysisRunLifecycle.js";
-import { ANALYSIS_POLICY } from "../domain/analysisPolicy.js";
+import { ANALYSIS_POLICY, computeForegroundBudgetMs } from "../domain/analysisPolicy.js";
 import type { AnalysisRun, GameRecord, PlyAnalysis } from "../domain/types.js";
 
 const ANALYSIS_RETRY_LIMIT = 1;
@@ -42,12 +42,13 @@ export type RunGameAnalysisArgs = {
   onRetryStatus?: (message: string) => void;
   onRunUpdated?: (run: AnalysisRun) => void;
   onPlySaved?: (ply: PlyAnalysis) => void;
-  onProgress?: (progress: { done: number; total: number }) => void;
+  onProgress?: (progress: { done: number; total: number; lastCompletedPly: number | null; totalPlies: number }) => void;
   policy?: {
     defaultDepth: number;
     defaultMultiPV: number;
     softPerPositionMaxMs: number;
-    foregroundBudgetMs: number;
+    baseForegroundBudgetMs: number;
+    foregroundBudgetPerPlyMs: number;
   };
   nowMs?: () => number;
   nowIso?: () => string;
@@ -127,6 +128,7 @@ export function buildRunningRun(input: {
   engineFlavor: string;
   createId: () => string;
   nowIso: () => string;
+  foregroundBudgetMs: number;
   policy: {
     defaultDepth: number;
     defaultMultiPV: number;
@@ -144,7 +146,8 @@ export function buildRunningRun(input: {
     options: {
       depth: input.policy.defaultDepth,
       multiPV: input.policy.defaultMultiPV,
-      movetimeMs: input.policy.softPerPositionMaxMs
+      movetimeMs: input.policy.softPerPositionMaxMs,
+      foregroundBudgetMs: input.foregroundBudgetMs
     },
     status: "running",
     createdAt: input.nowIso()
@@ -159,7 +162,8 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
   const createId = args.createId ?? (() => crypto.randomUUID());
 
   const plan = buildAnalysisPlan(args.game.movesUci.length, args.moveSanList, policy.defaultDepth);
-  args.onProgress?.({ done: 0, total: plan.length });
+  const foregroundBudgetMs = computeForegroundBudgetMs(args.game.movesUci.length, policy);
+  args.onProgress?.({ done: 0, total: plan.length, lastCompletedPly: null, totalPlies: args.game.movesUci.length });
 
   const run = buildRunningRun({
     game: args.game,
@@ -167,6 +171,7 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
     engineFlavor: args.engineFlavor,
     createId,
     nowIso,
+    foregroundBudgetMs,
     policy
   });
 
@@ -182,7 +187,6 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
 
   const runStartedAt = nowMs();
   let done = 0;
-  let retriesUsed = 0;
   let stoppedByBudget = false;
   const retriesUsedRef = { value: 0 };
 
@@ -310,14 +314,19 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       args.onPlySaved?.(plyRecord);
 
       done += 1;
-      args.onProgress?.({ done, total: plan.length });
+      args.onProgress?.({
+        done,
+        total: plan.length,
+        lastCompletedPly: step.ply,
+        totalPlies: args.game.movesUci.length
+      });
 
-      if (nowMs() - runStartedAt > policy.foregroundBudgetMs) {
+      if (nowMs() - runStartedAt > foregroundBudgetMs) {
         console.warn("[analysis] foreground budget exceeded", {
           gameId: args.game.id,
           runId: run.id,
           elapsedMs: nowMs() - runStartedAt,
-          budgetMs: policy.foregroundBudgetMs
+          budgetMs: foregroundBudgetMs
         });
         args.markCancelRequested();
         stoppedByBudget = true;
@@ -330,7 +339,8 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       outcome: args.isCancelRequested() ? "cancelled" : "completed",
       completedAt: nowIso(),
       retriesUsed: retriesUsedRef.value,
-      stoppedByBudget
+      stoppedByBudget,
+      foregroundBudgetMs
     });
 
     console.log("[analysis] run finalized", {
@@ -371,7 +381,7 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
     return {
       finalRun: failedRun,
       done,
-      retriesUsed,
+      retriesUsed: retriesUsedRef.value,
       stoppedByBudget
     };
   }

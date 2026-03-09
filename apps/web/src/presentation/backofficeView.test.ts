@@ -20,6 +20,8 @@ test("buildBackofficeConfigSections exposes the hardcoded analysis and definitio
 
   assert.equal(limits?.fields.find((field) => field.key === "defaultMultiPV")?.value, "1");
   assert.equal(limits?.fields.find((field) => field.key === "softPerPositionMaxMs")?.value, "1200");
+  assert.equal(limits?.fields.find((field) => field.key === "baseForegroundBudgetMs")?.value, "60000");
+  assert.equal(limits?.fields.find((field) => field.key === "foregroundBudgetPerPlyMs")?.value, "600");
 
   assert.equal(definitions?.fields.find((field) => field.key === "inaccuracy")?.value, ">= 50 cp");
   assert.equal(definitions?.fields.find((field) => field.key === "mistake")?.value, ">= 100 cp");

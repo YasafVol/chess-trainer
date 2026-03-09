@@ -59,6 +59,7 @@ test("runGameAnalysis retries once with lowered depth after timeout-like error",
   const calls: number[] = [];
   const savedRuns: AnalysisRun[] = [];
   const savedPlies: PlyAnalysis[] = [];
+  const progressEvents: Array<{ done: number; total: number; lastCompletedPly: number | null; totalPlies: number }> = [];
   let attempt = 0;
 
   const output = await runGameAnalysis({
@@ -82,6 +83,9 @@ test("runGameAnalysis retries once with lowered depth after timeout-like error",
     },
     isCancelRequested: () => false,
     markCancelRequested: () => undefined,
+    onProgress: (progress) => {
+      progressEvents.push(progress);
+    },
     waitMs: async () => undefined,
     createId: (() => {
       let i = 0;
@@ -93,8 +97,11 @@ test("runGameAnalysis retries once with lowered depth after timeout-like error",
   assert.equal(output.retriesUsed, 1);
   assert.equal(output.finalRun.status, "completed");
   assert.equal(output.finalRun.error, "Completed with 1 retry.");
+  assert.equal(output.finalRun.options.foregroundBudgetMs, 60000);
   assert.equal(savedRuns.length, 2);
   assert.equal(savedPlies.length, 2);
+  assert.deepEqual(progressEvents[0], { done: 0, total: 2, lastCompletedPly: null, totalPlies: 1 });
+  assert.deepEqual(progressEvents[progressEvents.length - 1], { done: 2, total: 2, lastCompletedPly: 1, totalPlies: 1 });
 });
 
 test("runGameAnalysis finalizes as cancelled when engine emits cancelled", async () => {
@@ -229,12 +236,42 @@ test("runGameAnalysis stops by runtime budget and marks run cancelled with budge
       defaultDepth: 16,
       defaultMultiPV: 1,
       softPerPositionMaxMs: 1200,
-      foregroundBudgetMs: 50
+      baseForegroundBudgetMs: 50,
+      foregroundBudgetPerPlyMs: 10
     }
   });
 
   assert.equal(output.stoppedByBudget, true);
   assert.equal(output.finalRun.status, "cancelled");
-  assert.equal(output.finalRun.error, "Stopped after foreground runtime budget; rerun to continue refining.");
+  assert.equal(output.finalRun.options.foregroundBudgetMs, 50);
+  assert.equal(output.finalRun.error, "Stopped after scaled foreground runtime budget (50ms); rerun to continue refining.");
   assert.equal(savedRuns.length, 2);
+});
+
+test("runGameAnalysis scales runtime budget with total plies when that exceeds the base budget", async () => {
+  const savedRuns: AnalysisRun[] = [];
+
+  const output = await runGameAnalysis({
+    game: sampleGame(new Array(200).fill("e2e4")),
+    fenPositions: new Array(201).fill("start"),
+    moveSanList: new Array(200).fill("e4"),
+    engineFlavor: "stockfish-18-single",
+    analyzePosition: async () => ({ type: "engine:cancelled" as const }),
+    saveRun: async (run) => {
+      savedRuns.push(run);
+    },
+    savePly: async () => undefined,
+    isCancelRequested: () => false,
+    markCancelRequested: () => undefined,
+    policy: {
+      defaultDepth: 16,
+      defaultMultiPV: 1,
+      softPerPositionMaxMs: 1200,
+      baseForegroundBudgetMs: 5000,
+      foregroundBudgetPerPlyMs: 1000
+    }
+  });
+
+  assert.equal(output.finalRun.options.foregroundBudgetMs, 200000);
+  assert.equal(savedRuns[0]?.options.foregroundBudgetMs, 200000);
 });

@@ -26,6 +26,7 @@ export type AnalysisRun = {
     depth: number;
     multiPV: number;
     movetimeMs?: number;
+    foregroundBudgetMs?: number;
     threads?: number;
     hashMb?: number;
   };

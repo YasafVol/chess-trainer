@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { AnalysisRun, GameRecord, ImportBatchResult, PlyAnalysis, Puzzle, PuzzleAttempt, SessionUser } from "../domain/types";
 import { buildPuzzleStats, candidatePuzzlePairs, classifyEvalSwing, createInitialSchedule, inferThemes, initialPuzzleDifficulty, nextReviewOrder, nextScheduleFromQuality } from "../domain/puzzles";
-import { getLatestAnalysisRunByGameId, listPlyAnalysisByGameId, listPlyAnalysisByRunId, saveAnalysisRun, savePlyAnalysis } from "./storage/repositories/analysisRepo";
+import { getLatestAnalysisRunByGameId, listPlyAnalysisByRunId, saveAnalysisRun, savePlyAnalysis } from "./storage/repositories/analysisRepo";
 import { getGame, listGames, saveGame } from "./storage/repositories/gamesRepo";
 import { getPuzzle, listPuzzleAttemptsByPuzzleId, listPuzzles, savePuzzle, savePuzzleAttempt } from "./storage/repositories/puzzlesRepo";
 
@@ -80,10 +80,8 @@ export function useLocalGame(gameId: string) {
 
 export function useLocalAnalysisSnapshot(gameId: string) {
   return useAsyncValue(async () => {
-    const [run, plies] = await Promise.all([
-      getLatestAnalysisRunByGameId(gameId),
-      listPlyAnalysisByGameId(gameId)
-    ]);
+    const run = await getLatestAnalysisRunByGameId(gameId);
+    const plies = run ? await listPlyAnalysisByRunId(run.id) : [];
 
     return {
       run: run && run.userId === LOCAL_USER.id ? run : null,
@@ -313,4 +311,3 @@ export async function recordPuzzleAttemptLocal(args: Omit<PuzzleAttempt, "id" | 
     quality: attempt.quality
   });
 }
-
