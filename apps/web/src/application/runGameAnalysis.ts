@@ -5,7 +5,7 @@ import type { AnalysisRun, GameRecord, PlyAnalysis } from "../domain/types.js";
 
 const ANALYSIS_RETRY_LIMIT = 1;
 
-type AnalyzePositionInput = {
+export type AnalyzePositionInput = {
   fen: string;
   movesUci: string[];
   depth: number;
@@ -14,7 +14,7 @@ type AnalyzePositionInput = {
   searchMovesUci?: string[];
 };
 
-type AnalyzePositionResult =
+export type AnalyzePositionResult =
   | {
       type: "engine:result";
       payload: {

@@ -1,5 +1,5 @@
-import type { GameRecord } from "../../../domain/types";
-import { withStore } from "../db";
+import type { GameRecord } from "../../../domain/types.js";
+import { withStore } from "../db.js";
 
 function requestToPromise<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {

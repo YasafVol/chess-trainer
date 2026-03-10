@@ -11,6 +11,8 @@
     "src/test-support/node-test-shims.d.ts",
     "src/domain/analysisPlan.ts",
     "src/domain/analysisPlan.test.ts",
+    "src/domain/analysisBenchmark.ts",
+    "src/domain/analysisBenchmark.test.ts",
     "src/domain/analysisPolicy.ts",
     "src/domain/analysisPolicy.test.ts",
     "src/domain/analysisRunLifecycle.ts",
@@ -18,6 +20,8 @@
     "src/domain/puzzles.ts",
     "src/application/runGameAnalysis.ts",
     "src/application/runGameAnalysis.test.ts",
+    "src/application/runAnalysisBenchmark.ts",
+    "src/application/runAnalysisBenchmark.test.ts",
     "src/domain/types.ts",
     "src/domain/gameReplay.ts",
     "src/board/BoardAdapter.ts",
@@ -27,10 +31,19 @@
     "src/board/boardResize.test.ts",
     "src/presentation/backofficeView.ts",
     "src/presentation/backofficeView.test.ts",
+    "src/presentation/analysisBenchmarkView.ts",
+    "src/presentation/analysisBenchmarkView.test.ts",
     "src/presentation/analysisView.ts",
     "src/presentation/analysisView.test.ts",
     "src/presentation/gameView.ts",
-    "src/presentation/gameView.test.ts"
+    "src/presentation/gameView.test.ts",
+    "src/lib/storage/benchmarkDb.ts",
+    "src/lib/storage/repositories/analysisRepo.ts",
+    "src/lib/storage/repositories/analysisRepo.test.ts",
+    "src/lib/storage/repositories/benchmarkAnalysisRepo.ts",
+    "src/lib/storage/repositories/benchmarkAnalysisRepo.test.ts",
+    "src/lib/storage/db.ts",
+    "src/lib/storage/migrations.ts"
   ],
   "exclude": []
 }

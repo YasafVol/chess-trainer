@@ -1,4 +1,4 @@
-import { getDbVersion, migrations } from "./migrations";
+import { getDbVersion, migrations } from "./migrations.js";
 
 const DB_NAME = "chess-trainer-web";
 

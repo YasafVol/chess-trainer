@@ -22,6 +22,7 @@ Standalone web runtime under `apps/web`.
   - `apps/web/src/domain/puzzles.ts`
 - Application:
   - `apps/web/src/application/runGameAnalysis.ts`
+  - `apps/web/src/application/runAnalysisBenchmark.ts`
   - remaining orchestration currently in:
     - `apps/web/src/routes/import.tsx`
     - `apps/web/src/routes/game.tsx`
@@ -52,4 +53,6 @@ Standalone web runtime under `apps/web`.
 - Game replay now renders a left-side eval bar, a clickable eval graph under the board, and SAN/NAG-style move suffixes (`!`, `?!`, `?`, `??`) derived from played-move loss.
 - Foreground analysis runtime budget is now scaled by game length and persisted on the run options so long games do not hit the old fixed timeout as aggressively.
 - A read-only `/backoffice` route now exposes the currently hardcoded analysis and puzzle-definition constants so admins can inspect shipped values before dynamic config is introduced.
+- `/backoffice/analysis-benchmark` now runs the shipped worker analysis pipeline against a bundled short-game PGN and reports aggregate timing metrics for supported runtime knobs.
+- Benchmark analysis data is intentionally written to a separate IndexedDB database so repeated experiments do not pollute normal game analysis history.
 - Shipping target is a Vercel-hosted local-first app before reintroducing cloud sync or auth.

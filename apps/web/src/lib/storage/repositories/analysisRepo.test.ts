@@ -12,6 +12,7 @@ import {
 function sampleRun(input: { id: string; gameId: string; createdAt: string; status?: AnalysisRun["status"] }): AnalysisRun {
   return {
     id: input.id,
+    userId: "user-1",
     gameId: input.gameId,
     schemaVersion: 1,
     engineName: "Stockfish",
@@ -30,6 +31,7 @@ function sampleRun(input: { id: string; gameId: string; createdAt: string; statu
 function samplePly(input: { id: string; runId: string; gameId: string; ply: number }): PlyAnalysis {
   return {
     id: input.id,
+    userId: "user-1",
     runId: input.runId,
     gameId: input.gameId,
     ply: input.ply,
@@ -61,7 +63,7 @@ test("analysis repo returns latest run per game by createdAt", async () => {
 
   const loaded = await getLatestAnalysisRunByGameId(gameId);
   assert.ok(loaded);
-  assert.equal(loaded.id, latest.id);
+  assert.equal(loaded?.id, latest.id);
 });
 
 test("analysis repo reloads saved plies in ply order for a run", async () => {

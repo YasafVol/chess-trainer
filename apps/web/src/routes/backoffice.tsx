@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { buildBackofficeConfigSections } from "../presentation/backofficeView";
 
 export function BackofficePage() {
@@ -8,6 +9,14 @@ export function BackofficePage() {
       <div>
         <h2>Backoffice</h2>
         <p className="muted">Review the analysis and puzzle-classification constants currently shipped with the web app.</p>
+      </div>
+
+      <div className="config-notice">
+        <strong>Benchmark tools</strong>
+        <p className="muted">Run the bundled `single.pgn` benchmark to compare analysis timing across the currently supported runtime knobs.</p>
+        <div className="inline-actions">
+          <Link to="/backoffice/analysis-benchmark" className="action-button">Open analysis benchmark</Link>
+        </div>
       </div>
 
       <div className="config-notice">
