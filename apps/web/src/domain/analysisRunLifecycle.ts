@@ -49,7 +49,7 @@ function completionMessage(
 
   if (input.stoppedByBudget) {
     const budgetText = input.foregroundBudgetMs ? `${input.foregroundBudgetMs}ms` : "current limit";
-    return `Stopped after scaled foreground runtime budget (${budgetText}); rerun to continue refining.`;
+    return `Stopped after derived runtime safety budget (${budgetText}); rerun to continue refining.`;
   }
 
   if ((input.retriesUsed ?? 0) > 0) {

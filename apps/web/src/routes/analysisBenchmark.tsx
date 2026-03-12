@@ -9,6 +9,7 @@ import { ANALYSIS_BENCHMARK_REPETITIONS, buildAnalysisBenchmarkScenarios } from 
 import { buildReplayData, moveToUci } from "../domain/gameReplay";
 import type { GameRecord } from "../domain/types";
 import { EngineClient } from "../engine/engineClient";
+import { formatUnknownError } from "../lib/formatUnknownError";
 import {
   clearBenchmarkAnalysisData,
   listBenchmarkPlyAnalysisByRunId,
@@ -66,6 +67,12 @@ export function AnalysisBenchmarkPage() {
   const [status, setStatus] = useState("Run the benchmark to compare scenario timing on the bundled `single.pgn` game.");
   const [summary, setSummary] = useState<string | null>(null);
   const [results, setResults] = useState<ReturnType<typeof buildAnalysisBenchmarkResultRows>>([]);
+  const [failure, setFailure] = useState<{
+    scenarioLabel: string;
+    repetition: number;
+    failedStep: string;
+    message: string;
+  } | null>(null);
   const [running, setRunning] = useState(false);
   const showLoader = useDelayedBusy(running, { delayMs: 200, minVisibleMs: 350 });
 
@@ -73,7 +80,14 @@ export function AnalysisBenchmarkPage() {
     setRunning(true);
     setSummary(null);
     setResults([]);
+    setFailure(null);
     setStatus(`Preparing ${scenarios.length} scenarios across ${ANALYSIS_BENCHMARK_REPETITIONS} repetitions each...`);
+    console.log("[benchmark-page] benchmark start", {
+      gameId: benchmarkGame.game.id,
+      totalPlies: benchmarkGame.totalPlies,
+      scenarios: scenarios.map((scenario) => scenario.id),
+      repetitions: ANALYSIS_BENCHMARK_REPETITIONS
+    });
 
     try {
       const output = await runAnalysisBenchmark({
@@ -89,17 +103,63 @@ export function AnalysisBenchmarkPage() {
         listPlyAnalysisByRunId: listBenchmarkPlyAnalysisByRunId,
         clearStorage: clearBenchmarkAnalysisData,
         onProgress: (progress) => {
+          console.log("[benchmark-page] progress", progress);
           setStatus(progress.message);
+          if (progress.phase === "failed-scenario" && progress.failedStep) {
+            setFailure({
+              scenarioLabel: progress.scenarioLabel,
+              repetition: progress.repetition,
+              failedStep: progress.failedStep,
+              message: progress.message
+            });
+          }
         }
       });
 
       const completed = output.scenarios.filter((result) => result.status === "completed").length;
       const skipped = output.scenarios.filter((result) => result.status === "skipped").length;
+      const failed = output.scenarios.find((result) => result.status === "failed");
+      console.log("[benchmark-page] benchmark complete", {
+        completed,
+        skipped,
+        failed: failed
+          ? {
+              scenario: failed.scenario.label,
+              failedStep: failed.failedStep,
+              failedRepetition: failed.failedRepetition,
+              reason: failed.reason
+            }
+          : null
+      });
       setResults(buildAnalysisBenchmarkResultRows(output.scenarios));
-      setSummary(`Finished ${completed} scenario${completed === 1 ? "" : "s"} with ${skipped} skipped.`);
-      setStatus("Benchmark run completed.");
+      if (failed && failed.status === "failed") {
+        const failureMessage = `${failed.scenario.label} run ${failed.failedRepetition} failed during ${failed.failedStep}: ${failed.reason}`;
+        setFailure({
+          scenarioLabel: failed.scenario.label,
+          repetition: failed.failedRepetition,
+          failedStep: failed.failedStep,
+          message: failureMessage
+        });
+        setSummary(`Finished ${completed} scenario${completed === 1 ? "" : "s"} with ${skipped} skipped and 1 failed.`);
+        setStatus(failureMessage);
+      } else {
+        setSummary(`Finished ${completed} scenario${completed === 1 ? "" : "s"} with ${skipped} skipped.`);
+        setStatus("Benchmark run completed.");
+      }
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Benchmark run failed.");
+      const message = formatUnknownError(error, "Benchmark run failed.");
+      console.error("[benchmark-page] benchmark crashed", {
+        gameId: benchmarkGame.game.id,
+        message,
+        error
+      });
+      setFailure({
+        scenarioLabel: "Benchmark",
+        repetition: 0,
+        failedStep: "analysis-execution",
+        message
+      });
+      setStatus(message);
     } finally {
       setRunning(false);
     }
@@ -114,7 +174,7 @@ export function AnalysisBenchmarkPage() {
 
         <div>
           <h2>Analysis Benchmark</h2>
-          <p className="muted">Run the real browser-worker analysis pipeline against the bundled `single.pgn` game and compare timing across fixed benchmark scenarios.</p>
+          <p className="muted">Run the real browser-worker analysis pipeline against the bundled `single.pgn` game and compare movetime-driven timing across fixed benchmark scenarios.</p>
         </div>
 
         <div className="chip-row" aria-label="Benchmark game details">
@@ -128,7 +188,7 @@ export function AnalysisBenchmarkPage() {
 
       <div className="config-notice">
         <strong>Interpretation note</strong>
-        <p className="muted">This single benchmark game is useful for calibrating short-game budget expectations. It is not sufficient on its own to retune long-game sampling thresholds.</p>
+        <p className="muted">This single benchmark game is useful for calibrating short-game runtime expectations. It is not sufficient on its own to retune long-game sampling thresholds.</p>
       </div>
 
       <section className="config-section">
@@ -168,7 +228,7 @@ export function AnalysisBenchmarkPage() {
       <section className="config-section">
         <div className="config-section-header">
           <h3>Standard Sweep</h3>
-          <p className="muted">Fixed v1 scenario set for budget comparison.</p>
+          <p className="muted">Fixed v1 scenario set for movetime-first runtime comparison.</p>
         </div>
 
         <div className="benchmark-scenario-grid">
@@ -177,6 +237,7 @@ export function AnalysisBenchmarkPage() {
               <strong>{scenario.title}</strong>
               <p className="muted">{scenario.description}</p>
               <p className="muted">{scenario.settingsSummary}</p>
+              {scenario.comparisonNote ? <p className="muted">{scenario.comparisonNote}</p> : null}
             </article>
           ))}
         </div>
@@ -191,13 +252,20 @@ export function AnalysisBenchmarkPage() {
 
         <p>{status}</p>
         {summary ? <p className="muted">{summary}</p> : null}
+        {failure ? (
+          <div className="config-notice">
+            <strong>Failure details</strong>
+            <p className="muted">Scenario: {failure.scenarioLabel} · Run: {failure.repetition || "n/a"} · Step: {failure.failedStep}</p>
+            <p>{failure.message}</p>
+          </div>
+        ) : null}
         {showLoader ? <InlineLoader inline label="Running benchmark" detail="Executing repeated analysis runs through the worker pipeline." /> : null}
       </div>
 
       <section className="config-section">
         <div className="config-section-header">
           <h3>Results</h3>
-          <p className="muted">Use these values to compare scenario cost and estimate a safer foreground budget for similar short games.</p>
+          <p className="muted">Use these values to compare scenario cost, project full-run runtime, and size a safer derived budget for similar short games.</p>
         </div>
 
         {results.length === 0 ? (
@@ -215,9 +283,9 @@ export function AnalysisBenchmarkPage() {
                   <th>P95 ply ms</th>
                   <th>Avg analyzed plies</th>
                   <th>Retries/run</th>
-                  <th>Budget stops</th>
-                  <th>Recommended budget</th>
-                  <th>Derived ms/ply</th>
+                  <th>Safety stops</th>
+                  <th>Projected full run</th>
+                  <th>Recommended safety budget</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -232,9 +300,9 @@ export function AnalysisBenchmarkPage() {
                     <td>{row.p95PlyMs}</td>
                     <td>{row.avgAnalyzedPlies}</td>
                     <td>{row.retriesPerRun}</td>
-                    <td>{row.budgetStops}</td>
-                    <td>{row.recommendedBudgetMs}</td>
-                    <td>{row.derivedBudgetPerPlyMs}</td>
+                    <td>{row.safetyStops}</td>
+                    <td>{row.projectedFullRunMs}</td>
+                    <td>{row.recommendedSafetyBudgetMs}</td>
                     <td>{row.statusText}</td>
                   </tr>
                 ))}

@@ -27,6 +27,8 @@ This repository uses FITL Nav as the canonical documentation structure. Read doc
 - `architecture/verticals/v3-engine-analysis-and-annotations.md`
 - `architecture/verticals/v4-library-and-game-lifecycle.md`
 - `architecture/verticals/v5-puzzle-generation-and-review.md`
+- `architecture/verticals/v6-game-view-and-analysis-workbench.md`
+- `architecture/verticals/v7-backoffice-and-benchmarking.md`
 
 ## Module map
 - `modules/README.md`

@@ -9,8 +9,8 @@ Current performance expectations for the active web app.
 ## Web app baselines
 
 - Entry JS bundle:
-  - Last build: `dist/assets/index-BmNn06Va.js`
-  - Size: `391.76 kB` raw, `121.83 kB` gzip
+  - Last build: `dist/assets/index-CJrxDF_5.js`
+  - Size: `391.77 kB` raw, `121.84 kB` gzip
 - CSS bundle:
   - Last build: `dist/assets/index-CLVDoTyS.css`
   - Size: `8.04 kB` raw, `2.39 kB` gzip
@@ -26,6 +26,7 @@ Current performance expectations for the active web app.
 - Analysis must run in a worker and never block route interaction.
 - Long-game analysis must respect ADR-004 sampling and budget rules.
 - Mobile and non-isolated desktop should prefer the lite engine flavor to reduce memory and startup cost.
+- Short-game analysis budget is derived from movetime and game length, with an emergency hard cap as a last-resort guardrail.
 
 ## Benchmark Harness
 
@@ -36,15 +37,17 @@ Current performance expectations for the active web app.
   - average and p95 per-ply time
   - average analyzed plies
   - retries per run
-  - budget stop count
-  - recommended per-game budget with 15% headroom
+  - safety stop count
+  - projected full-run runtime
+  - recommended derived safety budget with 15% headroom
 - Supported benchmark knobs:
   - engine flavor
   - depth
   - movetime
   - MultiPV
-  - base foreground budget
-  - foreground budget per ply
+  - per-ply multiplier
+  - total budget buffer
+  - emergency hard cap
 - Unsupported for v1 benchmark comparison:
   - `Threads`
   - `Hash`

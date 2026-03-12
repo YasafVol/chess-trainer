@@ -51,8 +51,8 @@ Standalone web runtime under `apps/web`.
 - Replay board mounting now depends on explicit host-resize synchronization instead of implicit first-paint sizing from the third-party board element.
 - Game analysis now stores both unrestricted best-line evaluations and restricted played-move evaluations so move rows can show move quality instead of only resulting-position scores.
 - Game replay now renders a left-side eval bar, a clickable eval graph under the board, and SAN/NAG-style move suffixes (`!`, `?!`, `?`, `??`) derived from played-move loss.
-- Foreground analysis runtime budget is now scaled by game length and persisted on the run options so long games do not hit the old fixed timeout as aggressively.
+- Foreground analysis now uses a movetime-first derived budget: projected per-ply wall time is computed from movetime, multiplied by game length, buffered for safety, and clamped by an emergency hard cap before being persisted on the run options.
 - A read-only `/backoffice` route now exposes the currently hardcoded analysis and puzzle-definition constants so admins can inspect shipped values before dynamic config is introduced.
-- `/backoffice/analysis-benchmark` now runs the shipped worker analysis pipeline against a bundled short-game PGN and reports aggregate timing metrics for supported runtime knobs.
+- `/backoffice/analysis-benchmark` now runs the shipped worker analysis pipeline against a bundled short-game PGN and reports aggregate timing metrics for supported runtime knobs, projected full-run runtime, and a recommended derived safety budget.
 - Benchmark analysis data is intentionally written to a separate IndexedDB database so repeated experiments do not pollute normal game analysis history.
 - Shipping target is a Vercel-hosted local-first app before reintroducing cloud sync or auth.

@@ -1,8 +1,27 @@
 import { getDbVersion, migrations } from "./migrations.js";
+import { formatUnknownError } from "../formatUnknownError.js";
 
 const BENCHMARK_DB_NAME = "chess-trainer-web-benchmark";
 
 let benchmarkDbPromise: Promise<IDBDatabase> | null = null;
+
+function assertBenchmarkStores(db: Pick<IDBDatabase, "objectStoreNames">): void {
+  for (const storeName of ["analysisRuns", "analysisByPly"] as const) {
+    if (!db.objectStoreNames.contains(storeName)) {
+      throw new Error(`Benchmark IndexedDB missing store "${storeName}"`);
+    }
+  }
+}
+
+export function assertBenchmarkStoreIndex(
+  store: Pick<IDBObjectStore, "indexNames">,
+  storeName: "analysisRuns" | "analysisByPly",
+  indexName: string
+): void {
+  if (!store.indexNames.contains(indexName)) {
+    throw new Error(`Benchmark IndexedDB missing index "${indexName}" on "${storeName}"`);
+  }
+}
 
 function openBenchmarkDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -20,8 +39,15 @@ function openBenchmarkDb(): Promise<IDBDatabase> {
       }
     };
 
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error("Failed to open benchmark IndexedDB"));
+    request.onsuccess = () => {
+      try {
+        assertBenchmarkStores(request.result);
+        resolve(request.result);
+      } catch (error) {
+        reject(new Error(`Failed to open benchmark IndexedDB: ${formatUnknownError(error, "Unknown benchmark DB schema error")}`));
+      }
+    };
+    request.onerror = () => reject(new Error(`Failed to open benchmark IndexedDB: ${formatUnknownError(request.error, "Unknown benchmark DB open error")}`));
   });
 }
 
@@ -40,10 +66,17 @@ export function withBenchmarkStore<T>(
   return getBenchmarkDb().then(
     (db) =>
       new Promise<T>((resolve, reject) => {
-        const tx = db.transaction(storeName, mode);
-        const store = tx.objectStore(storeName);
-        operation(store).then(resolve).catch(reject);
-        tx.onerror = () => reject(tx.error ?? new Error("Benchmark IndexedDB transaction failed"));
+        try {
+          assertBenchmarkStores(db);
+          const tx = db.transaction(storeName, mode);
+          const store = tx.objectStore(storeName);
+          operation(store)
+            .then(resolve)
+            .catch((error) => reject(new Error(`Benchmark store "${storeName}" operation failed: ${formatUnknownError(error, "Unknown store error")}`)));
+          tx.onerror = () => reject(new Error(`Benchmark IndexedDB transaction failed: ${formatUnknownError(tx.error, "Unknown transaction error")}`));
+        } catch (error) {
+          reject(new Error(`Benchmark store "${storeName}" unavailable: ${formatUnknownError(error, "Unknown benchmark store error")}`));
+        }
       })
   );
 }
@@ -51,10 +84,15 @@ export function withBenchmarkStore<T>(
 export async function clearBenchmarkAnalysisStores(): Promise<void> {
   const db = await getBenchmarkDb();
   await new Promise<void>((resolve, reject) => {
-    const tx = db.transaction(["analysisRuns", "analysisByPly"], "readwrite");
-    tx.objectStore("analysisRuns").clear();
-    tx.objectStore("analysisByPly").clear();
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error ?? new Error("Failed to clear benchmark analysis stores"));
+    try {
+      assertBenchmarkStores(db);
+      const tx = db.transaction(["analysisRuns", "analysisByPly"], "readwrite");
+      tx.objectStore("analysisRuns").clear();
+      tx.objectStore("analysisByPly").clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(new Error(`clearBenchmarkAnalysisData failed: ${formatUnknownError(tx.error, "Unknown benchmark clear error")}`));
+    } catch (error) {
+      reject(new Error(`clearBenchmarkAnalysisData failed: ${formatUnknownError(error, "Unknown benchmark clear error")}`));
+    }
   });
 }

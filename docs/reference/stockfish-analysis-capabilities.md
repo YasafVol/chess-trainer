@@ -21,7 +21,7 @@ Reference summary of the analysis data currently surfaced by the browser-worker 
   - status
   - retries used
   - engine flavor
-  - computed foreground budget
+  - computed derived safety budget
   - completion or cancellation reason
 
 ## How the web app uses it

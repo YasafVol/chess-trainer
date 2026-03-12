@@ -203,7 +203,7 @@ export function GamePage() {
       return;
     }
     setAnalysisStatus(
-      `${analysisRun.engineName} ${analysisRun.engineVersion} depth=${analysisRun.options.depth} budget=${formatBudgetLabel(analysisRun.options.foregroundBudgetMs)} status=${analysisRun.status}`
+      `${analysisRun.engineName} ${analysisRun.engineVersion} depth=${analysisRun.options.depth} movetime=${formatBudgetLabel(analysisRun.options.movetimeMs)} safety-limit=${formatBudgetLabel(analysisRun.options.foregroundBudgetMs)} status=${analysisRun.status}`
     );
   }, [analysisRun]);
 
@@ -481,14 +481,10 @@ export function GamePage() {
                 <div className="eval-bar-panel" aria-label="Evaluation bar">
                   <div className="eval-bar-label eval-bar-label-top">W</div>
                   <div className="eval-bar-track" role="img" aria-label={`Current evaluation ${evalBarState.scoreText}`}>
-                    <div
-                      className={`eval-bar-fill ${evalBarState.fillSide}`}
-                      style={{
-                        top: `${evalBarState.fillTopPercent}%`,
-                        height: `${evalBarState.fillPercent}%`
-                      }}
-                    />
+                    <div className="eval-bar-segment eval-bar-segment-white" style={{ height: `${evalBarState.whitePercent}%` }} />
+                    <div className="eval-bar-segment eval-bar-segment-black" style={{ height: `${evalBarState.blackPercent}%` }} />
                     <div className="eval-bar-center-line" />
+                    <div className="eval-bar-split" style={{ top: `${evalBarState.splitPercent}%` }} />
                     <div className="eval-bar-marker" style={{ top: `${evalBarState.markerPercent}%` }} />
                   </div>
                   <div className="eval-bar-label eval-bar-label-bottom">B</div>
@@ -498,21 +494,20 @@ export function GamePage() {
                 <div ref={setBoardHost} className="board-host" />
               </div>
 
-              <section className="eval-graph-panel" aria-label="Game evaluation graph">
-                <div className="eval-graph-header">
-                  <strong>Eval graph</strong>
-                  <span className="muted">
-                    {evalGraphState.selectedPoint
-                      ? `Ply ${evalGraphState.selectedPoint.ply}: ${evalGraphState.selectedPoint.scoreText}`
-                      : analysisByPly.length > 0
-                        ? "Select a saved point to jump to that position."
-                        : "Run analysis to populate the graph."}
-                  </span>
-                </div>
+              {evalGraphState.isReady ? (
+                <section className="eval-graph-panel" aria-label="Game evaluation graph">
+                  <div className="eval-graph-header">
+                    <strong>Eval graph</strong>
+                    <span className="muted">
+                      {evalGraphState.selectedPoint
+                        ? `Ply ${evalGraphState.selectedPoint.ply}: ${evalGraphState.selectedPoint.scoreText}`
+                        : "Select a saved point to jump to that position."}
+                    </span>
+                  </div>
 
-                {evalGraphState.points.length > 0 ? (
                   <svg className="eval-graph" viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="Clickable game evaluation graph">
                     <line className="eval-graph-baseline" x1="0" y1="50" x2="100" y2="50" />
+                    <path className="eval-graph-area" d={evalGraphState.areaPath} />
                     {evalGraphState.selectedPoint ? (
                       <line
                         className="eval-graph-current"
@@ -523,13 +518,13 @@ export function GamePage() {
                       />
                     ) : null}
                     <path className="eval-graph-path" d={evalGraphState.path} />
-                    {evalGraphState.points.map((point) => (
+                    {evalGraphState.interactionTargets.map((point) => (
                       <circle
-                        key={point.ply}
-                        className={`eval-graph-point ${point.isSelected ? "selected" : ""}`}
+                        key={`hit-${point.ply}`}
+                        className="eval-graph-hit-target"
                         cx={point.x}
                         cy={point.y}
-                        r={point.isSelected ? 2.8 : 2}
+                        r={4.2}
                         role="button"
                         tabIndex={0}
                         aria-label={`Jump to ply ${point.ply}, evaluation ${point.scoreText}`}
@@ -544,11 +539,17 @@ export function GamePage() {
                         <title>Ply {point.ply}: {point.scoreText}</title>
                       </circle>
                     ))}
+                    {evalGraphState.selectedPoint ? (
+                      <circle
+                        className="eval-graph-point selected"
+                        cx={evalGraphState.selectedPoint.x}
+                        cy={evalGraphState.selectedPoint.y}
+                        r={2.8}
+                      />
+                    ) : null}
                   </svg>
-                ) : (
-                  <p className="muted">No saved analysis points yet.</p>
-                )}
-              </section>
+                </section>
+              ) : null}
             </div>
 
             {boardError ? <p>{boardError}</p> : null}

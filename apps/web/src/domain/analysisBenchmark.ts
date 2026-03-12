@@ -9,13 +9,12 @@ export type AnalysisBenchmarkScenario = {
   id: string;
   label: string;
   description: string;
+  comparisonMode: "primary" | "secondary";
   settings: {
     engineFlavor: AnalysisBenchmarkEngineFlavor;
     depth: number;
     movetimeMs: number;
     multiPV: number;
-    baseForegroundBudgetMs: number;
-    foregroundBudgetPerPlyMs: number;
   };
 };
 
@@ -41,9 +40,35 @@ export type AnalysisBenchmarkScenarioSummary = {
   p95PlyMs: number;
   avgAnalyzedPlies: number;
   avgRetriesPerRun: number;
-  budgetStops: number;
-  recommendedBudgetMs: number;
-  recommendedBudgetPerPlyMs: number;
+  safetyStops: number;
+  projectedFullRunMs: number;
+  recommendedSafetyBudgetMs: number;
+};
+
+export type AnalysisBenchmarkFailureStep =
+  | "clear-storage"
+  | "create-engine"
+  | "engine-init"
+  | "analysis-execution"
+  | "save-run"
+  | "save-ply"
+  | "load-ply-results";
+
+export type AnalysisBenchmarkProgress = {
+  scenarioIndex: number;
+  totalScenarios: number;
+  repetition: number;
+  totalRepetitions: number;
+  scenarioLabel: string;
+  phase:
+    | "starting-scenario"
+    | "running-repetition"
+    | "completed-repetition"
+    | "completed-scenario"
+    | "skipped-scenario"
+    | "failed-scenario";
+  message: string;
+  failedStep?: AnalysisBenchmarkFailureStep;
 };
 
 export type AnalysisBenchmarkScenarioResult =
@@ -59,10 +84,21 @@ export type AnalysisBenchmarkScenarioResult =
       scenario: AnalysisBenchmarkScenario;
       repetitions: AnalysisBenchmarkRepetition[];
       reason: string;
+      failedStep: "engine-init";
+      failedRepetition: number;
+    }
+  | {
+      status: "failed";
+      scenario: AnalysisBenchmarkScenario;
+      repetitions: AnalysisBenchmarkRepetition[];
+      summary?: AnalysisBenchmarkScenarioSummary;
+      reason: string;
+      failedStep: AnalysisBenchmarkFailureStep;
+      failedRepetition: number;
     };
 
 export type AnalysisBenchmarkKnob = {
-  key: "engineFlavor" | "depth" | "movetimeMs" | "multiPV" | "baseForegroundBudgetMs" | "foregroundBudgetPerPlyMs";
+  key: "engineFlavor" | "depth" | "movetimeMs" | "multiPV" | "perPlyTimeMultiplier" | "totalBudgetBuffer" | "emergencyHardCapMs";
   label: string;
   value: string;
   help: string;
@@ -110,17 +146,13 @@ export function buildAnalysisBenchmarkScenarios(
     defaultDepth: number;
     defaultMultiPV: number;
     softPerPositionMaxMs: number;
-    baseForegroundBudgetMs: number;
-    foregroundBudgetPerPlyMs: number;
   } = ANALYSIS_POLICY
 ): AnalysisBenchmarkScenario[] {
   const baselineSettings = {
     engineFlavor: "stockfish-18-lite-single" as const,
     depth: policy.defaultDepth,
     movetimeMs: policy.softPerPositionMaxMs,
-    multiPV: policy.defaultMultiPV,
-    baseForegroundBudgetMs: policy.baseForegroundBudgetMs,
-    foregroundBudgetPerPlyMs: policy.foregroundBudgetPerPlyMs
+    multiPV: policy.defaultMultiPV
   };
 
   return [
@@ -128,42 +160,49 @@ export function buildAnalysisBenchmarkScenarios(
       id: "baseline",
       label: "Baseline",
       description: "Current shipped lite single-thread profile.",
+      comparisonMode: "primary",
       settings: baselineSettings
     },
     {
       id: "depth-12",
       label: "Depth 12",
-      description: "Lower search depth to compare faster short-game coverage.",
+      description: "Lower search depth for a secondary diagnostic while movetime remains active.",
+      comparisonMode: "secondary",
       settings: { ...baselineSettings, depth: 12 }
     },
     {
       id: "depth-18",
       label: "Depth 18",
-      description: "Higher search depth to estimate deeper-analysis cost.",
+      description: "Higher search depth for a secondary diagnostic while movetime remains active.",
+      comparisonMode: "secondary",
       settings: { ...baselineSettings, depth: 18 }
     },
     {
       id: "movetime-800",
       label: "Movetime 800ms",
       description: "Tighter per-position cap to test faster turnarounds.",
+      comparisonMode: "primary",
       settings: { ...baselineSettings, movetimeMs: 800 }
     },
     {
       id: "movetime-1600",
       label: "Movetime 1600ms",
       description: "Looser per-position cap to compare stronger but slower runs.",
+      comparisonMode: "primary",
       settings: { ...baselineSettings, movetimeMs: 1600 }
     },
     {
       id: "multipv-2",
       label: "MultiPV 2",
       description: "Request two lines and observe the cost increase over baseline.",
+      comparisonMode: "primary",
       settings: { ...baselineSettings, multiPV: 2 }
     },
     {
       id: "engine-single",
       label: "Single Engine",
       description: "Use the heavier single-thread engine build if it initializes successfully.",
+      comparisonMode: "primary",
       settings: { ...baselineSettings, engineFlavor: "stockfish-18-single" }
     }
   ];
@@ -174,8 +213,9 @@ export function buildAnalysisBenchmarkKnobs(
     defaultDepth: number;
     defaultMultiPV: number;
     softPerPositionMaxMs: number;
-    baseForegroundBudgetMs: number;
-    foregroundBudgetPerPlyMs: number;
+    perPlyTimeMultiplier: number;
+    totalBudgetBuffer: number;
+    emergencyHardCapMs: number;
   } = ANALYSIS_POLICY
 ): AnalysisBenchmarkKnob[] {
   return [
@@ -189,7 +229,7 @@ export function buildAnalysisBenchmarkKnobs(
       key: "depth",
       label: "Depth",
       value: String(policy.defaultDepth),
-      help: "Default depth applied to this short game benchmark."
+      help: "Depth remains supported, but is only a secondary diagnostic when movetime is active."
     },
     {
       key: "movetimeMs",
@@ -204,16 +244,22 @@ export function buildAnalysisBenchmarkKnobs(
       help: "Number of lines requested from Stockfish."
     },
     {
-      key: "baseForegroundBudgetMs",
-      label: "Base foreground budget",
-      value: `${policy.baseForegroundBudgetMs}ms`,
-      help: "Minimum run budget before per-ply scaling is applied."
+      key: "perPlyTimeMultiplier",
+      label: "Per-ply multiplier",
+      value: String(policy.perPlyTimeMultiplier),
+      help: "Converts movetime into expected wall-clock cost per analyzed ply."
     },
     {
-      key: "foregroundBudgetPerPlyMs",
-      label: "Foreground budget per ply",
-      value: `${policy.foregroundBudgetPerPlyMs}ms`,
-      help: "Additional foreground runtime budget granted per ply."
+      key: "totalBudgetBuffer",
+      label: "Budget buffer",
+      value: String(policy.totalBudgetBuffer),
+      help: "Safety headroom applied on top of projected full-run time."
+    },
+    {
+      key: "emergencyHardCapMs",
+      label: "Emergency hard cap",
+      value: `${policy.emergencyHardCapMs}ms`,
+      help: "Last-resort ceiling for unusually slow environments."
     }
   ];
 }
@@ -241,24 +287,24 @@ export function summarizeAnalysisBenchmarkScenario(args: {
   const plyMs = args.repetitions.flatMap((repetition) => repetition.plyTimeMs);
   const analyzedPlies = args.repetitions.map((repetition) => repetition.analyzedPlies);
   const retries = args.repetitions.map((repetition) => repetition.retriesUsed);
-  const budgetStops = args.repetitions.filter((repetition) => repetition.stoppedByBudget).length;
-  const p95RunMs = percentile(runMs, 0.95);
-  const recommendedBudgetMs = Math.ceil(p95RunMs * ANALYSIS_BENCHMARK_HEADROOM);
+  const safetyStops = args.repetitions.filter((repetition) => repetition.stoppedByBudget).length;
+  const avgPlyMs = roundMetric(average(plyMs));
   const effectivePlies = Math.max(1, args.totalPlies);
+  const projectedFullRunMs = avgPlyMs * effectivePlies;
 
   return {
     runsCompleted: args.repetitions.length,
     avgRunMs: roundMetric(average(runMs)),
     medianRunMs: roundMetric(percentile(runMs, 0.5)),
-    p95RunMs: roundMetric(p95RunMs),
-    avgPlyMs: roundMetric(average(plyMs)),
+    p95RunMs: roundMetric(percentile(runMs, 0.95)),
+    avgPlyMs,
     medianPlyMs: roundMetric(percentile(plyMs, 0.5)),
     p95PlyMs: roundMetric(percentile(plyMs, 0.95)),
     avgAnalyzedPlies: roundMetric(average(analyzedPlies)),
     avgRetriesPerRun: roundMetric(average(retries)),
-    budgetStops,
-    recommendedBudgetMs,
-    recommendedBudgetPerPlyMs: Math.ceil(recommendedBudgetMs / effectivePlies)
+    safetyStops,
+    projectedFullRunMs,
+    recommendedSafetyBudgetMs: Math.ceil(projectedFullRunMs * ANALYSIS_BENCHMARK_HEADROOM)
   };
 }
 
@@ -266,14 +312,16 @@ export function buildPolicyForAnalysisBenchmarkScenario(scenario: AnalysisBenchm
   defaultDepth: number;
   defaultMultiPV: number;
   softPerPositionMaxMs: number;
-  baseForegroundBudgetMs: number;
-  foregroundBudgetPerPlyMs: number;
+  perPlyTimeMultiplier: number;
+  totalBudgetBuffer: number;
+  emergencyHardCapMs: number;
 } {
   return {
     defaultDepth: scenario.settings.depth,
     defaultMultiPV: scenario.settings.multiPV,
     softPerPositionMaxMs: scenario.settings.movetimeMs,
-    baseForegroundBudgetMs: scenario.settings.baseForegroundBudgetMs,
-    foregroundBudgetPerPlyMs: scenario.settings.foregroundBudgetPerPlyMs
+    perPlyTimeMultiplier: ANALYSIS_POLICY.perPlyTimeMultiplier,
+    totalBudgetBuffer: ANALYSIS_POLICY.totalBudgetBuffer,
+    emergencyHardCapMs: ANALYSIS_POLICY.emergencyHardCapMs
   };
 }

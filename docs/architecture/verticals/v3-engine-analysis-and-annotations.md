@@ -23,8 +23,11 @@ Provide actionable engine feedback per position so users can identify mistakes, 
   - depth
   - movetime
   - MultiPV
-  - base foreground budget
-  - foreground budget per ply
+  - per-ply multiplier
+  - total budget buffer
+  - emergency hard cap
+- The shipped policy is now movetime-first: total run budget is derived from `movetime * perPlyTimeMultiplier * totalPlies * totalBudgetBuffer`, then clamped by an emergency hard cap.
+- Depth scenarios remain in the benchmark as secondary diagnostics only; they are not the primary tuning path while movetime is active.
 - Explicitly excluded from v1 benchmark sweeps:
   - `Threads`, because the worker currently forces `Threads=1`
   - `Hash`, because the worker does not set the Stockfish `Hash` option yet

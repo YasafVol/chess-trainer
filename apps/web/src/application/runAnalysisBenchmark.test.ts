@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { buildAnalysisBenchmarkScenarios, type AnalysisBenchmarkScenario } from "../domain/analysisBenchmark.js";
 import type { GameRecord, PlyAnalysis, AnalysisRun } from "../domain/types.js";
 import { runAnalysisBenchmark, type AnalysisBenchmarkEngine } from "./runAnalysisBenchmark.js";
+import type { AnalyzePositionInput } from "./runGameAnalysis.js";
 
 function sampleGame(movesUci: string[]): GameRecord {
   return {
@@ -116,20 +117,23 @@ test("runAnalysisBenchmark aggregates completed scenarios and skips unsupported 
     result.scenarios.map((scenario) => scenario.status),
     ["completed", "skipped"]
   );
+  if (result.scenarios[1]?.status === "skipped") {
+    assert.equal(result.scenarios[1].failedStep, "engine-init");
+    assert.equal(result.scenarios[1].failedRepetition, 1);
+  }
 });
 
-test("runAnalysisBenchmark counts budget-stopped runs in the scenario summary", async () => {
+test("runAnalysisBenchmark counts safety-stopped runs in the scenario summary", async () => {
   const budgetScenario: AnalysisBenchmarkScenario = {
     id: "budget-stop",
-    label: "Budget stop",
-    description: "Forces the foreground budget to trip.",
+    label: "Safety stop",
+    description: "Forces the derived runtime safety budget to trip.",
+    comparisonMode: "primary",
     settings: {
       engineFlavor: "stockfish-18-lite-single",
       depth: 16,
       movetimeMs: 1200,
-      multiPV: 1,
-      baseForegroundBudgetMs: 50,
-      foregroundBudgetPerPlyMs: 10
+      multiPV: 1
     }
   };
   const savedPlies: PlyAnalysis[] = [];
@@ -153,7 +157,7 @@ test("runAnalysisBenchmark counts budget-stopped runs in the scenario summary", 
     analysisNowMs: (() => {
       let current = 0;
       return () => {
-        current += 20;
+        current += 4000;
         return current;
       };
     })(),
@@ -163,8 +167,110 @@ test("runAnalysisBenchmark counts budget-stopped runs in the scenario summary", 
 
   assert.equal(result.scenarios[0]?.status, "completed");
   if (result.scenarios[0]?.status === "completed") {
-    assert.equal(result.scenarios[0].summary.budgetStops, 1);
+    assert.equal(result.scenarios[0].summary.safetyStops, 1);
     assert.equal(result.scenarios[0].repetitions[0]?.stoppedByBudget, true);
     assert.equal(result.scenarios[0].repetitions[0]?.finalStatus, "cancelled");
   }
+});
+
+test("runAnalysisBenchmark reports first-scenario storage clear failures with the failing step", async () => {
+  const result = await runAnalysisBenchmark({
+    game: sampleGame(["e2e4"]),
+    fenPositions: ["start", "after-e4"],
+    moveSanList: ["e4"],
+    totalPlies: 1,
+    scenarios: [buildAnalysisBenchmarkScenarios()[0]],
+    repetitions: 2,
+    createEngine: createEngineFactory({}),
+    saveRun: async () => undefined,
+    savePly: async () => undefined,
+    listPlyAnalysisByRunId: async () => [],
+    clearStorage: async () => {
+      throw { name: "QuotaExceededError", message: "DB full" };
+    }
+  });
+
+  assert.equal(result.scenarios[0]?.status, "failed");
+  if (result.scenarios[0]?.status === "failed") {
+    assert.equal(result.scenarios[0].failedStep, "clear-storage");
+    assert.equal(result.scenarios[0].failedRepetition, 1);
+    assert.equal(result.scenarios[0].reason, "QuotaExceededError: DB full");
+  }
+});
+
+test("runAnalysisBenchmark preserves completed scenarios when a later savePly failure occurs", async () => {
+  const scenarios = buildAnalysisBenchmarkScenarios().filter((scenario) =>
+    scenario.id === "baseline" || scenario.id === "depth-12"
+  );
+  let clearCalls = 0;
+
+  const result = await runAnalysisBenchmark({
+    game: sampleGame(["e2e4"]),
+    fenPositions: ["start", "after-e4"],
+    moveSanList: ["e4"],
+    totalPlies: 1,
+    scenarios,
+    repetitions: 1,
+    createEngine: createEngineFactory({}),
+    saveRun: async () => undefined,
+    savePly: async () => {
+      if (clearCalls > 1) {
+        throw new Error("write blocked");
+      }
+    },
+    listPlyAnalysisByRunId: async () => [],
+    clearStorage: async () => {
+      clearCalls += 1;
+    },
+    createId: (() => {
+      let i = 0;
+      return () => `id-${++i}`;
+    })()
+  });
+
+  assert.deepEqual(result.scenarios.map((scenario) => scenario.status), ["completed", "failed"]);
+  if (result.scenarios[1]?.status === "failed") {
+    assert.equal(result.scenarios[1].failedStep, "save-ply");
+    assert.equal(result.scenarios[1].failedRepetition, 1);
+    assert.ok(result.scenarios[1].reason.includes("savePly failed for scenario"));
+  }
+});
+
+test("runAnalysisBenchmark preserves engine method binding for analyzePosition", async () => {
+  const engineFactory = () => ({
+    calls: 0,
+    init: async () => undefined,
+    async analyzePosition(input: AnalyzePositionInput) {
+      this.calls += 1;
+      return {
+        type: "engine:result" as const,
+        payload: {
+          bestMoveUci: input.searchMovesUci?.[0] ?? "e2e4",
+          evaluationType: "cp" as const,
+          evaluation: 12,
+          depth: input.depth,
+          nodes: 1000,
+          nps: 2000,
+          pvUci: ["e2e4", "e7e5"]
+        }
+      };
+    },
+    terminate: () => undefined
+  });
+
+  const result = await runAnalysisBenchmark({
+    game: sampleGame(["e2e4"]),
+    fenPositions: ["start", "after-e4"],
+    moveSanList: ["e4"],
+    totalPlies: 1,
+    scenarios: [buildAnalysisBenchmarkScenarios()[0]],
+    repetitions: 1,
+    createEngine: engineFactory,
+    saveRun: async () => undefined,
+    savePly: async () => undefined,
+    listPlyAnalysisByRunId: async () => [],
+    clearStorage: async () => undefined
+  });
+
+  assert.equal(result.scenarios[0]?.status, "completed");
 });

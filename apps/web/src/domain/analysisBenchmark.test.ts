@@ -11,11 +11,12 @@ test("buildAnalysisBenchmarkScenarios returns the fixed standard sweep", () => {
     ["baseline", "depth-12", "depth-18", "movetime-800", "movetime-1600", "multipv-2", "engine-single"]
   );
   assert.equal(scenarios[0]?.settings.engineFlavor, "stockfish-18-lite-single");
+  assert.equal(scenarios[1]?.comparisonMode, "secondary");
   assert.equal(scenarios[5]?.settings.multiPV, 2);
   assert.equal(scenarios[6]?.settings.engineFlavor, "stockfish-18-single");
 });
 
-test("summarizeAnalysisBenchmarkScenario computes recommendation metrics from p95 runtime", () => {
+test("summarizeAnalysisBenchmarkScenario projects full-run runtime from per-ply timings", () => {
   const summary = summarizeAnalysisBenchmarkScenario({
     totalPlies: 49,
     repetitions: [
@@ -61,7 +62,7 @@ test("summarizeAnalysisBenchmarkScenario computes recommendation metrics from p9
   assert.equal(summary.p95PlyMs, 176);
   assert.equal(summary.avgAnalyzedPlies, 49);
   assert.equal(summary.avgRetriesPerRun, 0);
-  assert.equal(summary.budgetStops, 1);
-  assert.equal(summary.recommendedBudgetMs, 1369);
-  assert.equal(summary.recommendedBudgetPerPlyMs, 28);
+  assert.equal(summary.safetyStops, 1);
+  assert.equal(summary.projectedFullRunMs, 6860);
+  assert.equal(summary.recommendedSafetyBudgetMs, 7889);
 });

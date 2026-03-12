@@ -1,7 +1,8 @@
 import { buildAnalysisPlan, lowerDepthForRetry } from "../domain/analysisPlan.js";
 import { finalizeRun } from "../domain/analysisRunLifecycle.js";
-import { ANALYSIS_POLICY, computeForegroundBudgetMs } from "../domain/analysisPolicy.js";
+import { ANALYSIS_POLICY, computeForegroundBudgetMs, type AnalysisBudgetPolicy } from "../domain/analysisPolicy.js";
 import type { AnalysisRun, GameRecord, PlyAnalysis } from "../domain/types.js";
+import { formatUnknownError } from "../lib/formatUnknownError.js";
 
 const ANALYSIS_RETRY_LIMIT = 1;
 
@@ -43,12 +44,9 @@ export type RunGameAnalysisArgs = {
   onRunUpdated?: (run: AnalysisRun) => void;
   onPlySaved?: (ply: PlyAnalysis) => void;
   onProgress?: (progress: { done: number; total: number; lastCompletedPly: number | null; totalPlies: number }) => void;
-  policy?: {
+  policy?: AnalysisBudgetPolicy & {
     defaultDepth: number;
     defaultMultiPV: number;
-    softPerPositionMaxMs: number;
-    baseForegroundBudgetMs: number;
-    foregroundBudgetPerPlyMs: number;
   };
   nowMs?: () => number;
   nowIso?: () => string;
@@ -96,7 +94,7 @@ async function analyzeWithRetry(args: {
         depth: depthForAttempt
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown engine error";
+      const message = formatUnknownError(error, "Unknown engine error");
       const canRetry = attempt < ANALYSIS_RETRY_LIMIT && canRetryFromMessage(message);
       console.warn("[analysis] engine step failed", {
         gameId: args.gameId,
@@ -322,7 +320,7 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       });
 
       if (nowMs() - runStartedAt > foregroundBudgetMs) {
-        console.warn("[analysis] foreground budget exceeded", {
+        console.warn("[analysis] runtime safety budget exceeded", {
           gameId: args.game.id,
           runId: run.id,
           elapsedMs: nowMs() - runStartedAt,
@@ -362,16 +360,18 @@ export async function runGameAnalysis(args: RunGameAnalysisArgs): Promise<RunGam
       stoppedByBudget
     };
   } catch (error) {
+    const failureMessage = formatUnknownError(error, "Unknown analysis error");
     const failedRun = finalizeRun({
       run,
       outcome: "failed",
       completedAt: nowIso(),
-      failureMessage: error instanceof Error ? error.message : "Unknown analysis error"
+      failureMessage
     });
 
     console.error("[analysis] run failed", {
       gameId: args.game.id,
       runId: failedRun.id,
+      message: failureMessage,
       error
     });
 

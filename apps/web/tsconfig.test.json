@@ -24,6 +24,8 @@
     "src/application/runAnalysisBenchmark.test.ts",
     "src/domain/types.ts",
     "src/domain/gameReplay.ts",
+    "src/lib/formatUnknownError.ts",
+    "src/lib/formatUnknownError.test.ts",
     "src/board/BoardAdapter.ts",
     "src/board/ChessboardElementAdapter.ts",
     "src/board/ChessboardElementAdapter.test.ts",

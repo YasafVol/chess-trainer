@@ -61,7 +61,7 @@ test("finalizeRun marks cancelled run with budget stop message", () => {
   });
 
   assert.equal(finalized.status, "cancelled");
-  assert.equal(finalized.error, "Stopped after scaled foreground runtime budget (72000ms); rerun to continue refining.");
+  assert.equal(finalized.error, "Stopped after derived runtime safety budget (72000ms); rerun to continue refining.");
 });
 
 test("finalizeRun marks failed run with explicit failure message", () => {

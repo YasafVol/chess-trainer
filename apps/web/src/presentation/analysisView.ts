@@ -2,16 +2,18 @@ import type { PlyAnalysis } from "../domain/types.js";
 
 const MAX_ABS_CP = 600;
 const MATE_CP_EQUIVALENT = 100_000;
-const GRAPH_TOP_PADDING = 8;
-const GRAPH_HEIGHT = 84;
+const GRAPH_VIEWBOX_HEIGHT = 100;
+const GRAPH_BASELINE_Y = 50;
+const GRAPH_TOP_PADDING = 10;
+const GRAPH_HEIGHT = 80;
 
 export type EvalBarState = {
   hasData: boolean;
   normalized: number;
+  whitePercent: number;
+  blackPercent: number;
+  splitPercent: number;
   markerPercent: number;
-  fillPercent: number;
-  fillTopPercent: number;
-  fillSide: "white" | "black" | "neutral";
   scoreText: string;
 };
 
@@ -24,8 +26,11 @@ export type EvalGraphPoint = {
 };
 
 export type EvalGraphState = {
+  isReady: boolean;
   points: EvalGraphPoint[];
+  interactionTargets: EvalGraphPoint[];
   path: string;
+  areaPath: string;
   selectedPoint: EvalGraphPoint | null;
 };
 
@@ -64,6 +69,19 @@ export function normalizeEval(type: "cp" | "mate", evaluation: number): number {
   return Math.max(-1, Math.min(1, evaluation / MAX_ABS_CP));
 }
 
+export function normalizeEvalForGraph(type: "cp" | "mate", evaluation: number): number {
+  if (type === "mate") {
+    if (evaluation === 0) {
+      return 0;
+    }
+    const boundedMate = Math.min(Math.max(Math.abs(evaluation), 1), 10);
+    const edgeBias = 0.88 + ((boundedMate - 1) / 9) * 0.08;
+    return evaluation > 0 ? edgeBias : -edgeBias;
+  }
+
+  return Math.atan(evaluation / 220) / (Math.PI / 2);
+}
+
 function evaluationToComparableCp(type: "cp" | "mate", evaluation: number): number {
   if (type === "cp") {
     return evaluation;
@@ -79,24 +97,25 @@ export function buildEvalBarState(ply: EvalSnapshot | undefined): EvalBarState {
     return {
       hasData: false,
       normalized: 0,
+      whitePercent: 50,
+      blackPercent: 50,
+      splitPercent: 50,
       markerPercent: 50,
-      fillPercent: 0,
-      fillTopPercent: 50,
-      fillSide: "neutral",
       scoreText: "n/a"
     };
   }
 
   const normalized = normalizeEval(ply.evaluationType, ply.evaluation);
-  const fillPercent = Math.abs(normalized) * 50;
+  const whitePercent = 50 + normalized * 50;
+  const blackPercent = 100 - whitePercent;
 
   return {
     hasData: true,
     normalized,
-    markerPercent: 50 - normalized * 50,
-    fillPercent,
-    fillTopPercent: normalized >= 0 ? 50 - fillPercent : 50,
-    fillSide: normalized > 0 ? "white" : normalized < 0 ? "black" : "neutral",
+    whitePercent,
+    blackPercent,
+    splitPercent: whitePercent,
+    markerPercent: whitePercent,
     scoreText: formatEval(ply.evaluationType, ply.evaluation)
   };
 }
@@ -104,8 +123,11 @@ export function buildEvalBarState(ply: EvalSnapshot | undefined): EvalBarState {
 export function buildEvalGraphState(plies: EvalSnapshot[], currentPly: number): EvalGraphState {
   if (plies.length === 0) {
     return {
+      isReady: false,
       points: [],
+      interactionTargets: [],
       path: "",
+      areaPath: "",
       selectedPoint: null
     };
   }
@@ -119,7 +141,7 @@ export function buildEvalGraphState(plies: EvalSnapshot[], currentPly: number): 
   const maxPly = sorted[sorted.length - 1]?.ply ?? 0;
 
   const points = sorted.map((ply) => {
-    const normalized = normalizeEval(ply.evaluationType, ply.evaluation);
+    const normalized = normalizeEvalForGraph(ply.evaluationType, ply.evaluation);
     const x = maxPly === 0 ? 50 : (ply.ply / maxPly) * 100;
     const y = GRAPH_TOP_PADDING + (1 - (normalized + 1) / 2) * GRAPH_HEIGHT;
 
@@ -135,10 +157,18 @@ export function buildEvalGraphState(plies: EvalSnapshot[], currentPly: number): 
   const path = points
     .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
     .join(" ");
+  const firstPoint = points[0];
+  const lastPoint = points[points.length - 1];
+  const areaPath = firstPoint && lastPoint
+    ? `${path} L ${lastPoint.x.toFixed(2)} ${GRAPH_BASELINE_Y.toFixed(2)} L ${firstPoint.x.toFixed(2)} ${GRAPH_BASELINE_Y.toFixed(2)} Z`
+    : "";
 
   return {
+    isReady: true,
     points,
+    interactionTargets: points,
     path,
+    areaPath,
     selectedPoint: points.find((point) => point.isSelected) ?? null
   };
 }

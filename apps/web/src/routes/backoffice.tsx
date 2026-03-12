@@ -13,7 +13,7 @@ export function BackofficePage() {
 
       <div className="config-notice">
         <strong>Benchmark tools</strong>
-        <p className="muted">Run the bundled `single.pgn` benchmark to compare analysis timing across the currently supported runtime knobs.</p>
+        <p className="muted">Run the bundled `single.pgn` benchmark to compare movetime-driven runtime cost across the currently supported worker knobs.</p>
         <div className="inline-actions">
           <Link to="/backoffice/analysis-benchmark" className="action-button">Open analysis benchmark</Link>
         </div>

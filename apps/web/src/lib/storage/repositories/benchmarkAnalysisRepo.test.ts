@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import "fake-indexeddb/auto";
 import type { PlyAnalysis } from "../../../domain/types.js";
+import { assertBenchmarkStoreIndex } from "../benchmarkDb.js";
 import { listPlyAnalysisByRunId, savePlyAnalysis } from "./analysisRepo.js";
 import {
   clearBenchmarkAnalysisData,
@@ -52,4 +53,17 @@ test("clearBenchmarkAnalysisData removes only benchmark analysis entries", async
 
   assert.equal(mainPlies.length, 1);
   assert.equal(benchmarkPlies.length, 0);
+});
+
+test("assertBenchmarkStoreIndex reports a readable missing-index error", () => {
+  const fakeStore = {
+    indexNames: {
+      contains: () => false
+    }
+  } as unknown as Pick<IDBObjectStore, "indexNames">;
+
+  assert.throws(
+    () => assertBenchmarkStoreIndex(fakeStore, "analysisByPly", "by_runId"),
+    /Benchmark IndexedDB missing index "by_runId" on "analysisByPly"/
+  );
 });

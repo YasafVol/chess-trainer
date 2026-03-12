@@ -202,30 +202,28 @@ textarea {
   border-radius: 999px;
   overflow: hidden;
   border: 1px solid rgba(15, 23, 42, 0.12);
-  background:
-    linear-gradient(180deg, #f8fafc 0%, #f8fafc 50%, #111827 50%, #111827 100%);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(226, 232, 240, 0.92));
 }
 
-.eval-bar-fill {
+.eval-bar-segment {
   position: absolute;
   left: 0;
   width: 100%;
-  transition: top 120ms ease, height 120ms ease;
+  transition: height 160ms ease;
 }
 
-.eval-bar-fill.white {
+.eval-bar-segment-white {
+  top: 0;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(226, 232, 240, 0.95));
 }
 
-.eval-bar-fill.black {
+.eval-bar-segment-black {
+  bottom: 0;
   background: linear-gradient(180deg, rgba(31, 41, 55, 0.85), rgba(15, 23, 42, 0.98));
 }
 
-.eval-bar-fill.neutral {
-  background: rgba(148, 163, 184, 0.25);
-}
-
 .eval-bar-center-line,
+.eval-bar-split,
 .eval-bar-marker {
   position: absolute;
   left: 0;
@@ -237,8 +235,13 @@ textarea {
   border-top: 1px solid rgba(148, 163, 184, 0.45);
 }
 
+.eval-bar-split {
+  border-top: 1px solid rgba(15, 23, 42, 0.18);
+  transform: translateY(-0.5px);
+}
+
 .eval-bar-marker {
-  border-top: 2px solid #0f5bd8;
+  border-top: 2px solid rgba(15, 91, 216, 0.85);
   transform: translateY(-1px);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
 }
@@ -278,13 +281,16 @@ textarea {
   height: 180px;
   border-radius: 12px;
   background:
-    linear-gradient(180deg, rgba(248, 250, 252, 0.92) 0%, rgba(241, 245, 249, 0.92) 100%);
+    linear-gradient(180deg, rgba(248, 250, 252, 0.96) 0%, rgba(241, 245, 249, 0.92) 100%);
+  border: 1px solid rgba(226, 232, 240, 0.95);
 }
 
 .eval-graph-baseline,
 .eval-graph-current,
+.eval-graph-area,
 .eval-graph-path,
-.eval-graph-point {
+.eval-graph-point,
+.eval-graph-hit-target {
   vector-effect: non-scaling-stroke;
 }
 
@@ -295,30 +301,46 @@ textarea {
 }
 
 .eval-graph-current {
-  stroke: rgba(15, 91, 216, 0.28);
-  stroke-width: 1.2;
+  stroke: rgba(15, 91, 216, 0.18);
+  stroke-width: 1;
+}
+
+.eval-graph-area {
+  fill: rgba(15, 91, 216, 0.08);
+  stroke: none;
 }
 
 .eval-graph-path {
   fill: none;
   stroke: #0f5bd8;
-  stroke-width: 2.2;
+  stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .eval-graph-point {
-  fill: #ffffff;
-  stroke: #0f5bd8;
-  stroke-width: 1.6;
-  cursor: pointer;
-  transition: transform 120ms ease, fill 120ms ease, stroke 120ms ease;
+  fill: #0f5bd8;
+  stroke: #ffffff;
+  stroke-width: 1.2;
+  transition: transform 120ms ease, fill 120ms ease, stroke 120ms ease, r 120ms ease;
 }
 
-.eval-graph-point:hover,
 .eval-graph-point.selected {
   fill: #0f5bd8;
   stroke: #0f172a;
+}
+
+.eval-graph-hit-target {
+  fill: transparent;
+  stroke: transparent;
+  cursor: pointer;
+}
+
+.eval-graph-hit-target:hover,
+.eval-graph-hit-target:focus-visible {
+  fill: rgba(15, 91, 216, 0.08);
+  stroke: rgba(15, 91, 216, 0.18);
+  stroke-width: 0.8;
 }
 
 .controls {

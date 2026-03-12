@@ -97,7 +97,7 @@ test("runGameAnalysis retries once with lowered depth after timeout-like error",
   assert.equal(output.retriesUsed, 1);
   assert.equal(output.finalRun.status, "completed");
   assert.equal(output.finalRun.error, "Completed with 1 retry.");
-  assert.equal(output.finalRun.options.foregroundBudgetMs, 60000);
+  assert.equal(output.finalRun.options.foregroundBudgetMs, 2346);
   assert.equal(savedRuns.length, 2);
   assert.equal(savedPlies.length, 2);
   assert.deepEqual(progressEvents[0], { done: 0, total: 2, lastCompletedPly: null, totalPlies: 1 });
@@ -207,7 +207,7 @@ test("runGameAnalysis reuses the unrestricted score when played move is already 
   assert.equal(savedPlies[0]?.bestMoveUci, "e2e4");
 });
 
-test("runGameAnalysis stops by runtime budget and marks run cancelled with budget message", async () => {
+test("runGameAnalysis stops by derived runtime budget and marks run cancelled with safety message", async () => {
   const savedRuns: AnalysisRun[] = [];
   let currentMs = 0;
   const nowMs = () => {
@@ -236,19 +236,20 @@ test("runGameAnalysis stops by runtime budget and marks run cancelled with budge
       defaultDepth: 16,
       defaultMultiPV: 1,
       softPerPositionMaxMs: 1200,
-      baseForegroundBudgetMs: 50,
-      foregroundBudgetPerPlyMs: 10
+      perPlyTimeMultiplier: 1,
+      totalBudgetBuffer: 1,
+      emergencyHardCapMs: 50
     }
   });
 
   assert.equal(output.stoppedByBudget, true);
   assert.equal(output.finalRun.status, "cancelled");
   assert.equal(output.finalRun.options.foregroundBudgetMs, 50);
-  assert.equal(output.finalRun.error, "Stopped after scaled foreground runtime budget (50ms); rerun to continue refining.");
+  assert.equal(output.finalRun.error, "Stopped after derived runtime safety budget (50ms); rerun to continue refining.");
   assert.equal(savedRuns.length, 2);
 });
 
-test("runGameAnalysis scales runtime budget with total plies when that exceeds the base budget", async () => {
+test("runGameAnalysis derives runtime budget from movetime, plies, and buffer", async () => {
   const savedRuns: AnalysisRun[] = [];
 
   const output = await runGameAnalysis({
@@ -267,11 +268,12 @@ test("runGameAnalysis scales runtime budget with total plies when that exceeds t
       defaultDepth: 16,
       defaultMultiPV: 1,
       softPerPositionMaxMs: 1200,
-      baseForegroundBudgetMs: 5000,
-      foregroundBudgetPerPlyMs: 1000
+      perPlyTimeMultiplier: 1,
+      totalBudgetBuffer: 1,
+      emergencyHardCapMs: 500_000
     }
   });
 
-  assert.equal(output.finalRun.options.foregroundBudgetMs, 200000);
-  assert.equal(savedRuns[0]?.options.foregroundBudgetMs, 200000);
+  assert.equal(output.finalRun.options.foregroundBudgetMs, 240000);
+  assert.equal(savedRuns[0]?.options.foregroundBudgetMs, 240000);
 });

@@ -5,7 +5,7 @@
 
 ## Context
 
-The web app needs a repeatable way to compare analysis timing for a real shipped game-analysis run so the foreground budget can be tuned with observed browser-worker behavior instead of estimates. Benchmark runs should not pollute the user’s normal game-analysis history.
+The web app needs a repeatable way to compare analysis timing for a real shipped game-analysis run so the movetime-first derived safety budget can be tuned with observed browser-worker behavior instead of fixed heuristics. Benchmark runs should not pollute the user’s normal game-analysis history.
 
 ## Decision
 
@@ -16,9 +16,11 @@ The web app needs a repeatable way to compare analysis timing for a real shipped
    - depth
    - movetime
    - MultiPV
-   - base foreground budget
-   - foreground budget per ply
+   - per-ply multiplier
+   - total budget buffer
+   - emergency hard cap
 4. Exclude `Threads` and `Hash` from v1 benchmark comparisons until the worker path accepts and applies them.
+5. Treat movetime as the primary public tuning knob and use depth scenarios only as secondary diagnostics while movetime is active.
 
 ## Consequences
 
@@ -26,7 +28,7 @@ The web app needs a repeatable way to compare analysis timing for a real shipped
 
 1. Benchmark timings reflect the shipped browser-worker path, including retries and IndexedDB writes.
 2. Repeated benchmark runs do not overwrite or mix with user library analysis data.
-3. The benchmark result table can be used directly to reason about a safer foreground budget for short games.
+3. The benchmark result table can be used directly to reason about projected full-run time and a safer derived budget for short games.
 
 ### Costs
 

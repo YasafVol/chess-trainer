@@ -80,21 +80,27 @@ export function buildBackofficeConfigSections(): BackofficeConfigSection[] {
         },
         {
           key: "softPerPositionMaxMs",
-          label: "Per-position timeout (ms)",
+          label: "Per-position movetime (ms)",
           value: String(ANALYSIS_POLICY.softPerPositionMaxMs),
-          help: "Soft movetime budget for each engine request."
+          help: "Primary runtime knob passed to Stockfish for each engine request."
         },
         {
-          key: "baseForegroundBudgetMs",
-          label: "Base foreground budget (ms)",
-          value: String(ANALYSIS_POLICY.baseForegroundBudgetMs),
-          help: "Minimum runtime budget before per-ply scaling is applied."
+          key: "perPlyTimeMultiplier",
+          label: "Per-ply multiplier",
+          value: String(ANALYSIS_POLICY.perPlyTimeMultiplier),
+          help: "Converts movetime into expected wall-clock cost per analyzed ply."
         },
         {
-          key: "foregroundBudgetPerPlyMs",
-          label: "Foreground budget per ply (ms)",
-          value: String(ANALYSIS_POLICY.foregroundBudgetPerPlyMs),
-          help: "Additional runtime budget granted as a multiple of game length."
+          key: "totalBudgetBuffer",
+          label: "Total budget buffer",
+          value: String(ANALYSIS_POLICY.totalBudgetBuffer),
+          help: "Safety headroom applied on top of projected full-run time."
+        },
+        {
+          key: "emergencyHardCapMs",
+          label: "Emergency hard cap (ms)",
+          value: String(ANALYSIS_POLICY.emergencyHardCapMs),
+          help: "Last-resort ceiling for unusually slow environments."
         }
       ]
     },

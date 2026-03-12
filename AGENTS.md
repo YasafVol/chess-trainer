@@ -31,6 +31,27 @@ Definition of done:
 2. Tests added at the right layer and passing.
 3. FITL docs updated in `docs/`.
 
+## FITL-first workflow
+
+- Before planning or implementing a non-trivial change, read the relevant FITL docs first.
+- Start with `docs/README.md`, then read the vertical doc for the feature area, then the relevant module doc, then any linked decision/risk docs that affect the change.
+- Do not plan or implement from route/code inspection alone when a FITL doc already exists for that area.
+- If the requested work spans multiple feature areas, read all relevant vertical docs before finalizing a plan.
+- If the existing FITL docs are missing, stale, or split in a confusing way, call that out and fix the docs as part of the work.
+
+### FITL doc map
+
+| Product area | Primary FITL doc | Supporting docs |
+| --- | --- | --- |
+| Import | `docs/architecture/verticals/v1-import-and-persist-pgn.md` | `docs/modules/web-app.md`, `docs/quality/testing-guide.md` |
+| Replay/navigation | `docs/architecture/verticals/v2-replay-and-navigation.md` | `docs/modules/web-app.md` |
+| Engine analysis/annotations | `docs/architecture/verticals/v3-engine-analysis-and-annotations.md` | `docs/reference/stockfish-analysis-capabilities.md`, `docs/quality/performance-baselines.md` |
+| Library | `docs/architecture/verticals/v4-library-and-game-lifecycle.md` | `docs/modules/web-app.md`, `docs/decisions/known-issues.md` |
+| Puzzles | `docs/architecture/verticals/v5-puzzle-generation-and-review.md` | `docs/modules/web-app.md`, `docs/quality/testing-guide.md` |
+| Game view/workbench | `docs/architecture/verticals/v6-game-view-and-analysis-workbench.md` | `docs/architecture/verticals/v2-replay-and-navigation.md`, `docs/architecture/verticals/v3-engine-analysis-and-annotations.md` |
+| Backoffice/benchmarking | `docs/architecture/verticals/v7-backoffice-and-benchmarking.md` | `docs/modules/web-app.md`, `docs/quality/performance-baselines.md`, `docs/decisions/ANALYSIS_BENCHMARK_2026-03-10.md` |
+| Layer rules/governance | `docs/README.md` | `docs/architecture/layers/*.md`, `docs/architecture/LAYER_X_FEATURE_MATRIX.md` |
+
 ## Repository focus
 
 - The repository is web-only.
