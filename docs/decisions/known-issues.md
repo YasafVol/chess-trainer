@@ -1,6 +1,6 @@
 # Known Issues
 
-Last updated: 2026-03-08
+Last updated: 2026-03-19
 
 ## Active issues
 
@@ -25,12 +25,12 @@ Last updated: 2026-03-08
 - Scope: release and verification workflow
 - Summary: Vercel deployment verification still depends on manual checks rather than automated smoke coverage.
 
-### 4. Backoffice config is read-only and code-backed
+### 4. Backoffice config is only partially persisted
 
 - Status: open
 - Severity: low
 - Scope: analysis policy and puzzle-definition administration
-- Summary: the new backoffice route exposes shipped config values, but the values are still hardcoded in source and need persisted admin state plus validation before edits are enabled.
+- Summary: lazy background-analysis settings are now persisted locally, but the broader analysis and puzzle-definition constants exposed in backoffice are still hardcoded in source and need validated admin editing before they can move out of code.
 
 ## Related docs
 

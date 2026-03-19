@@ -1,5 +1,10 @@
 import "chessboard-element";
-import type { BoardAdapter, BoardDropEvent, BoardOrientation } from "./BoardAdapter";
+import type { BoardAdapter, BoardDropEvent, BoardHighlightTone, BoardOrientation } from "./BoardAdapter";
+
+const HIGHLIGHT_COLORS: Record<BoardHighlightTone, string> = {
+  default: "rgba(0, 173, 181, 0.92)",
+  error: "rgba(220, 38, 38, 0.92)"
+};
 
 type ChessBoardElementLike = HTMLElement & {
   setPosition: (fen: string, animated?: boolean) => void;
@@ -22,6 +27,7 @@ export class ChessboardElementAdapter implements BoardAdapter {
   private boardEl: ChessBoardElementLike;
   private mounted = false;
   private highlightedSquares = new Set<string>();
+  private highlightTone: BoardHighlightTone = "default";
 
   constructor() {
     this.boardEl = document.createElement("chess-board") as unknown as ChessBoardElementLike;
@@ -34,7 +40,7 @@ export class ChessboardElementAdapter implements BoardAdapter {
     this.boardEl.style.maxWidth = "100%";
     this.boardEl.style.aspectRatio = "1 / 1";
     this.boardEl.style.display = "block";
-    this.boardEl.style.setProperty("--highlight-color", "rgba(0, 173, 181, 0.92)");
+    this.boardEl.style.setProperty("--highlight-color", HIGHLIGHT_COLORS.default);
   }
 
   mount(container: HTMLElement): void {
@@ -55,9 +61,13 @@ export class ChessboardElementAdapter implements BoardAdapter {
     this.boardEl.resize();
   }
 
-  setHighlightedSquares(squares: string[]): void {
+  setHighlightedSquares(squares: string[], tone: BoardHighlightTone = "default"): void {
     const validSquares = squares.filter(isSquare);
     const next = new Set(validSquares);
+    if (this.highlightTone !== tone) {
+      this.boardEl.style.setProperty("--highlight-color", HIGHLIGHT_COLORS[tone]);
+      this.highlightTone = tone;
+    }
 
     for (const square of this.highlightedSquares) {
       if (!next.has(square)) {
@@ -85,6 +95,11 @@ export class ChessboardElementAdapter implements BoardAdapter {
         return;
       }
 
+      if (detail.source === detail.target) {
+        detail.setAction("snapback");
+        return;
+      }
+
       const payload: BoardDropEvent = {
         from: detail.source,
         to: detail.target,
@@ -105,6 +120,7 @@ export class ChessboardElementAdapter implements BoardAdapter {
 
   destroy(): void {
     this.highlightedSquares.clear();
+    this.highlightTone = "default";
     this.boardEl.remove();
     this.mounted = false;
   }

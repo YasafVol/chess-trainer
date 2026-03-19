@@ -1,8 +1,14 @@
+import { useEffect } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
+import { sharedAnalysisCoordinator } from "../application/analysisCoordinator";
 import { useMockSession } from "../lib/mockData";
 
 export function RootLayout() {
   const session = useMockSession();
+
+  useEffect(() => {
+    sharedAnalysisCoordinator.ensureStarted();
+  }, []);
 
   return (
     <div className="app-shell">

@@ -4,6 +4,7 @@ import "fake-indexeddb/auto";
 import type { AnalysisRun, PlyAnalysis } from "../../../domain/types.js";
 import {
   getLatestAnalysisRunByGameId,
+  hasCompletedAnalysisRunForGameId,
   listPlyAnalysisByRunId,
   saveAnalysisRun,
   savePlyAnalysis
@@ -85,4 +86,25 @@ test("analysis repo reloads saved plies in ply order for a run", async () => {
     reloaded.map((ply) => ply.ply),
     [1, 2, 3]
   );
+});
+
+test("analysis repo detects whether any completed run exists for a game", async () => {
+  const gameId = `game-${crypto.randomUUID()}`;
+  await saveAnalysisRun(sampleRun({
+    id: `run-cancelled-${crypto.randomUUID()}`,
+    gameId,
+    createdAt: "2026-03-05T12:00:00.000Z",
+    status: "cancelled"
+  }));
+
+  assert.equal(await hasCompletedAnalysisRunForGameId(gameId), false);
+
+  await saveAnalysisRun(sampleRun({
+    id: `run-completed-${crypto.randomUUID()}`,
+    gameId,
+    createdAt: "2026-03-05T12:05:00.000Z",
+    status: "completed"
+  }));
+
+  assert.equal(await hasCompletedAnalysisRunForGameId(gameId), true);
 });

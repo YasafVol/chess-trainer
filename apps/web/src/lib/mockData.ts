@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import type { AnalysisRun, GameRecord, ImportBatchResult, PlyAnalysis, Puzzle, PuzzleAttempt, SessionUser } from "../domain/types";
-import { buildPuzzleStats, candidatePuzzlePairs, classifyEvalSwing, createInitialSchedule, inferThemes, initialPuzzleDifficulty, nextReviewOrder, nextScheduleFromQuality } from "../domain/puzzles";
-import { getLatestAnalysisRunByGameId, listPlyAnalysisByRunId, saveAnalysisRun, savePlyAnalysis } from "./storage/repositories/analysisRepo";
-import { getGame, listGames, saveGame } from "./storage/repositories/gamesRepo";
-import { getPuzzle, listPuzzleAttemptsByPuzzleId, listPuzzles, savePuzzle, savePuzzleAttempt } from "./storage/repositories/puzzlesRepo";
+import type { AnalysisRun, GameRecord, ImportBatchResult, PlyAnalysis, Puzzle, PuzzleAttempt, SessionUser } from "../domain/types.js";
+import { buildPuzzleStats, candidatePuzzlePairs, classifyEvalSwing, createInitialSchedule, derivePuzzleOwnership, inferThemes, initialPuzzleDifficulty, nextReviewOrder, nextScheduleFromQuality, normalizePuzzleRecord } from "../domain/puzzles.js";
+import { getLatestAnalysisRunByGameId, hasCompletedAnalysisRunForGameId, listPlyAnalysisByRunId, saveAnalysisRun, savePlyAnalysis } from "./storage/repositories/analysisRepo.js";
+import { getGame, listGames, saveGame } from "./storage/repositories/gamesRepo.js";
+import { getPuzzle, listPuzzleAttemptsByPuzzleId, listPuzzles, savePuzzle, savePuzzleAttempt } from "./storage/repositories/puzzlesRepo.js";
 
-const LOCAL_USER: SessionUser = {
-  id: "local-user",
-  name: "Local mock user",
-  email: "local@mock"
+export const LOCAL_USER: SessionUser = {
+  id: "yasafvolinsky",
+  name: "yasafvolinsky",
+  email: "yasafvolinsky@mock.local"
 };
 
 const listeners = new Set<() => void>();
@@ -65,17 +65,11 @@ export function useMockSession() {
 }
 
 export function useLocalGames() {
-  return useAsyncValue(async () => {
-    const games = await listGames();
-    return games.filter((game) => game.userId === LOCAL_USER.id);
-  }, []);
+  return useAsyncValue(() => listLocalGamesForCurrentUser(), []);
 }
 
 export function useLocalGame(gameId: string) {
-  return useAsyncValue(async () => {
-    const game = await getGame(gameId);
-    return game && game.userId === LOCAL_USER.id ? game : null;
-  }, [gameId]);
+  return useAsyncValue(() => getLocalGameForCurrentUser(gameId), [gameId]);
 }
 
 export function useLocalAnalysisSnapshot(gameId: string) {
@@ -165,6 +159,24 @@ export async function saveRunLocal(run: AnalysisRun): Promise<void> {
   });
 }
 
+export async function listLocalGamesForCurrentUser(): Promise<GameRecord[]> {
+  const games = await listGames();
+  return games.filter((game) => game.userId === LOCAL_USER.id);
+}
+
+export async function getLocalGameForCurrentUser(gameId: string): Promise<GameRecord | null> {
+  const game = await getGame(gameId);
+  return game && game.userId === LOCAL_USER.id ? game : null;
+}
+
+export async function hasCompletedAnalysisRunForGameLocal(gameId: string): Promise<boolean> {
+  const game = await getLocalGameForCurrentUser(gameId);
+  if (!game) {
+    return false;
+  }
+  return hasCompletedAnalysisRunForGameId(gameId);
+}
+
 export async function savePlyLocal(plies: PlyAnalysis[]): Promise<void> {
   for (const ply of plies) {
     console.log("[mockData] save ply", {
@@ -234,11 +246,18 @@ export async function generatePuzzlesForRunLocal(runId: string, gameId: string):
         sourceGameHash: game.hash
       },
       classification,
+      ownership: derivePuzzleOwnership({
+        whiteName: game.headers.White,
+        blackName: game.headers.Black,
+        username: LOCAL_USER.id,
+        badMoveSide: sideToMove
+      }),
       fen: pair.before.fen,
       sideToMove,
       evalSwing: pair.evalSwing,
       expectedBestMove: pair.before.bestMoveUci,
       expectedLine: line,
+      solutionMoves: [],
       playedBadMove: pair.before.playedMoveUci,
       themes: inferThemes(line, pair.before.playedMoveUci),
       difficulty: initialPuzzleDifficulty({
@@ -250,19 +269,20 @@ export async function generatePuzzlesForRunLocal(runId: string, gameId: string):
       createdAt: now,
       updatedAt: now
     };
+    const normalizedPuzzle = normalizePuzzleRecord(puzzle);
 
     console.log("[mockData] create puzzle", {
-      puzzleId: puzzle.id,
-      classification: puzzle.classification,
-      sourcePly: puzzle.source.ply,
-      expectedBestMove: puzzle.expectedBestMove,
-      playedBadMove: puzzle.playedBadMove
+      puzzleId: normalizedPuzzle.id,
+      classification: normalizedPuzzle.classification,
+      sourcePly: normalizedPuzzle.source.ply,
+      expectedBestMove: normalizedPuzzle.expectedBestMove,
+      playedBadMove: normalizedPuzzle.playedBadMove
     });
 
-    await savePuzzle(puzzle);
-    existing.add(puzzle.id);
-    if (puzzle.classification === "mistake" || puzzle.classification === "blunder") {
-      bankCounts[puzzle.classification] += 1;
+    await savePuzzle(normalizedPuzzle);
+    existing.add(normalizedPuzzle.id);
+    if (normalizedPuzzle.classification === "mistake" || normalizedPuzzle.classification === "blunder") {
+      bankCounts[normalizedPuzzle.classification] += 1;
     }
     created += 1;
   }

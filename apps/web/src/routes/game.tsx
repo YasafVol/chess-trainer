@@ -1,36 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useParams } from "@tanstack/react-router";
 import { Chess } from "chess.js";
 import { ChessboardElementAdapter } from "../board/ChessboardElementAdapter";
 import type { BoardAdapter } from "../board/BoardAdapter";
 import { startBoardResizeSync } from "../board/boardResize";
-import { runGameAnalysis } from "../application/runGameAnalysis";
+import { sharedAnalysisCoordinator } from "../application/analysisCoordinator";
 import { InlineLoader } from "../components/InlineLoader";
 import { useDelayedBusy } from "../components/useDelayedBusy";
 import { buildReplayData } from "../domain/gameReplay";
-import { EngineClient, type EngineFlavor } from "../engine/engineClient";
-import { generatePuzzlesForRunLocal, savePlyLocal, saveRunLocal, useLocalAnalysisSnapshot, useLocalGame } from "../lib/mockData";
+import { formatUnknownError } from "../lib/formatUnknownError";
+import { useLocalAnalysisSnapshot, useLocalGame } from "../lib/mockData";
 import { buildEvalBarState, buildEvalGraphState, buildMoveAnnotation, formatEval } from "../presentation/analysisView";
 import { buildGameMetaChips, buildReplayPositionItems, resolveBoardPresentation } from "../presentation/gameView";
-
-function chooseEngineFlavor(): EngineFlavor {
-  // TODO: revisit flavor selection once the deployed app has reliable COOP/COEP and engine asset caching.
-  return "stockfish-18-lite-single";
-}
-
-function formatUnknownError(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  try {
-    return JSON.stringify(error);
-  } catch {
-    return "Unknown error";
-  }
-}
 
 function formatBudgetLabel(budgetMs: number | undefined): string {
   if (!budgetMs) {
@@ -46,30 +27,22 @@ export function GamePage() {
   const { gameId } = useParams({ from: "/game/$gameId" });
   const game = useLocalGame(gameId);
   const snapshot = useLocalAnalysisSnapshot(gameId);
+  const analysisCoordinator = useSyncExternalStore(
+    (listener) => sharedAnalysisCoordinator.subscribe(listener),
+    () => sharedAnalysisCoordinator.getSnapshot()
+  );
 
   const [currentPly, setCurrentPly] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [manualFen, setManualFen] = useState<string | null>(null);
-  const [analysisStatus, setAnalysisStatus] = useState("No analysis run yet.");
-  const [analysisProgress, setAnalysisProgress] = useState<{
-    done: number;
-    total: number;
-    lastCompletedPly: number | null;
-    totalPlies: number;
-  } | null>(null);
-  const [analysisRunning, setAnalysisRunning] = useState(false);
-  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [boardError, setBoardError] = useState<string | null>(null);
-  const [engineReady, setEngineReady] = useState(false);
   const [boardMountVersion, setBoardMountVersion] = useState(0);
   const [boardHost, setBoardHost] = useState<HTMLDivElement | null>(null);
-  const showAnalysisLoader = useDelayedBusy(analysisRunning, { delayMs: 250, minVisibleMs: 450 });
+  const activeGameIsRunning = analysisCoordinator.running && analysisCoordinator.activeGameId === gameId;
+  const showAnalysisLoader = useDelayedBusy(activeGameIsRunning, { delayMs: 250, minVisibleMs: 450 });
 
   const boardRef = useRef<BoardAdapter | null>(null);
-  const engineRef = useRef<EngineClient | null>(null);
-  const cancelRequestedRef = useRef(false);
-  const engineFlavorRef = useRef<EngineFlavor>(chooseEngineFlavor());
   const currentPlyRef = useRef(0);
   const manualFenRef = useRef<string | null>(null);
   const replayDataRef = useRef<ReturnType<typeof buildReplayData> | null>(null);
@@ -145,45 +118,8 @@ export function GamePage() {
   }, [gameId, parseError, replayData, totalPlies]);
 
   useEffect(() => {
-    const engine = new EngineClient();
-    engineRef.current = engine;
-    let active = true;
-
-    setEngineReady(false);
-    console.log("[game] initializing engine", {
-      gameId,
-      engineFlavor: engineFlavorRef.current
-    });
-
-    engine
-      .init(engineFlavorRef.current)
-      .then(() => {
-        if (active) {
-          console.log("[game] engine ready", { gameId, engineFlavor: engineFlavorRef.current });
-          setEngineReady(true);
-        }
-      })
-      .catch((error) => {
-        if (active) {
-          const message = formatUnknownError(error);
-          console.error("[game] engine init failed", {
-            gameId,
-            engineFlavor: engineFlavorRef.current,
-            message,
-            error
-          });
-          setAnalysisError(`Engine initialization failed: ${message}`);
-        }
-      });
-
-    return () => {
-      active = false;
-      cancelRequestedRef.current = true;
-      console.log("[game] terminating engine", { gameId });
-      engine.terminate();
-      engineRef.current = null;
-    };
-  }, [gameId]);
+    sharedAnalysisCoordinator.ensureStarted();
+  }, []);
 
   useEffect(() => {
     const initialPly = 0;
@@ -192,20 +128,8 @@ export function GamePage() {
     setFlipped(false);
     setIsPlaying(false);
     setManualFen(null);
-    setAnalysisProgress(null);
-    setAnalysisError(null);
     setBoardError(null);
   }, [gameId, replayData]);
-
-  useEffect(() => {
-    if (!analysisRun) {
-      setAnalysisStatus("No analysis run yet.");
-      return;
-    }
-    setAnalysisStatus(
-      `${analysisRun.engineName} ${analysisRun.engineVersion} depth=${analysisRun.options.depth} movetime=${formatBudgetLabel(analysisRun.options.movetimeMs)} safety-limit=${formatBudgetLabel(analysisRun.options.foregroundBudgetMs)} status=${analysisRun.status}`
-    );
-  }, [analysisRun]);
 
   useEffect(() => {
     if (!boardHost || !replayData) return;
@@ -358,99 +282,14 @@ export function GamePage() {
   }
 
   async function runAnalysis() {
-    if (!game || !replayData || !engineRef.current) {
+    if (!game) {
       return;
     }
-
-    cancelRequestedRef.current = false;
-    setAnalysisRunning(true);
-    setAnalysisError(null);
-    setAnalysisProgress(null);
-    setAnalysisStatus("Starting analysis...");
-
-    console.log("[game] analysis start", {
-      gameId: game.id,
-      totalPlies,
-      engineFlavor: engineFlavorRef.current
-    });
-
-    try {
-      const result = await runGameAnalysis({
-        game,
-        fenPositions: replayData.fenPositions,
-        moveSanList: replayData.moves.map((move) => move.san),
-        engineFlavor: engineFlavorRef.current,
-        analyzePosition: (input) => engineRef.current!.analyzePosition(input),
-        saveRun: async (run) => {
-          console.log("[game] save analysis run", {
-            gameId: run.gameId,
-            runId: run.id,
-            status: run.status,
-            depth: run.options.depth
-          });
-          await saveRunLocal(run);
-        },
-        savePly: async (ply) => {
-          console.log("[game] save ply analysis", {
-            gameId: ply.gameId,
-            runId: ply.runId,
-            ply: ply.ply,
-            evaluation: ply.evaluation,
-            bestMoveUci: ply.bestMoveUci
-          });
-          await savePlyLocal([ply]);
-        },
-        isCancelRequested: () => cancelRequestedRef.current,
-        markCancelRequested: () => {
-          cancelRequestedRef.current = true;
-        },
-        onProgress: (progress) => setAnalysisProgress(progress),
-        onRetryStatus: (message) => setAnalysisStatus(message),
-        onRunUpdated: (run) => {
-          setAnalysisStatus(`${run.status} at depth ${run.options.depth} (budget ${formatBudgetLabel(run.options.foregroundBudgetMs)})`);
-        },
-        onPlySaved: (ply) => {
-          setAnalysisStatus(`Analyzed ply ${ply.ply}/${totalPlies}`);
-        }
-      });
-
-      console.log("[game] analysis finished", {
-        gameId: game.id,
-        runId: result.finalRun.id,
-        status: result.finalRun.status,
-        savedPositions: result.done
-      });
-
-      if (result.finalRun.status === "completed") {
-        setAnalysisStatus(`Analysis completed. ${result.done} positions saved.`);
-        const createdPuzzles = await generatePuzzlesForRunLocal(result.finalRun.id, game.id);
-        console.log("[game] generated puzzles after analysis", {
-          gameId: game.id,
-          runId: result.finalRun.id,
-          createdPuzzles
-        });
-      }
-    } catch (error) {
-      const message = formatUnknownError(error);
-      console.error("[game] analysis failed", { gameId: game.id, message, error });
-      setAnalysisError(message);
-    } finally {
-      setAnalysisRunning(false);
-      setAnalysisProgress(null);
-    }
+    await sharedAnalysisCoordinator.requestForegroundAnalysis(game.id);
   }
 
   async function cancelAnalysis() {
-    cancelRequestedRef.current = true;
-    console.log("[game] cancel analysis requested", { gameId });
-    setAnalysisRunning(false);
-    setAnalysisProgress(null);
-    setAnalysisError("Analysis cancelled.");
-    try {
-      await engineRef.current?.cancel();
-    } catch {
-      // ignore cancel failure
-    }
+    await sharedAnalysisCoordinator.cancelActiveAnalysis();
   }
 
   if (game === undefined || snapshot === undefined) {
@@ -460,6 +299,21 @@ export function GamePage() {
   if (!game) {
     return <section className="page"><p>Game not found.</p></section>;
   }
+
+  const analysisProgress = activeGameIsRunning ? analysisCoordinator.progress : null;
+  const analysisError = activeGameIsRunning ? analysisCoordinator.error : analysisRun?.error ?? null;
+  const analysisStatus = activeGameIsRunning
+    ? analysisCoordinator.status
+    : analysisRun
+      ? `${analysisRun.engineName} ${analysisRun.engineVersion} depth=${analysisRun.options.depth} movetime=${formatBudgetLabel(analysisRun.options.movetimeMs)} safety-limit=${formatBudgetLabel(analysisRun.options.foregroundBudgetMs)} status=${analysisRun.status}`
+      : "No analysis run yet.";
+  const engineStatus = analysisCoordinator.engineReady
+    ? "ready"
+    : analysisCoordinator.initializing
+      ? "initializing..."
+      : analysisCoordinator.error
+        ? `error (${analysisCoordinator.error})`
+        : "idle";
 
   return (
     <section className="page">
@@ -559,8 +413,8 @@ export function GamePage() {
               <button className="action-button" onClick={() => jumpToPly(0)}>Reset</button>
               <button className="action-button" onClick={() => { setManualFen(null); setIsPlaying((playing) => !playing); }}>{isPlaying ? "Pause" : "Play"}</button>
               <button className="action-button" onClick={() => setFlipped((value) => !value)}>Flip</button>
-              {!analysisRunning ? (
-                <button className="action-button" onClick={() => void runAnalysis()} disabled={!engineReady}>Analyze game</button>
+              {!activeGameIsRunning ? (
+                <button className="action-button" onClick={() => void runAnalysis()} disabled={!analysisCoordinator.engineReady}>Analyze game</button>
               ) : (
                 <button className="action-button" onClick={() => void cancelAnalysis()}>Cancel analysis</button>
               )}
@@ -570,11 +424,15 @@ export function GamePage() {
 
             <div className="analysis-inline">
               {showAnalysisLoader ? (
-                <InlineLoader inline label="Analyzing game" detail="Running Stockfish and saving per-position evaluations." />
+                <InlineLoader
+                  inline
+                  label={analysisCoordinator.mode === "background" ? "Background analysis" : "Analyzing game"}
+                  detail="Running Stockfish and saving per-position evaluations."
+                />
               ) : null}
               {analysisProgress ? <p className="muted">Analysis progress: ply {analysisProgress.lastCompletedPly ?? 0}/{analysisProgress.totalPlies}</p> : null}
               {analysisError ? <p>{analysisError}</p> : null}
-              <p className="muted">Engine: {engineReady ? "ready" : `initializing (${engineFlavorRef.current})...`}</p>
+              <p className="muted">Engine: {engineStatus}</p>
               {currentAnalysis ? (
                 <>
                   <p>Current eval: <strong>{formatEval(currentAnalysis.evaluationType, currentAnalysis.evaluation)}</strong></p>
@@ -612,7 +470,6 @@ export function GamePage() {
 
       <h3>Analysis status</h3>
       <p>{analysisStatus}</p>
-      {analysisRun?.error ? <p>{analysisRun.error}</p> : null}
     </section>
   );
 }

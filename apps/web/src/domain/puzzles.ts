@@ -1,11 +1,76 @@
-import type { PlyAnalysis, Puzzle, PuzzleAttempt, PuzzleClassification, PuzzleScheduleState } from "./types";
+import type { PlyAnalysis, Puzzle, PuzzleAttempt, PuzzleClassification, PuzzleOwnership, PuzzleScheduleState } from "./types";
 
 const DEFAULT_EASE = 2.5;
+const UCI_MOVE_PATTERN = /^[a-h][1-8][a-h][1-8][qrbn]?$/;
 export const PUZZLE_CLASSIFICATION_THRESHOLDS = {
   inaccuracy: 50,
   mistake: 100,
   blunder: 200
 } as const;
+
+export function isUciMove(value: string): boolean {
+  return UCI_MOVE_PATTERN.test(value);
+}
+
+export function normalizePuzzleSolutionMoves(args: {
+  expectedBestMove: string;
+  expectedLine: string[];
+  solutionMoves?: string[];
+}): string[] {
+  const canonical = (args.solutionMoves ?? []).filter(isUciMove);
+  if (canonical.length > 0) {
+    return canonical;
+  }
+
+  const expectedLine = args.expectedLine.filter(isUciMove);
+  if (expectedLine.length > 0) {
+    if (!isUciMove(args.expectedBestMove) || expectedLine[0] === args.expectedBestMove) {
+      return expectedLine;
+    }
+
+    return [args.expectedBestMove, ...expectedLine.filter((move, index) => index > 0 || move !== args.expectedBestMove)];
+  }
+
+  return isUciMove(args.expectedBestMove) ? [args.expectedBestMove] : [];
+}
+
+export function normalizePuzzleRecord<T extends {
+  expectedBestMove: string;
+  expectedLine: string[];
+  solutionMoves?: string[];
+  ownership?: PuzzleOwnership;
+}>(puzzle: T): T & { solutionMoves: string[]; ownership: PuzzleOwnership } {
+  return {
+    ...puzzle,
+    solutionMoves: normalizePuzzleSolutionMoves(puzzle),
+    ownership: puzzle.ownership ?? "other"
+  };
+}
+
+function normalizePlayerName(value: string | undefined): string {
+  return value?.trim().toLowerCase() ?? "";
+}
+
+export function derivePuzzleOwnership(args: {
+  whiteName?: string;
+  blackName?: string;
+  username: string;
+  badMoveSide: "w" | "b";
+}): PuzzleOwnership {
+  const username = normalizePlayerName(args.username);
+  if (!username) {
+    return "other";
+  }
+
+  const whiteMatches = normalizePlayerName(args.whiteName) === username;
+  const blackMatches = normalizePlayerName(args.blackName) === username;
+
+  if ((args.badMoveSide === "w" && whiteMatches) || (args.badMoveSide === "b" && blackMatches)) {
+    return "mine";
+  }
+
+  return "other";
+}
 
 export function classifyEvalSwing(evalSwing: number): PuzzleClassification | null {
   const abs = Math.abs(evalSwing);

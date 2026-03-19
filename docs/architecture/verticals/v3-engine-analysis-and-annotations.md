@@ -4,11 +4,13 @@
 
 Provide actionable engine feedback per position so users can identify mistakes, inspect best lines, and revisit analyzed games without rerunning analysis unnecessarily.
 
+The active web runtime now also uses a shared background coordinator that opportunistically analyzes eligible library games after startup, while immediately yielding to explicit foreground analysis requests from the user.
+
 ## Impacted Layers
 
 - Contracts: analysis request, response, and persisted run/ply contracts
 - Domain: analysis policy, plan rules, run lifecycle logic, and benchmark scenario/summary rules
-- Application: run orchestration, cancellation, retries, progress updates, and repeated benchmark execution
+- Application: run orchestration, background scan scheduling, foreground preemption, cancellation, retries, progress updates, and repeated benchmark execution
 - Adapters: worker client, worker runtime, analysis repositories, and isolated benchmark analysis storage
 - Presentation: analysis controls, ply-based progress, per-ply evaluation display, eval bar, eval graph, SAN/NAG move suffixes, read-only admin visibility into current engine depth/limit settings, and the benchmark reporting page
 - Composition: engine flavor selection, startup wiring, and the benchmark route under `/backoffice/analysis-benchmark`
@@ -35,6 +37,7 @@ Provide actionable engine feedback per position so users can identify mistakes, 
 ## Tests and Acceptance Criteria
 
 - Analysis can start, progress, cancel, and complete without UI lockups
+- Background analysis starts from app bootstrap, skips while another run is active, and resumes on later scans when interrupted work still lacks a completed run
 - Results persist and reload correctly
 - Timeouts and retries surface explicit status
 - Benchmark route can execute repeated scenario runs and report aggregate timing summaries without polluting normal analysis history

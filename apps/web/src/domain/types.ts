@@ -38,6 +38,15 @@ export type AnalysisRun = {
   error?: string;
 };
 
+export type AnalysisCoordinatorConfig = {
+  enabled: boolean;
+  intervalMs: number;
+};
+
+export type PuzzlePlaybackConfig = {
+  stepMs: number;
+};
+
 export type PlyAnalysis = {
   id: string;
   userId: string;
@@ -80,6 +89,7 @@ export type ImportBatchResult = {
 };
 
 export type PuzzleClassification = "inaccuracy" | "mistake" | "blunder";
+export type PuzzleOwnership = "mine" | "other";
 
 export type PuzzleScheduleState = {
   repetition: number;
@@ -102,11 +112,13 @@ export type Puzzle = {
   gameId: string;
   source: PuzzleSource;
   classification: PuzzleClassification;
+  ownership: PuzzleOwnership;
   fen: string;
   sideToMove: "w" | "b";
   evalSwing: number;
   expectedBestMove: string;
   expectedLine: string[];
+  solutionMoves: string[];
   playedBadMove?: string;
   themes: string[];
   difficulty: number;

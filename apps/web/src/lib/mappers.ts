@@ -6,6 +6,7 @@ import type {
   PuzzleAttempt,
   SessionUser
 } from "../domain/types";
+import { normalizePuzzleRecord } from "../domain/puzzles";
 
 function idToString(value: unknown): string {
   return typeof value === "string" ? value : String(value ?? "");
@@ -83,7 +84,7 @@ export function toPlyAnalysis(doc: any): PlyAnalysis {
 }
 
 export function toPuzzle(doc: any): Puzzle {
-  return {
+  return normalizePuzzleRecord({
     id: doc.clientId,
     userId: idToString(doc.userId),
     gameId: doc.gameId,
@@ -93,11 +94,13 @@ export function toPuzzle(doc: any): Puzzle {
       sourceGameHash: doc.sourceGameHash
     },
     classification: doc.classification,
+    ownership: doc.ownership,
     fen: doc.fen,
     sideToMove: doc.sideToMove,
     evalSwing: doc.evalSwing,
     expectedBestMove: doc.expectedBestMove,
     expectedLine: doc.expectedLine,
+    solutionMoves: doc.solutionMoves,
     playedBadMove: doc.playedBadMove,
     themes: doc.themes,
     difficulty: doc.difficulty,
@@ -111,7 +114,7 @@ export function toPuzzle(doc: any): Puzzle {
     },
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt
-  };
+  });
 }
 
 export function toPuzzleAttempt(doc: any): PuzzleAttempt {

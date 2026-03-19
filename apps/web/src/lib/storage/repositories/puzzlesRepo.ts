@@ -1,4 +1,5 @@
 import type { Puzzle, PuzzleAttempt } from "../../../domain/types.js";
+import { normalizePuzzleRecord } from "../../../domain/puzzles.js";
 import { withStore } from "../db.js";
 
 function requestToPromise<T>(request: IDBRequest<T>): Promise<T> {
@@ -10,14 +11,14 @@ function requestToPromise<T>(request: IDBRequest<T>): Promise<T> {
 
 export async function savePuzzle(puzzle: Puzzle): Promise<void> {
   await withStore("puzzles", "readwrite", async (store) => {
-    await requestToPromise(store.put(puzzle));
+    await requestToPromise(store.put(normalizePuzzleRecord(puzzle)));
   });
 }
 
 export async function getPuzzle(id: string): Promise<Puzzle | null> {
   return withStore("puzzles", "readonly", async (store) => {
     const result = await requestToPromise(store.get(id));
-    return (result as Puzzle | undefined) ?? null;
+    return result ? normalizePuzzleRecord(result as Puzzle) : null;
   });
 }
 
@@ -25,7 +26,7 @@ export async function listPuzzles(): Promise<Puzzle[]> {
   return withStore("puzzles", "readonly", async (store) => {
     const index = store.index("by_updatedAt");
     const result = await requestToPromise(index.getAll());
-    return (result as Puzzle[]).sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+    return (result as Puzzle[]).map((puzzle) => normalizePuzzleRecord(puzzle)).sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
   });
 }
 

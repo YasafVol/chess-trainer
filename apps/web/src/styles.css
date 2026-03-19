@@ -365,6 +365,114 @@ textarea {
   overflow-y: auto;
 }
 
+.puzzle-disclosure {
+  margin: 10px 0 0;
+}
+
+.puzzle-disclosure summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.puzzle-disclosure p {
+  margin: 8px 0 0;
+}
+
+.puzzle-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: end;
+}
+
+.puzzle-tab-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.puzzle-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #111827;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.puzzle-tab:hover,
+.puzzle-tab:focus-visible {
+  border-color: #94a3b8;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.puzzle-tab.active {
+  border-color: #111827;
+  background: #111827;
+  color: #f9fafb;
+}
+
+.puzzle-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.16);
+  padding: 0 8px;
+  font-size: 0.92rem;
+}
+
+.puzzle-tab.active .puzzle-tab-count {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.puzzle-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.puzzle-select {
+  min-width: 140px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 0.7rem 0.9rem;
+  background: #ffffff;
+  color: #111827;
+}
+
+.puzzle-card-button {
+  gap: 12px;
+}
+
+.puzzle-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.puzzle-difficulty-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #e5eefc;
+  color: #0f3e89;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .chip-row {
   display: flex;
   flex-wrap: wrap;
@@ -440,6 +548,12 @@ textarea {
   padding: 12px 14px;
   background: #f8fafc;
   color: #111827;
+}
+
+.config-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #111827;
 }
 
 .config-help {
@@ -555,6 +669,11 @@ textarea {
 
   .moves-pane {
     max-height: 260px;
+  }
+
+  .puzzle-toolbar {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 .inline-loader {

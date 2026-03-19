@@ -23,6 +23,14 @@ export async function getLatestAnalysisRunByGameId(gameId: string): Promise<Anal
   });
 }
 
+export async function hasCompletedAnalysisRunForGameId(gameId: string): Promise<boolean> {
+  return withStore("analysisRuns", "readonly", async (store) => {
+    const index = store.index("by_gameId");
+    const result = (await requestToPromise(index.getAll(gameId))) as AnalysisRun[];
+    return (result ?? []).some((run) => run.status === "completed");
+  });
+}
+
 export async function savePlyAnalysis(ply: PlyAnalysis): Promise<void> {
   await withStore("analysisByPly", "readwrite", async (store) => {
     await requestToPromise(store.put(ply));

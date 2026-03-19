@@ -1,21 +1,22 @@
 # V7: Backoffice and Benchmarking
 
 ## Business/User Intent
-Give maintainers a read-only operational surface for inspecting shipped analysis and puzzle constants, and a repeatable benchmark harness for comparing real browser-worker analysis cost on the bundled PGN fixture.
+Give maintainers an operational surface for inspecting shipped analysis and puzzle constants, a small persisted control surface for lazy library analysis runtime settings, and a repeatable benchmark harness for comparing real browser-worker analysis cost on the bundled PGN fixture.
 
 ## Flow Narrative
 1. Maintainer opens the backoffice route.
-2. System renders the currently shipped source-backed constants grouped into readable sections.
-3. Maintainer opens the analysis benchmark route from backoffice.
-4. System loads the bundled `single.pgn` fixture, builds benchmark scenarios, and runs repeated analysis through the real worker path.
-5. System reports scenario-level timing summaries, projected full-run runtime, safety-stop counts, and recommended derived safety budgets.
+2. System loads the persisted lazy-analysis runtime settings and puzzle playback settings, then renders editable controls for enablement, scan interval, and playback speed.
+3. System renders the remaining shipped source-backed constants grouped into readable sections.
+4. Maintainer opens the analysis benchmark route from backoffice.
+5. System loads the bundled `single.pgn` fixture, builds benchmark scenarios, and runs repeated analysis through the real worker path.
+6. System reports scenario-level timing summaries, projected full-run runtime, safety-stop counts, and recommended derived safety budgets.
 
 ## Impacted Layers
-- Contracts: benchmark scenario, repetition, summary, progress, and read-only config-section contracts.
-- Domain: movetime-first analysis policy, benchmark scenario definitions, summary aggregation, and blocked-knob rules.
-- Application: repeated benchmark execution, step-level error reporting, failure normalization, and progress event emission.
-- Adapters: isolated benchmark IndexedDB database, benchmark repositories, and engine-worker client wiring.
-- Presentation: `/backoffice` config sections, `/backoffice/analysis-benchmark` scenario cards, status/failure surfaces, and benchmark results table.
+- Contracts: benchmark scenario, repetition, summary, progress, config-section contracts, and persisted lazy-analysis plus puzzle-playback runtime config.
+- Domain: movetime-first analysis policy, lazy-analysis config normalization, puzzle playback config normalization, benchmark scenario definitions, summary aggregation, and blocked-knob rules.
+- Application: shared analysis-coordinator config updates, puzzle runtime setting consumption, repeated benchmark execution, step-level error reporting, failure normalization, and progress event emission.
+- Adapters: `appMeta`-backed runtime config storage, isolated benchmark IndexedDB database, benchmark repositories, and engine-worker client wiring.
+- Presentation: `/backoffice` runtime controls plus config sections, `/backoffice/analysis-benchmark` scenario cards, status/failure surfaces, and benchmark results table.
 - Composition: route registration for both backoffice pages and linkage from the admin landing page.
 
 ## Execution Order Per Layer
@@ -32,7 +33,8 @@ Give maintainers a read-only operational surface for inspecting shipped analysis
 
 ## Tests and Acceptance Criteria
 - Acceptance criteria:
-  - Backoffice shows the shipped analysis and puzzle constants without allowing mutation.
+  - Backoffice can enable or disable lazy library analysis, persist the configured scan interval locally, and adjust persisted puzzle playback speed.
+  - Backoffice still shows the shipped analysis and puzzle constants separately from the editable lazy-analysis runtime control.
   - Benchmark runs use the real worker pipeline and the bundled `single.pgn` fixture.
   - Benchmark failures show scenario, repetition, and failing step instead of opaque errors.
   - Benchmark writes never pollute normal library analysis history.
@@ -45,6 +47,6 @@ Give maintainers a read-only operational surface for inspecting shipped analysis
   - `apps/web/src/presentation/backofficeView.test.ts`
 
 ## Risk/Deferment References
-- Backoffice config is still source-backed and read-only; persisted admin config and validation are deferred.
+- Backoffice now persists lazy-analysis runtime settings locally, but the broader analysis and puzzle constants remain source-backed and read-only.
 - Benchmark coverage is intentionally narrow: one bundled short game and a fixed scenario sweep.
 - Threads and Hash remain excluded from benchmark comparison until the worker runtime accepts and applies those options.
