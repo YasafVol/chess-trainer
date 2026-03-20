@@ -766,3 +766,39 @@ textarea {
   color: #374151;
   font-size: 0.95rem;
 }
+
+/* --- GLASSMORPHISM OVERRIDES --- */
+:root {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+  color: #f8fafc;
+}
+.app-shell { color: #f8fafc; }
+.top-nav a { color: #cbd5e1; }
+.top-nav a[data-status="active"] { color: #f8fafc; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+.top-nav a::after { background: #818cf8; box-shadow: 0 0 8px #818cf8; }
+.page, .preview-card, .card-row, .library-card-button, .eval-graph-panel, .moves-pane, .analysis-inline, .puzzle-tab, .config-notice, .config-section, .puzzle-select, .config-input, .benchmark-scenario-card, .inline-loader {
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+  color: #f8fafc !important;
+}
+.full-width-textarea {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+.eval-bar-track { background: rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.1); }
+.eval-bar-segment-white { background: linear-gradient(180deg, #e2e8f0, #94a3b8); }
+.eval-bar-segment-black { background: linear-gradient(180deg, #334155, #0f172a); }
+.action-button { background: rgba(129, 140, 248, 0.2) !important; border: 1px solid #818cf8 !important; color: #818cf8 !important; backdrop-filter: blur(4px); }
+.action-button:hover { background: rgba(129, 140, 248, 0.4) !important; box-shadow: 0 0 15px rgba(129, 140, 248, 0.5) !important; }
+.move-btn { color: #cbd5e1; }
+.move-btn.active { background: rgba(129, 140, 248, 0.3) !important; border-color: #818cf8 !important; color: #fff !important; }
+.eval-graph { background: rgba(0,0,0,0.2) !important; border-color: rgba(255,255,255,0.1) !important; }
+.config-label, .puzzle-disclosure summary, .eval-bar-label, h1, h2, h3, h4 { color: #f8fafc !important; }
+.eval-bar-value { color: #f8fafc !important; }
+.chip { background: rgba(255, 255, 255, 0.1) !important; color: #f8fafc !important; }
+.muted { color: #94a3b8 !important; }
+.puzzle-difficulty-pill { background: rgba(239, 68, 68, 0.2) !important; color: #fca5a5 !important; }
