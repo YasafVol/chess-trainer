@@ -95,6 +95,8 @@ npm run vercel:deploy:prod
 - Update FITL docs in `docs/architecture/`, `docs/modules/`, and `docs/decisions/` for non-trivial changes.
 - Keep product planning docs in `Spec/` web-focused.
 - If a doc is superseded, replace it with an updated web-only equivalent or remove it if it no longer serves the product.
+- Keep FITL Nav framework extraction and migration work scoped to `fitl-nav/`.
+- For FITL Nav extraction work, read `fitl-nav/README.md` and `fitl-nav/EXTRACTION_PLAN.md` before making structural changes.
 
 ## Quality policy
 
