@@ -766,3 +766,49 @@ textarea {
   color: #374151;
   font-size: 0.95rem;
 }
+
+/* --- NEO-BRUTALISM OVERRIDES --- */
+:root {
+  background: #fdf6e3;
+  color: #000;
+}
+* { border-radius: 0 !important; }
+.top-nav a { color: #000; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+.top-nav a::after { height: 4px; background: #000; }
+.page, .preview-card, .card-row, .library-card-button, .eval-graph-panel, .moves-pane, .analysis-inline, .puzzle-tab, .config-notice, .config-section, .puzzle-select, .config-input, .benchmark-scenario-card, .inline-loader, .full-width-textarea {
+  background: #fff !important;
+  border: 3px solid #000 !important;
+  box-shadow: 6px 6px 0px #000 !important;
+  color: #000 !important;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.page { border: 4px solid #000 !important; box-shadow: 10px 10px 0px #000 !important; }
+h1, h2, h3, h4, .config-label { font-weight: 800 !important; text-transform: uppercase; color: #000 !important; }
+.action-button { 
+  background: #ffde00 !important; 
+  border: 3px solid #000 !important; 
+  color: #000 !important; 
+  font-weight: bold !important; 
+  text-transform: uppercase; 
+  box-shadow: 4px 4px 0px #000 !important; 
+}
+.action-button:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000 !important;
+  background: #ffea00 !important;
+}
+.action-button:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px #000 !important;
+}
+.move-btn { border: 2px solid transparent; border-radius: 0; }
+.move-btn.active { background: #ffde00 !important; border-color: #000 !important; font-weight: 800; box-shadow: 2px 2px 0px #000 !important; }
+.eval-bar-track { border: 3px solid #000 !important; background: #fff; }
+.eval-graph { background: #fff !important; border: 3px solid #000 !important; }
+.eval-graph-path { stroke-width: 3 !important; stroke: #000 !important; }
+.eval-graph-area { fill: rgba(0,0,0,0.1) !important; }
+.puzzle-tab { box-shadow: 4px 4px 0px #000 !important; }
+.puzzle-tab.active { background: #ffde00 !important; color: #000 !important; }
+.chip { border: 2px solid #000 !important; background: #00e5ff !important; font-weight: bold; color: #000 !important; box-shadow: 2px 2px 0px #000 !important; }
+.puzzle-difficulty-pill { border: 2px solid #000 !important; background: #ff2a2a !important; color: #fff !important; font-weight: bold; box-shadow: 2px 2px 0px #000 !important; }
+.muted { color: #444 !important; font-weight: 700; }
