@@ -155,6 +155,14 @@ export function BackofficePage() {
       </div>
 
       <div className="config-notice">
+        <strong>FITL explorer</strong>
+        <p className="muted">Open the FITL explorer to start from a global feature map, then deepen into architecture or implementation for the selected vertical or tool.</p>
+        <div className="inline-actions">
+          <Link to="/backoffice/fitl-map" className="action-button">Open FITL map</Link>
+        </div>
+      </div>
+
+      <div className="config-notice">
         <strong>Benchmark tools</strong>
         <p className="muted">Run the bundled `single.pgn` benchmark to compare movetime-driven runtime cost across the currently supported worker knobs.</p>
         <div className="inline-actions">

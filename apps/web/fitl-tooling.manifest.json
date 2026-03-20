@@ -1,0 +1,103 @@
+{
+  "tools": [
+    {
+      "id": "tanstack-router",
+      "label": "TanStack Router",
+      "summary": "Active SPA navigation and route composition for the standalone web runtime.",
+      "lifecycle": "active",
+      "system": "external",
+      "relationship": "uses",
+      "layers": ["composition", "presentation"],
+      "verticals": ["v1", "v4", "v5", "v6", "v7"],
+      "references": [
+        { "label": "docs/modules/web-app.md", "path": "docs/modules/web-app.md", "type": "doc" },
+        { "label": "apps/web/src/router.tsx", "path": "apps/web/src/router.tsx", "type": "file" }
+      ]
+    },
+    {
+      "id": "indexeddb",
+      "label": "IndexedDB",
+      "summary": "Browser-local persistence for games, analysis runs, puzzles, and benchmark isolation.",
+      "lifecycle": "active",
+      "system": "browser-platform",
+      "relationship": "uses",
+      "layers": ["adapters"],
+      "verticals": ["v1", "v3", "v4", "v5", "v7"],
+      "references": [
+        { "label": "docs/modules/web-app.md", "path": "docs/modules/web-app.md", "type": "doc" },
+        { "label": "apps/web/src/lib/storage/db.ts", "path": "apps/web/src/lib/storage/db.ts", "type": "file" }
+      ]
+    },
+    {
+      "id": "stockfish",
+      "label": "Stockfish",
+      "summary": "Browser-side analysis engine executed through the worker-backed engine client.",
+      "lifecycle": "active",
+      "system": "external",
+      "relationship": "uses",
+      "layers": ["adapters", "application"],
+      "verticals": ["v3", "v6", "v7"],
+      "references": [
+        { "label": "docs/reference/stockfish-analysis-capabilities.md", "path": "docs/reference/stockfish-analysis-capabilities.md", "type": "doc" },
+        { "label": "apps/web/src/engine/engineClient.ts", "path": "apps/web/src/engine/engineClient.ts", "type": "file" },
+        { "label": "apps/web/src/engine/engine.worker.ts", "path": "apps/web/src/engine/engine.worker.ts", "type": "file" }
+      ]
+    },
+    {
+      "id": "chess-js",
+      "label": "chess.js",
+      "summary": "Core move legality and replay utility used across replay, puzzle, and analysis flows.",
+      "lifecycle": "active",
+      "system": "external",
+      "relationship": "uses",
+      "layers": ["domain", "presentation"],
+      "verticals": ["v1", "v2", "v4", "v5", "v6"],
+      "references": [
+        { "label": "apps/web/package.json", "path": "apps/web/package.json", "type": "file" },
+        { "label": "apps/web/src/domain/gameReplay.ts", "path": "apps/web/src/domain/gameReplay.ts", "type": "file" }
+      ]
+    },
+    {
+      "id": "chessboard-element",
+      "label": "chessboard-element",
+      "summary": "Custom-element board renderer adapted behind the board integration boundary.",
+      "lifecycle": "active",
+      "system": "external",
+      "relationship": "uses",
+      "layers": ["adapters", "presentation"],
+      "verticals": ["v2", "v5", "v6"],
+      "references": [
+        { "label": "apps/web/package.json", "path": "apps/web/package.json", "type": "file" },
+        { "label": "apps/web/src/board/ChessboardElementAdapter.ts", "path": "apps/web/src/board/ChessboardElementAdapter.ts", "type": "file" }
+      ]
+    },
+    {
+      "id": "vercel",
+      "label": "Vercel",
+      "summary": "Deployment target for the standalone SPA. This is a deploy-time concern, not an active runtime dependency.",
+      "lifecycle": "deploy",
+      "system": "external",
+      "relationship": "deploys",
+      "layers": ["composition"],
+      "verticals": ["v7"],
+      "references": [
+        { "label": "apps/web/README.md", "path": "apps/web/README.md", "type": "doc" },
+        { "label": "package.json", "path": "package.json", "type": "file" }
+      ]
+    },
+    {
+      "id": "convex-auth",
+      "label": "Convex/Auth",
+      "summary": "Deferred backend and auth surface kept in-repo but outside the active local-first runtime path.",
+      "lifecycle": "deferred",
+      "system": "external",
+      "relationship": "deferred_by",
+      "layers": ["adapters", "composition"],
+      "verticals": ["v5", "v7"],
+      "references": [
+        { "label": "docs/modules/web-app.md", "path": "docs/modules/web-app.md", "type": "doc" },
+        { "label": "apps/web/src/lib/convex.ts", "path": "apps/web/src/lib/convex.ts", "type": "file" }
+      ]
+    }
+  ]
+}

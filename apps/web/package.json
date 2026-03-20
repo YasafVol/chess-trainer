@@ -8,12 +8,13 @@
     "npm": "10.x"
   },
   "scripts": {
-    "dev": "node ./node_modules/vite/bin/vite.js",
-    "build": "node ./node_modules/typescript/bin/tsc -b && node ./node_modules/vite/bin/vite.js build",
+    "generate:fitl-graph": "node ./scripts/generate-fitl-graph.mjs",
+    "dev": "node ./scripts/generate-fitl-graph.mjs && node ./node_modules/vite/bin/vite.js",
+    "build": "node ./scripts/generate-fitl-graph.mjs && node ./node_modules/typescript/bin/tsc -b && node ./node_modules/vite/bin/vite.js build",
     "preview": "node ./node_modules/vite/bin/vite.js preview",
-    "typecheck": "node ./node_modules/typescript/bin/tsc -b --pretty false",
-    "test:tdd": "node ./scripts/compile-tests.mjs && node ./scripts/run-node-tests.mjs",
-    "test:tdd:one": "node ./node_modules/typescript/bin/tsc -p tsconfig.test.json --pretty false && node --test --test-name-pattern \"$TEST_NAME\" .tmp-test-build/src/**/*.test.js",
+    "typecheck": "node ./scripts/generate-fitl-graph.mjs && node ./node_modules/typescript/bin/tsc -b --pretty false",
+    "test:tdd": "node ./scripts/generate-fitl-graph.mjs && node ./scripts/compile-tests.mjs && node ./scripts/run-node-tests.mjs",
+    "test:tdd:one": "node ./scripts/generate-fitl-graph.mjs && node ./node_modules/typescript/bin/tsc -p tsconfig.test.json --pretty false && node --test --test-name-pattern \"$TEST_NAME\" .tmp-test-build/src/**/*.test.js",
     "convex:dev": "node ./node_modules/convex/bin/main.js dev",
     "convex:deploy": "node ./node_modules/convex/bin/main.js deploy"
   },

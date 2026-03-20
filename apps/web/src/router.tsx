@@ -7,6 +7,7 @@ import { PuzzlesPage } from "./routes/puzzles";
 import { PuzzlePage } from "./routes/puzzle";
 import { BackofficePage } from "./routes/backoffice";
 import { AnalysisBenchmarkPage } from "./routes/analysisBenchmark";
+import { FitlMapPage } from "./routes/fitlMap";
 
 const rootRoute = createRootRoute({
   component: RootLayout
@@ -54,6 +55,12 @@ const analysisBenchmarkRoute = createRoute({
   component: AnalysisBenchmarkPage
 });
 
+const fitlMapRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/backoffice/fitl-map",
+  component: FitlMapPage
+});
+
 const routeTree = rootRoute.addChildren([
   importRoute,
   libraryRoute,
@@ -61,7 +68,8 @@ const routeTree = rootRoute.addChildren([
   puzzlesRoute,
   puzzleRoute,
   backofficeRoute,
-  analysisBenchmarkRoute
+  analysisBenchmarkRoute,
+  fitlMapRoute
 ]);
 
 export const router = createRouter({

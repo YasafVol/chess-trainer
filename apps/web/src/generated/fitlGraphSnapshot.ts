@@ -1,0 +1,4986 @@
+import type { FitlGraphSnapshot } from "../domain/fitlGraphTypes.js";
+
+export const fitlGraphSnapshot: FitlGraphSnapshot = {
+  "version": 1,
+  "generatedAt": "2026-03-20T13:14:07.583Z",
+  "sourceDocs": [
+    "apps/web/README.md",
+    "apps/web/fitl-tooling.manifest.json",
+    "docs/architecture/LAYER_X_FEATURE_MATRIX.md",
+    "docs/architecture/layers/adapters.md",
+    "docs/architecture/layers/application.md",
+    "docs/architecture/layers/composition.md",
+    "docs/architecture/layers/contracts.md",
+    "docs/architecture/layers/domain.md",
+    "docs/architecture/layers/presentation.md",
+    "docs/architecture/verticals/v1-import-and-persist-pgn.md",
+    "docs/architecture/verticals/v2-replay-and-navigation.md",
+    "docs/architecture/verticals/v3-engine-analysis-and-annotations.md",
+    "docs/architecture/verticals/v4-library-and-game-lifecycle.md",
+    "docs/architecture/verticals/v5-puzzle-generation-and-review.md",
+    "docs/architecture/verticals/v6-game-view-and-analysis-workbench.md",
+    "docs/architecture/verticals/v7-backoffice-and-benchmarking.md",
+    "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+    "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md",
+    "docs/decisions/known-issues.md",
+    "docs/modules/chess-core-package.md",
+    "docs/modules/web-app.md"
+  ],
+  "nodes": [
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:deferred-1",
+      "kind": "decision",
+      "label": "Deferred: Auth and remote DB",
+      "summary": "Auth and remote DB",
+      "lifecycle": "deferred",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:deferred-2",
+      "kind": "decision",
+      "label": "Deferred: Cross-device sync",
+      "summary": "Cross-device sync",
+      "lifecycle": "deferred",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:deferred-3",
+      "kind": "decision",
+      "label": "Deferred: Chess.com and Lichess imports",
+      "summary": "Chess.com and Lichess imports",
+      "lifecycle": "deferred",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:deferred-4",
+      "kind": "decision",
+      "label": "Deferred: Advanced analytics and customization",
+      "summary": "Advanced analytics and customization",
+      "lifecycle": "deferred",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:deferred-5",
+      "kind": "decision",
+      "label": "Deferred: Deeper targeted `MultiPV` puzzle extraction",
+      "summary": "Deeper targeted `MultiPV` puzzle extraction",
+      "lifecycle": "deferred",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:locked-1",
+      "kind": "decision",
+      "label": "Canonical layer model is fixed as Contracts, Domain, Application, Adapters, Presentation, Composition",
+      "summary": "Canonical layer model is fixed as Contracts, Domain, Application, Adapters, Presentation, Composition.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:locked-2",
+      "kind": "decision",
+      "label": "Dependency rule is fixed: outer layers depend inward only",
+      "summary": "Dependency rule is fixed: outer layers depend inward only.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:locked-3",
+      "kind": "decision",
+      "label": "Implementation flow is fixed per vertical:",
+      "summary": "Implementation flow is fixed per vertical:",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:locked-4",
+      "kind": "decision",
+      "label": "Documentation updates are mandatory for non-trivial code changes",
+      "summary": "Documentation updates are mandatory for non-trivial code changes.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:locked-5",
+      "kind": "decision",
+      "label": "Definition of Done includes docs, tests, and code",
+      "summary": "Definition of Done includes docs, tests, and code.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:locked-6",
+      "kind": "decision",
+      "label": "Web v1 remains local-first with no auth and no cloud DB",
+      "summary": "Web v1 remains local-first with no auth and no cloud DB.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:locked-7",
+      "kind": "decision",
+      "label": "Browser-worker analysis is the active engine path",
+      "summary": "Browser-worker analysis is the active engine path.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:locked-8",
+      "kind": "decision",
+      "label": "TanStack Router is the active navigation/composition layer for the standalone SPA",
+      "summary": "TanStack Router is the active navigation/composition layer for the standalone SPA.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/DECISION_PROFILE_2026-03-03.md",
+          "path": "docs/decisions/DECISION_PROFILE_2026-03-03.md"
+        }
+      ],
+      "tags": [
+        "decision"
+      ],
+      "id": "decision:locked-9",
+      "kind": "decision",
+      "label": "Deferred Convex/auth scaffolding may remain in-repo, but active runtime code must not require live backend packages to build",
+      "summary": "Deferred Convex/auth scaffolding may remain in-repo, but active runtime code must not require live backend packages to build.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/scripts/fitlGraphSource.mjs",
+          "path": "apps/web/scripts/fitlGraphSource.mjs"
+        }
+      ],
+      "tags": [
+        "mjs"
+      ],
+      "id": "file:apps/web/scripts/fitlGraphSource.mjs",
+      "kind": "file",
+      "label": "fitlGraphSource.mjs",
+      "summary": "apps/web/scripts/fitlGraphSource.mjs",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/scripts/generate-fitl-graph.mjs",
+          "path": "apps/web/scripts/generate-fitl-graph.mjs"
+        }
+      ],
+      "tags": [
+        "mjs"
+      ],
+      "id": "file:apps/web/scripts/generate-fitl-graph.mjs",
+      "kind": "file",
+      "label": "generate-fitl-graph.mjs",
+      "summary": "apps/web/scripts/generate-fitl-graph.mjs",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/application/analysisCoordinator.ts",
+          "path": "apps/web/src/application/analysisCoordinator.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/application/analysisCoordinator.ts",
+      "kind": "file",
+      "label": "analysisCoordinator.ts",
+      "summary": "apps/web/src/application/analysisCoordinator.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/application/runAnalysisBenchmark.ts",
+          "path": "apps/web/src/application/runAnalysisBenchmark.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/application/runAnalysisBenchmark.ts",
+      "kind": "file",
+      "label": "runAnalysisBenchmark.ts",
+      "summary": "apps/web/src/application/runAnalysisBenchmark.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/application/runGameAnalysis.ts",
+          "path": "apps/web/src/application/runGameAnalysis.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/application/runGameAnalysis.ts",
+      "kind": "file",
+      "label": "runGameAnalysis.ts",
+      "summary": "apps/web/src/application/runGameAnalysis.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/board/BoardAdapter.ts",
+          "path": "apps/web/src/board/BoardAdapter.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/board/BoardAdapter.ts",
+      "kind": "file",
+      "label": "BoardAdapter.ts",
+      "summary": "apps/web/src/board/BoardAdapter.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/board/boardResize.ts",
+          "path": "apps/web/src/board/boardResize.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/board/boardResize.ts",
+      "kind": "file",
+      "label": "boardResize.ts",
+      "summary": "apps/web/src/board/boardResize.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/board/ChessboardElementAdapter.ts",
+          "path": "apps/web/src/board/ChessboardElementAdapter.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/board/ChessboardElementAdapter.ts",
+      "kind": "file",
+      "label": "ChessboardElementAdapter.ts",
+      "summary": "apps/web/src/board/ChessboardElementAdapter.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/components/InlineLoader.tsx",
+          "path": "apps/web/src/components/InlineLoader.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/components/InlineLoader.tsx",
+      "kind": "file",
+      "label": "InlineLoader.tsx",
+      "summary": "apps/web/src/components/InlineLoader.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/components/useDelayedBusy.ts",
+          "path": "apps/web/src/components/useDelayedBusy.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/components/useDelayedBusy.ts",
+      "kind": "file",
+      "label": "useDelayedBusy.ts",
+      "summary": "apps/web/src/components/useDelayedBusy.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisCoordinatorConfig.ts",
+          "path": "apps/web/src/domain/analysisCoordinatorConfig.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/analysisCoordinatorConfig.ts",
+      "kind": "file",
+      "label": "analysisCoordinatorConfig.ts",
+      "summary": "apps/web/src/domain/analysisCoordinatorConfig.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisPlan.ts",
+          "path": "apps/web/src/domain/analysisPlan.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/analysisPlan.ts",
+      "kind": "file",
+      "label": "analysisPlan.ts",
+      "summary": "apps/web/src/domain/analysisPlan.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisPolicy.ts",
+          "path": "apps/web/src/domain/analysisPolicy.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/analysisPolicy.ts",
+      "kind": "file",
+      "label": "analysisPolicy.ts",
+      "summary": "apps/web/src/domain/analysisPolicy.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisRunLifecycle.ts",
+          "path": "apps/web/src/domain/analysisRunLifecycle.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/analysisRunLifecycle.ts",
+      "kind": "file",
+      "label": "analysisRunLifecycle.ts",
+      "summary": "apps/web/src/domain/analysisRunLifecycle.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/fitlGraph.ts",
+          "path": "apps/web/src/domain/fitlGraph.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/fitlGraph.ts",
+      "kind": "file",
+      "label": "fitlGraph.ts",
+      "summary": "apps/web/src/domain/fitlGraph.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/fitlGraphTypes.ts",
+          "path": "apps/web/src/domain/fitlGraphTypes.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/fitlGraphTypes.ts",
+      "kind": "file",
+      "label": "fitlGraphTypes.ts",
+      "summary": "apps/web/src/domain/fitlGraphTypes.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/gameReplay.ts",
+          "path": "apps/web/src/domain/gameReplay.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/gameReplay.ts",
+      "kind": "file",
+      "label": "gameReplay.ts",
+      "summary": "apps/web/src/domain/gameReplay.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/puzzlePlaybackConfig.ts",
+          "path": "apps/web/src/domain/puzzlePlaybackConfig.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/puzzlePlaybackConfig.ts",
+      "kind": "file",
+      "label": "puzzlePlaybackConfig.ts",
+      "summary": "apps/web/src/domain/puzzlePlaybackConfig.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/puzzles.ts",
+          "path": "apps/web/src/domain/puzzles.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/puzzles.ts",
+      "kind": "file",
+      "label": "puzzles.ts",
+      "summary": "apps/web/src/domain/puzzles.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/types.ts",
+          "path": "apps/web/src/domain/types.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/types.ts",
+      "kind": "file",
+      "label": "types.ts",
+      "summary": "apps/web/src/domain/types.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/engine/engine.worker.ts",
+          "path": "apps/web/src/engine/engine.worker.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/engine/engine.worker.ts",
+      "kind": "file",
+      "label": "engine.worker.ts",
+      "summary": "apps/web/src/engine/engine.worker.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/engine/engineClient.ts",
+          "path": "apps/web/src/engine/engineClient.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/engine/engineClient.ts",
+      "kind": "file",
+      "label": "engineClient.ts",
+      "summary": "apps/web/src/engine/engineClient.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/generated/fitlGraphSnapshot.ts",
+          "path": "apps/web/src/generated/fitlGraphSnapshot.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/generated/fitlGraphSnapshot.ts",
+      "kind": "file",
+      "label": "fitlGraphSnapshot.ts",
+      "summary": "apps/web/src/generated/fitlGraphSnapshot.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/convex.ts",
+          "path": "apps/web/src/lib/convex.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/lib/convex.ts",
+      "kind": "file",
+      "label": "convex.ts",
+      "summary": "apps/web/src/lib/convex.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/mockData.ts",
+          "path": "apps/web/src/lib/mockData.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/lib/mockData.ts",
+      "kind": "file",
+      "label": "mockData.ts",
+      "summary": "apps/web/src/lib/mockData.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/*",
+          "path": "apps/web/src/lib/storage/*"
+        }
+      ],
+      "tags": [
+        ""
+      ],
+      "id": "file:apps/web/src/lib/storage/*",
+      "kind": "file",
+      "label": "*",
+      "summary": "apps/web/src/lib/storage/*",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/db.ts",
+          "path": "apps/web/src/lib/storage/db.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/lib/storage/db.ts",
+      "kind": "file",
+      "label": "db.ts",
+      "summary": "apps/web/src/lib/storage/db.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/migrations.ts",
+          "path": "apps/web/src/lib/storage/migrations.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/lib/storage/migrations.ts",
+      "kind": "file",
+      "label": "migrations.ts",
+      "summary": "apps/web/src/lib/storage/migrations.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/repositories/analysisRepo.ts",
+          "path": "apps/web/src/lib/storage/repositories/analysisRepo.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/lib/storage/repositories/analysisRepo.ts",
+      "kind": "file",
+      "label": "analysisRepo.ts",
+      "summary": "apps/web/src/lib/storage/repositories/analysisRepo.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.ts",
+          "path": "apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.ts",
+      "kind": "file",
+      "label": "benchmarkAnalysisRepo.ts",
+      "summary": "apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/repositories/gamesRepo.ts",
+          "path": "apps/web/src/lib/storage/repositories/gamesRepo.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/lib/storage/repositories/gamesRepo.ts",
+      "kind": "file",
+      "label": "gamesRepo.ts",
+      "summary": "apps/web/src/lib/storage/repositories/gamesRepo.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+          "path": "apps/web/src/lib/storage/repositories/puzzlesRepo.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+      "kind": "file",
+      "label": "puzzlesRepo.ts",
+      "summary": "apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/main.tsx",
+          "path": "apps/web/src/main.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/main.tsx",
+      "kind": "file",
+      "label": "main.tsx",
+      "summary": "apps/web/src/main.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/*",
+          "path": "apps/web/src/presentation/*"
+        }
+      ],
+      "tags": [
+        ""
+      ],
+      "id": "file:apps/web/src/presentation/*",
+      "kind": "file",
+      "label": "*",
+      "summary": "apps/web/src/presentation/*",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/analysisBenchmarkView.ts",
+          "path": "apps/web/src/presentation/analysisBenchmarkView.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/presentation/analysisBenchmarkView.ts",
+      "kind": "file",
+      "label": "analysisBenchmarkView.ts",
+      "summary": "apps/web/src/presentation/analysisBenchmarkView.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/analysisView.ts",
+          "path": "apps/web/src/presentation/analysisView.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/presentation/analysisView.ts",
+      "kind": "file",
+      "label": "analysisView.ts",
+      "summary": "apps/web/src/presentation/analysisView.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/backofficeView.ts",
+          "path": "apps/web/src/presentation/backofficeView.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/presentation/backofficeView.ts",
+      "kind": "file",
+      "label": "backofficeView.ts",
+      "summary": "apps/web/src/presentation/backofficeView.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/gameView.ts",
+          "path": "apps/web/src/presentation/gameView.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/presentation/gameView.ts",
+      "kind": "file",
+      "label": "gameView.ts",
+      "summary": "apps/web/src/presentation/gameView.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/router.tsx",
+          "path": "apps/web/src/router.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/router.tsx",
+      "kind": "file",
+      "label": "router.tsx",
+      "summary": "apps/web/src/router.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/*.tsx",
+          "path": "apps/web/src/routes/*.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/routes/*.tsx",
+      "kind": "file",
+      "label": "*.tsx",
+      "summary": "apps/web/src/routes/*.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/analysisBenchmark.tsx",
+          "path": "apps/web/src/routes/analysisBenchmark.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/routes/analysisBenchmark.tsx",
+      "kind": "file",
+      "label": "analysisBenchmark.tsx",
+      "summary": "apps/web/src/routes/analysisBenchmark.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/backoffice.tsx",
+          "path": "apps/web/src/routes/backoffice.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/routes/backoffice.tsx",
+      "kind": "file",
+      "label": "backoffice.tsx",
+      "summary": "apps/web/src/routes/backoffice.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/game.tsx",
+          "path": "apps/web/src/routes/game.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/routes/game.tsx",
+      "kind": "file",
+      "label": "game.tsx",
+      "summary": "apps/web/src/routes/game.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/import.tsx",
+          "path": "apps/web/src/routes/import.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/routes/import.tsx",
+      "kind": "file",
+      "label": "import.tsx",
+      "summary": "apps/web/src/routes/import.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/library.tsx",
+          "path": "apps/web/src/routes/library.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/routes/library.tsx",
+      "kind": "file",
+      "label": "library.tsx",
+      "summary": "apps/web/src/routes/library.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/puzzle.tsx",
+          "path": "apps/web/src/routes/puzzle.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/routes/puzzle.tsx",
+      "kind": "file",
+      "label": "puzzle.tsx",
+      "summary": "apps/web/src/routes/puzzle.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/puzzles.tsx",
+          "path": "apps/web/src/routes/puzzles.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/routes/puzzles.tsx",
+      "kind": "file",
+      "label": "puzzles.tsx",
+      "summary": "apps/web/src/routes/puzzles.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/root.tsx",
+          "path": "apps/web/src/routes/root.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/routes/root.tsx",
+      "kind": "file",
+      "label": "root.tsx",
+      "summary": "apps/web/src/routes/root.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/styles.css",
+          "path": "apps/web/src/styles.css"
+        }
+      ],
+      "tags": [
+        "css"
+      ],
+      "id": "file:apps/web/src/styles.css",
+      "kind": "file",
+      "label": "styles.css",
+      "summary": "apps/web/src/styles.css",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "packages/chess-core/package.json",
+          "path": "packages/chess-core/package.json"
+        }
+      ],
+      "tags": [
+        "json"
+      ],
+      "id": "file:packages/chess-core/package.json",
+      "kind": "file",
+      "label": "package.json",
+      "summary": "packages/chess-core/package.json",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "packages/chess-core/src/hash.ts",
+          "path": "packages/chess-core/src/hash.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:packages/chess-core/src/hash.ts",
+      "kind": "file",
+      "label": "hash.ts",
+      "summary": "packages/chess-core/src/hash.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "packages/chess-core/src/headers.ts",
+          "path": "packages/chess-core/src/headers.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:packages/chess-core/src/headers.ts",
+      "kind": "file",
+      "label": "headers.ts",
+      "summary": "packages/chess-core/src/headers.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "packages/chess-core/src/index.ts",
+          "path": "packages/chess-core/src/index.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:packages/chess-core/src/index.ts",
+      "kind": "file",
+      "label": "index.ts",
+      "summary": "packages/chess-core/src/index.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "packages/chess-core/src/pgn.ts",
+          "path": "packages/chess-core/src/pgn.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:packages/chess-core/src/pgn.ts",
+      "kind": "file",
+      "label": "pgn.ts",
+      "summary": "packages/chess-core/src/pgn.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v1-import-and-persist-pgn.md",
+          "path": "docs/architecture/verticals/v1-import-and-persist-pgn.md"
+        }
+      ],
+      "tags": [
+        "v1"
+      ],
+      "id": "intent:v1-import-and-persist-pgn",
+      "kind": "intent",
+      "label": "Import and Persist PGN",
+      "summary": "Allow a user to paste or upload PGN once and reliably persist a reusable local game record with metadata, deterministic identity, and immediate feedback.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v2-replay-and-navigation.md",
+          "path": "docs/architecture/verticals/v2-replay-and-navigation.md"
+        }
+      ],
+      "tags": [
+        "v2"
+      ],
+      "id": "intent:v2-replay-and-navigation",
+      "kind": "intent",
+      "label": "Replay and Navigation",
+      "summary": "Help users study a game move-by-move with reliable board state, move history, autoplay, orientation control, and manual what-if interaction.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v3-engine-analysis-and-annotations.md",
+          "path": "docs/architecture/verticals/v3-engine-analysis-and-annotations.md"
+        }
+      ],
+      "tags": [
+        "v3"
+      ],
+      "id": "intent:v3-engine-analysis-and-annotations",
+      "kind": "intent",
+      "label": "Engine Analysis and Annotations",
+      "summary": "Provide actionable engine feedback per position so users can identify mistakes, inspect best lines, and revisit analyzed games without rerunning analysis unnecessarily.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v4-library-and-game-lifecycle.md",
+          "path": "docs/architecture/verticals/v4-library-and-game-lifecycle.md"
+        }
+      ],
+      "tags": [
+        "v4"
+      ],
+      "id": "intent:v4-library-and-game-lifecycle",
+      "kind": "intent",
+      "label": "Library and Game Lifecycle",
+      "summary": "Give users a reliable way to find previously imported games, reopen them quickly, and continue analysis/review without data loss.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v5-puzzle-generation-and-review.md",
+          "path": "docs/architecture/verticals/v5-puzzle-generation-and-review.md"
+        }
+      ],
+      "tags": [
+        "v5"
+      ],
+      "id": "intent:v5-puzzle-generation-and-review",
+      "kind": "intent",
+      "label": "Puzzle Generation and Review",
+      "summary": "Turn analyzed mistakes and blunders into reusable training material and let users review those puzzles locally with persistent spaced-repetition progress.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v6-game-view-and-analysis-workbench.md",
+          "path": "docs/architecture/verticals/v6-game-view-and-analysis-workbench.md"
+        }
+      ],
+      "tags": [
+        "v6"
+      ],
+      "id": "intent:v6-game-view-and-analysis-workbench",
+      "kind": "intent",
+      "label": "Game View and Analysis Workbench",
+      "summary": "Give users one reliable workspace for replaying an imported game, exploring manual branches, running browser-side analysis, inspecting evaluation output, and generating follow-on puzzles without leaving the game route.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v7-backoffice-and-benchmarking.md",
+          "path": "docs/architecture/verticals/v7-backoffice-and-benchmarking.md"
+        }
+      ],
+      "tags": [
+        "v7"
+      ],
+      "id": "intent:v7-backoffice-and-benchmarking",
+      "kind": "intent",
+      "label": "Backoffice and Benchmarking",
+      "summary": "Give maintainers an operational surface for inspecting shipped analysis and puzzle constants, a small persisted control surface for lazy library analysis runtime settings, a repeatable benchmark harness for comparing real browser-worker analysis cost on the bundled PGN fixture, and a FITL explorer that makes intent, feature, implementation, and tooling relationships visible before planning changes.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/layers/adapters.md",
+          "path": "docs/architecture/layers/adapters.md"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/db.ts",
+          "path": "apps/web/src/lib/storage/db.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/migrations.ts",
+          "path": "apps/web/src/lib/storage/migrations.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/repositories/gamesRepo.ts",
+          "path": "apps/web/src/lib/storage/repositories/gamesRepo.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/repositories/analysisRepo.ts",
+          "path": "apps/web/src/lib/storage/repositories/analysisRepo.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+          "path": "apps/web/src/lib/storage/repositories/puzzlesRepo.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/mockData.ts",
+          "path": "apps/web/src/lib/mockData.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/convex.ts",
+          "path": "apps/web/src/lib/convex.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/engine/engineClient.ts",
+          "path": "apps/web/src/engine/engineClient.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/engine/engine.worker.ts",
+          "path": "apps/web/src/engine/engine.worker.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/board/ChessboardElementAdapter.ts",
+          "path": "apps/web/src/board/ChessboardElementAdapter.ts"
+        }
+      ],
+      "tags": [
+        "adapters"
+      ],
+      "id": "layer:adapters",
+      "kind": "layer",
+      "label": "Adapters",
+      "summary": "Bridge application use-cases to browser storage, worker execution, and UI integration points.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/layers/application.md",
+          "path": "docs/architecture/layers/application.md"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/application/runGameAnalysis.ts",
+          "path": "apps/web/src/application/runGameAnalysis.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/import.tsx",
+          "path": "apps/web/src/routes/import.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/game.tsx",
+          "path": "apps/web/src/routes/game.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/library.tsx",
+          "path": "apps/web/src/routes/library.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/puzzle.tsx",
+          "path": "apps/web/src/routes/puzzle.tsx"
+        }
+      ],
+      "tags": [
+        "application"
+      ],
+      "id": "layer:application",
+      "kind": "layer",
+      "label": "Application",
+      "summary": "Coordinate domain rules to execute use-cases while remaining UI-agnostic where possible.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/layers/composition.md",
+          "path": "docs/architecture/layers/composition.md"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/main.tsx",
+          "path": "apps/web/src/main.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/router.tsx",
+          "path": "apps/web/src/router.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/mockData.ts",
+          "path": "apps/web/src/lib/mockData.ts"
+        }
+      ],
+      "tags": [
+        "composition"
+      ],
+      "id": "layer:composition",
+      "kind": "layer",
+      "label": "Composition",
+      "summary": "Wire runtime entrypoints, dependency construction, and lifecycle registration for the executable web target.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/layers/contracts.md",
+          "path": "docs/architecture/layers/contracts.md"
+        },
+        {
+          "type": "file",
+          "label": "packages/chess-core/src/index.ts",
+          "path": "packages/chess-core/src/index.ts"
+        },
+        {
+          "type": "file",
+          "label": "packages/chess-core/src/headers.ts",
+          "path": "packages/chess-core/src/headers.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/types.ts",
+          "path": "apps/web/src/domain/types.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/board/BoardAdapter.ts",
+          "path": "apps/web/src/board/BoardAdapter.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/engine/engineClient.ts",
+          "path": "apps/web/src/engine/engineClient.ts"
+        }
+      ],
+      "tags": [
+        "contracts"
+      ],
+      "id": "layer:contracts",
+      "kind": "layer",
+      "label": "Contracts",
+      "summary": "Define stable data shapes and protocol boundaries shared across the web app and shared chess-core package.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/layers/domain.md",
+          "path": "docs/architecture/layers/domain.md"
+        },
+        {
+          "type": "file",
+          "label": "packages/chess-core/src/pgn.ts",
+          "path": "packages/chess-core/src/pgn.ts"
+        },
+        {
+          "type": "file",
+          "label": "packages/chess-core/src/headers.ts",
+          "path": "packages/chess-core/src/headers.ts"
+        },
+        {
+          "type": "file",
+          "label": "packages/chess-core/src/hash.ts",
+          "path": "packages/chess-core/src/hash.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/gameReplay.ts",
+          "path": "apps/web/src/domain/gameReplay.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisPolicy.ts",
+          "path": "apps/web/src/domain/analysisPolicy.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisPlan.ts",
+          "path": "apps/web/src/domain/analysisPlan.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisRunLifecycle.ts",
+          "path": "apps/web/src/domain/analysisRunLifecycle.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/puzzles.ts",
+          "path": "apps/web/src/domain/puzzles.ts"
+        }
+      ],
+      "tags": [
+        "domain"
+      ],
+      "id": "layer:domain",
+      "kind": "layer",
+      "label": "Domain",
+      "summary": "Own chess-specific rules and pure decision logic independent of UI and storage technology.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/layers/presentation.md",
+          "path": "docs/architecture/layers/presentation.md"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/root.tsx",
+          "path": "apps/web/src/routes/root.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/import.tsx",
+          "path": "apps/web/src/routes/import.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/library.tsx",
+          "path": "apps/web/src/routes/library.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/game.tsx",
+          "path": "apps/web/src/routes/game.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/puzzles.tsx",
+          "path": "apps/web/src/routes/puzzles.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/puzzle.tsx",
+          "path": "apps/web/src/routes/puzzle.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/backoffice.tsx",
+          "path": "apps/web/src/routes/backoffice.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/analysisView.ts",
+          "path": "apps/web/src/presentation/analysisView.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/backofficeView.ts",
+          "path": "apps/web/src/presentation/backofficeView.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/styles.css",
+          "path": "apps/web/src/styles.css"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/components/InlineLoader.tsx",
+          "path": "apps/web/src/components/InlineLoader.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/components/useDelayedBusy.ts",
+          "path": "apps/web/src/components/useDelayedBusy.ts"
+        }
+      ],
+      "tags": [
+        "presentation"
+      ],
+      "id": "layer:presentation",
+      "kind": "layer",
+      "label": "Presentation",
+      "summary": "Render user interfaces, collect user intents, and display system state.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/modules/chess-core-package.md",
+          "path": "docs/modules/chess-core-package.md"
+        }
+      ],
+      "tags": [
+        "chess-core-package"
+      ],
+      "id": "module:chess-core-package",
+      "kind": "module",
+      "label": "Shared Chess Core Package",
+      "summary": "Reusable package under `packages/chess-core` shared by the web runtime.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/modules/web-app.md",
+          "path": "docs/modules/web-app.md"
+        }
+      ],
+      "tags": [
+        "web-app"
+      ],
+      "id": "module:web-app",
+      "kind": "module",
+      "label": "Web App",
+      "summary": "Standalone web runtime under `apps/web`.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/README.md",
+          "path": "docs/README.md"
+        },
+        {
+          "type": "doc",
+          "label": "apps/web/README.md",
+          "path": "apps/web/README.md"
+        }
+      ],
+      "tags": [
+        "local-first",
+        "fitl",
+        "web"
+      ],
+      "id": "project:web-app",
+      "kind": "project",
+      "label": "Chess Trainer Web App",
+      "summary": "# Chess Trainer Web App",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/known-issues.md",
+          "path": "docs/decisions/known-issues.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:backoffice-config-is-only-partially-persisted",
+      "kind": "risk",
+      "label": "Backoffice config is only partially persisted",
+      "summary": "lazy background-analysis settings are now persisted locally, but the broader analysis and puzzle-definition constants exposed in backoffice are still hardcoded in source and need validated admin editing before they can move out of code.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/known-issues.md",
+          "path": "docs/decisions/known-issues.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:deployment-smoke-automation-is-missing",
+      "kind": "risk",
+      "label": "Deployment smoke automation is missing",
+      "summary": "Vercel deployment verification still depends on manual checks rather than automated smoke coverage.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md",
+          "path": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:deployment-smoke-automation-is-still-missing",
+      "kind": "risk",
+      "label": "Deployment smoke automation is still missing.",
+      "summary": "Deployment smoke automation is still missing.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md",
+          "path": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "kind": "risk",
+      "label": "Import, library, game, and puzzle routes still mix presentation and application orchestration.",
+      "summary": "Import, library, game, and puzzle routes still mix presentation and application orchestration.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md",
+          "path": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:indexeddb-migration-coverage-is-still-shallow",
+      "kind": "risk",
+      "label": "IndexedDB migration coverage is still shallow.",
+      "summary": "IndexedDB migration coverage is still shallow.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/known-issues.md",
+          "path": "docs/decisions/known-issues.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:move-pane-focus-and-scroll-consistency",
+      "kind": "risk",
+      "label": "Move pane focus and scroll consistency",
+      "summary": "focus and scroll behavior around the active move pane still need a dedicated accessibility pass.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md",
+          "path": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:route-level-ui-tests-are-still-missing",
+      "kind": "risk",
+      "label": "Route-level UI tests are still missing.",
+      "summary": "Route-level UI tests are still missing.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/known-issues.md",
+          "path": "docs/decisions/known-issues.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:route-local-orchestration-increases-regression-risk",
+      "kind": "risk",
+      "label": "Route-local orchestration increases regression risk",
+      "summary": "route components still contain orchestration that should move into application services.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/application/runAnalysisBenchmark.test.ts",
+          "path": "apps/web/src/application/runAnalysisBenchmark.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-application-runanalysisbenchmark-test-ts",
+      "kind": "test_gate",
+      "label": "runAnalysisBenchmark.test.ts",
+      "summary": "apps/web/src/application/runAnalysisBenchmark.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/application/runGameAnalysis.test.ts",
+          "path": "apps/web/src/application/runGameAnalysis.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-application-rungameanalysis-test-ts",
+      "kind": "test_gate",
+      "label": "runGameAnalysis.test.ts",
+      "summary": "apps/web/src/application/runGameAnalysis.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/domain/analysisBenchmark.test.ts",
+          "path": "apps/web/src/domain/analysisBenchmark.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-domain-analysisbenchmark-test-ts",
+      "kind": "test_gate",
+      "label": "analysisBenchmark.test.ts",
+      "summary": "apps/web/src/domain/analysisBenchmark.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/domain/analysisPlan.test.ts",
+          "path": "apps/web/src/domain/analysisPlan.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-domain-analysisplan-test-ts",
+      "kind": "test_gate",
+      "label": "analysisPlan.test.ts",
+      "summary": "apps/web/src/domain/analysisPlan.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/domain/analysisRunLifecycle.test.ts",
+          "path": "apps/web/src/domain/analysisRunLifecycle.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-domain-analysisrunlifecycle-test-ts",
+      "kind": "test_gate",
+      "label": "analysisRunLifecycle.test.ts",
+      "summary": "apps/web/src/domain/analysisRunLifecycle.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/domain/fitlGraph.test.ts",
+          "path": "apps/web/src/domain/fitlGraph.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-domain-fitlgraph-test-ts",
+      "kind": "test_gate",
+      "label": "fitlGraph.test.ts",
+      "summary": "apps/web/src/domain/fitlGraph.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/lib/storage/repositories/analysisRepo.test.ts",
+          "path": "apps/web/src/lib/storage/repositories/analysisRepo.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-lib-storage-repositories-analysisrepo-test-ts",
+      "kind": "test_gate",
+      "label": "analysisRepo.test.ts",
+      "summary": "apps/web/src/lib/storage/repositories/analysisRepo.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.test.ts",
+          "path": "apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-lib-storage-repositories-benchmarkanalysisrepo-test-ts",
+      "kind": "test_gate",
+      "label": "benchmarkAnalysisRepo.test.ts",
+      "summary": "apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/presentation/analysisBenchmarkView.test.ts",
+          "path": "apps/web/src/presentation/analysisBenchmarkView.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-presentation-analysisbenchmarkview-test-ts",
+      "kind": "test_gate",
+      "label": "analysisBenchmarkView.test.ts",
+      "summary": "apps/web/src/presentation/analysisBenchmarkView.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/presentation/analysisView.test.ts",
+          "path": "apps/web/src/presentation/analysisView.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-presentation-analysisview-test-ts",
+      "kind": "test_gate",
+      "label": "analysisView.test.ts",
+      "summary": "apps/web/src/presentation/analysisView.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/presentation/backofficeView.test.ts",
+          "path": "apps/web/src/presentation/backofficeView.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-presentation-backofficeview-test-ts",
+      "kind": "test_gate",
+      "label": "backofficeView.test.ts",
+      "summary": "apps/web/src/presentation/backofficeView.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/presentation/FitlMapExplorer.test.tsx",
+          "path": "apps/web/src/presentation/FitlMapExplorer.test.tsx"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-presentation-fitlmapexplorer-test-tsx",
+      "kind": "test_gate",
+      "label": "FitlMapExplorer.test.tsx",
+      "summary": "apps/web/src/presentation/FitlMapExplorer.test.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/presentation/fitlMapView.test.ts",
+          "path": "apps/web/src/presentation/fitlMapView.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-presentation-fitlmapview-test-ts",
+      "kind": "test_gate",
+      "label": "fitlMapView.test.ts",
+      "summary": "apps/web/src/presentation/fitlMapView.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "test",
+          "label": "apps/web/src/presentation/gameView.test.ts",
+          "path": "apps/web/src/presentation/gameView.test.ts"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-presentation-gameview-test-ts",
+      "kind": "test_gate",
+      "label": "gameView.test.ts",
+      "summary": "apps/web/src/presentation/gameView.test.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "command",
+          "label": "npm run build",
+          "path": "npm run build"
+        }
+      ],
+      "tags": [
+        "command"
+      ],
+      "id": "test:npm-run-build",
+      "kind": "test_gate",
+      "label": "npm run build",
+      "summary": "npm run build",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "command",
+          "label": "npm run test",
+          "path": "npm run test"
+        }
+      ],
+      "tags": [
+        "command"
+      ],
+      "id": "test:npm-run-test",
+      "kind": "test_gate",
+      "label": "npm run test",
+      "summary": "npm run test",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "command",
+          "label": "npm run typecheck",
+          "path": "npm run typecheck"
+        }
+      ],
+      "tags": [
+        "command"
+      ],
+      "id": "test:npm-run-typecheck",
+      "kind": "test_gate",
+      "label": "npm run typecheck",
+      "summary": "npm run typecheck",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "label": "apps/web/package.json",
+          "path": "apps/web/package.json",
+          "type": "file"
+        },
+        {
+          "label": "apps/web/src/domain/gameReplay.ts",
+          "path": "apps/web/src/domain/gameReplay.ts",
+          "type": "file"
+        }
+      ],
+      "tags": [
+        "active",
+        "external"
+      ],
+      "id": "tool:chess-js",
+      "kind": "tool",
+      "label": "chess.js",
+      "summary": "Core move legality and replay utility used across replay, puzzle, and analysis flows.",
+      "lifecycle": "active",
+      "system": "external"
+    },
+    {
+      "references": [
+        {
+          "label": "apps/web/package.json",
+          "path": "apps/web/package.json",
+          "type": "file"
+        },
+        {
+          "label": "apps/web/src/board/ChessboardElementAdapter.ts",
+          "path": "apps/web/src/board/ChessboardElementAdapter.ts",
+          "type": "file"
+        }
+      ],
+      "tags": [
+        "active",
+        "external"
+      ],
+      "id": "tool:chessboard-element",
+      "kind": "tool",
+      "label": "chessboard-element",
+      "summary": "Custom-element board renderer adapted behind the board integration boundary.",
+      "lifecycle": "active",
+      "system": "external"
+    },
+    {
+      "references": [
+        {
+          "label": "docs/modules/web-app.md",
+          "path": "docs/modules/web-app.md",
+          "type": "doc"
+        },
+        {
+          "label": "apps/web/src/lib/convex.ts",
+          "path": "apps/web/src/lib/convex.ts",
+          "type": "file"
+        }
+      ],
+      "tags": [
+        "deferred",
+        "external"
+      ],
+      "id": "tool:convex-auth",
+      "kind": "tool",
+      "label": "Convex/Auth",
+      "summary": "Deferred backend and auth surface kept in-repo but outside the active local-first runtime path.",
+      "lifecycle": "deferred",
+      "system": "external"
+    },
+    {
+      "references": [
+        {
+          "label": "docs/modules/web-app.md",
+          "path": "docs/modules/web-app.md",
+          "type": "doc"
+        },
+        {
+          "label": "apps/web/src/lib/storage/db.ts",
+          "path": "apps/web/src/lib/storage/db.ts",
+          "type": "file"
+        }
+      ],
+      "tags": [
+        "active",
+        "browser-platform"
+      ],
+      "id": "tool:indexeddb",
+      "kind": "tool",
+      "label": "IndexedDB",
+      "summary": "Browser-local persistence for games, analysis runs, puzzles, and benchmark isolation.",
+      "lifecycle": "active",
+      "system": "browser-platform"
+    },
+    {
+      "references": [
+        {
+          "label": "docs/reference/stockfish-analysis-capabilities.md",
+          "path": "docs/reference/stockfish-analysis-capabilities.md",
+          "type": "doc"
+        },
+        {
+          "label": "apps/web/src/engine/engineClient.ts",
+          "path": "apps/web/src/engine/engineClient.ts",
+          "type": "file"
+        },
+        {
+          "label": "apps/web/src/engine/engine.worker.ts",
+          "path": "apps/web/src/engine/engine.worker.ts",
+          "type": "file"
+        }
+      ],
+      "tags": [
+        "active",
+        "external"
+      ],
+      "id": "tool:stockfish",
+      "kind": "tool",
+      "label": "Stockfish",
+      "summary": "Browser-side analysis engine executed through the worker-backed engine client.",
+      "lifecycle": "active",
+      "system": "external"
+    },
+    {
+      "references": [
+        {
+          "label": "docs/modules/web-app.md",
+          "path": "docs/modules/web-app.md",
+          "type": "doc"
+        },
+        {
+          "label": "apps/web/src/router.tsx",
+          "path": "apps/web/src/router.tsx",
+          "type": "file"
+        }
+      ],
+      "tags": [
+        "active",
+        "external"
+      ],
+      "id": "tool:tanstack-router",
+      "kind": "tool",
+      "label": "TanStack Router",
+      "summary": "Active SPA navigation and route composition for the standalone web runtime.",
+      "lifecycle": "active",
+      "system": "external"
+    },
+    {
+      "references": [
+        {
+          "label": "apps/web/README.md",
+          "path": "apps/web/README.md",
+          "type": "doc"
+        },
+        {
+          "label": "package.json",
+          "path": "package.json",
+          "type": "file"
+        }
+      ],
+      "tags": [
+        "deploy",
+        "external"
+      ],
+      "id": "tool:vercel",
+      "kind": "tool",
+      "label": "Vercel",
+      "summary": "Deployment target for the standalone SPA. This is a deploy-time concern, not an active runtime dependency.",
+      "lifecycle": "deploy",
+      "system": "external"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v1-import-and-persist-pgn.md",
+          "path": "docs/architecture/verticals/v1-import-and-persist-pgn.md"
+        }
+      ],
+      "tags": [
+        "v1"
+      ],
+      "id": "vertical:v1-import-and-persist-pgn",
+      "kind": "vertical",
+      "label": "V1 Import and Persist PGN",
+      "summary": "Allow a user to paste or upload PGN once and reliably persist a reusable local game record with metadata, deterministic identity, and immediate feedback.",
+      "description": "",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v2-replay-and-navigation.md",
+          "path": "docs/architecture/verticals/v2-replay-and-navigation.md"
+        }
+      ],
+      "tags": [
+        "v2"
+      ],
+      "id": "vertical:v2-replay-and-navigation",
+      "kind": "vertical",
+      "label": "V2 Replay and Navigation",
+      "summary": "Help users study a game move-by-move with reliable board state, move history, autoplay, orientation control, and manual what-if interaction.",
+      "description": "",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v3-engine-analysis-and-annotations.md",
+          "path": "docs/architecture/verticals/v3-engine-analysis-and-annotations.md"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisPlan.test.ts",
+          "path": "apps/web/src/domain/analysisPlan.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisRunLifecycle.test.ts",
+          "path": "apps/web/src/domain/analysisRunLifecycle.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/application/runGameAnalysis.test.ts",
+          "path": "apps/web/src/application/runGameAnalysis.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/repositories/analysisRepo.test.ts",
+          "path": "apps/web/src/lib/storage/repositories/analysisRepo.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisBenchmark.test.ts",
+          "path": "apps/web/src/domain/analysisBenchmark.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/application/runAnalysisBenchmark.test.ts",
+          "path": "apps/web/src/application/runAnalysisBenchmark.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.test.ts",
+          "path": "apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.test.ts"
+        }
+      ],
+      "tags": [
+        "v3"
+      ],
+      "id": "vertical:v3-engine-analysis-and-annotations",
+      "kind": "vertical",
+      "label": "V3 Engine Analysis and Annotations",
+      "summary": "Provide actionable engine feedback per position so users can identify mistakes, inspect best lines, and revisit analyzed games without rerunning analysis unnecessarily.",
+      "description": "- The benchmark page loads the bundled `assets/icons/single.pgn` fixture through Vite raw import and parses it through the same replay pipeline used by imported games. - Benchmark runs call the real `runGameAnalysis` path and therefore include worker init, per-ply searches, played-move follow-up searches, retry handling, and IndexedDB write cost. - Benchmark writes are isolated from the main local library/history by using a separate IndexedDB database name for benchmark analysis stores. - Benchmarkable knobs in v1: - engine flavor - depth - movetime - MultiPV - per-ply multiplier - total budget buffer - emergency hard cap - The shipped policy is now movetime-first: total run budget is derived from `movetime * perPlyTimeMultiplier * totalPlies * totalBudgetBuffer`, then clamped by an emergency hard cap. - Depth scenarios remain in the benchmark as secondary diagnostics only; they are not the primary tuning path while movetime is active. - Explicitly excluded from v1 benchmark sweeps: - `Threads`, because the worker currently forces `Threads=1` - `Hash`, because the worker does not set the Stockfish `Hash` option yet",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v4-library-and-game-lifecycle.md",
+          "path": "docs/architecture/verticals/v4-library-and-game-lifecycle.md"
+        },
+        {
+          "type": "file",
+          "label": "Spec/WEB_APP_BACKLOG.md",
+          "path": "Spec/WEB_APP_BACKLOG.md"
+        }
+      ],
+      "tags": [
+        "v4"
+      ],
+      "id": "vertical:v4-library-and-game-lifecycle",
+      "kind": "vertical",
+      "label": "V4 Library and Game Lifecycle",
+      "summary": "Give users a reliable way to find previously imported games, reopen them quickly, and continue analysis/review without data loss.",
+      "description": "1. User opens library view. 2. System fetches stored games ordered by recent activity. 3. User selects a game to open detailed replay/analysis view. 4. System loads latest analysis summary and per-ply snapshots. 5. User continues replay or reruns analysis as needed.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v5-puzzle-generation-and-review.md",
+          "path": "docs/architecture/verticals/v5-puzzle-generation-and-review.md"
+        }
+      ],
+      "tags": [
+        "v5"
+      ],
+      "id": "vertical:v5-puzzle-generation-and-review",
+      "kind": "vertical",
+      "label": "V5 Puzzle Generation and Review",
+      "summary": "Turn analyzed mistakes and blunders into reusable training material and let users review those puzzles locally with persistent spaced-repetition progress.",
+      "description": "1. User imports a game and opens the game view. 2. User runs browser-side analysis. 3. System stores analysis snapshots locally and derives puzzle candidates from qualifying eval swings. 4. System saves generated puzzles and review metadata in IndexedDB. 5. User opens the puzzles view, switches between blunder and mistake tabs, and narrows the bank by ownership (`All`, `Mine`, `Other`) and difficulty when needed. 6. User opens a puzzle card, attempts the best move, asks for a candidate-piece hint, or reveals the best move while keeping the full stored solution line behind collapsed disclosure. 7. System holds legal-but-suboptimal moves on the board with an error highlight until the user resets or retries, then records attempts and animates the reveal/continuation sequence on the board.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v6-game-view-and-analysis-workbench.md",
+          "path": "docs/architecture/verticals/v6-game-view-and-analysis-workbench.md"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/gameView.test.ts",
+          "path": "apps/web/src/presentation/gameView.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/analysisView.test.ts",
+          "path": "apps/web/src/presentation/analysisView.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/application/runGameAnalysis.test.ts",
+          "path": "apps/web/src/application/runGameAnalysis.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "Spec/WEB_APP_SMOKE_CHECKLIST.md",
+          "path": "Spec/WEB_APP_SMOKE_CHECKLIST.md"
+        }
+      ],
+      "tags": [
+        "v6"
+      ],
+      "id": "vertical:v6-game-view-and-analysis-workbench",
+      "kind": "vertical",
+      "label": "V6 Game View and Analysis Workbench",
+      "summary": "Give users one reliable workspace for replaying an imported game, exploring manual branches, running browser-side analysis, inspecting evaluation output, and generating follow-on puzzles without leaving the game route.",
+      "description": "1. User opens a game from the library. 2. System loads the stored PGN, rebuilds replay state, and restores the latest saved analysis snapshot. 3. User navigates through plies, flips the board, autoplayes the line, or explores a manual branch. 4. User starts analysis from the game view. 5. System routes the request through the shared analysis coordinator, preempts any background run, then runs the browser-worker engine, persists run and ply snapshots, and updates progress, eval graph, and annotations in place. 6. When analysis completes, system derives puzzles from qualifying mistakes and blunders.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/architecture/verticals/v7-backoffice-and-benchmarking.md",
+          "path": "docs/architecture/verticals/v7-backoffice-and-benchmarking.md"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/analysisBenchmark.test.ts",
+          "path": "apps/web/src/domain/analysisBenchmark.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/application/runAnalysisBenchmark.test.ts",
+          "path": "apps/web/src/application/runAnalysisBenchmark.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.test.ts",
+          "path": "apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/analysisBenchmarkView.test.ts",
+          "path": "apps/web/src/presentation/analysisBenchmarkView.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/backofficeView.test.ts",
+          "path": "apps/web/src/presentation/backofficeView.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/scripts/fitlGraphSource.test.mjs",
+          "path": "apps/web/scripts/fitlGraphSource.test.mjs"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/fitlGraph.test.ts",
+          "path": "apps/web/src/domain/fitlGraph.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/fitlMapView.test.ts",
+          "path": "apps/web/src/presentation/fitlMapView.test.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/FitlMapExplorer.test.tsx",
+          "path": "apps/web/src/presentation/FitlMapExplorer.test.tsx"
+        }
+      ],
+      "tags": [
+        "v7"
+      ],
+      "id": "vertical:v7-backoffice-and-benchmarking",
+      "kind": "vertical",
+      "label": "V7 Backoffice and Benchmarking",
+      "summary": "Give maintainers an operational surface for inspecting shipped analysis and puzzle constants, a small persisted control surface for lazy library analysis runtime settings, a repeatable benchmark harness for comparing real browser-worker analysis cost on the bundled PGN fixture, and a FITL explorer that makes intent, feature, implementation, and tooling relationships visible before planning changes.",
+      "description": "1. Maintainer opens the backoffice route. 2. System loads the persisted lazy-analysis runtime settings and puzzle playback settings, then renders editable controls for enablement, scan interval, and playback speed. 3. System renders the remaining shipped source-backed constants grouped into readable sections. 4. Maintainer opens the analysis benchmark route from backoffice. 5. System loads the bundled `single.pgn` fixture, builds benchmark scenarios, and runs repeated analysis through the real worker path. 6. System reports scenario-level timing summaries, projected full-run runtime, safety-stop counts, and recommended derived safety budgets. 7. Maintainer opens `/backoffice/fitl-map` from backoffice. 8. System loads the generated FITL graph snapshot, lands on a project-level overview of intents and verticals, then deepens into architecture or implementation only after the maintainer focuses a vertical or tool. 9. System exposes a structured copyable AI change brief for the current focus, including relevant docs, files, tools, constraints, and validation commands.",
+      "lifecycle": "active",
+      "system": "internal"
+    }
+  ],
+  "edges": [
+    {
+      "id": "file:apps/web/scripts/fitlGraphSource.mjs->touches->layer:adapters",
+      "from": "file:apps/web/scripts/fitlGraphSource.mjs",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/scripts/generate-fitl-graph.mjs->touches->layer:adapters",
+      "from": "file:apps/web/scripts/generate-fitl-graph.mjs",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/application/analysisCoordinator.ts->touches->layer:application",
+      "from": "file:apps/web/src/application/analysisCoordinator.ts",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/application/runAnalysisBenchmark.ts->touches->layer:application",
+      "from": "file:apps/web/src/application/runAnalysisBenchmark.ts",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/application/runGameAnalysis.ts->touches->layer:application",
+      "from": "file:apps/web/src/application/runGameAnalysis.ts",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/board/BoardAdapter.ts->touches->layer:contracts",
+      "from": "file:apps/web/src/board/BoardAdapter.ts",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/board/boardResize.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/board/boardResize.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/board/ChessboardElementAdapter.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/board/ChessboardElementAdapter.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/components/InlineLoader.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/components/InlineLoader.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/components/useDelayedBusy.ts->touches->layer:presentation",
+      "from": "file:apps/web/src/components/useDelayedBusy.ts",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/analysisCoordinatorConfig.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/analysisCoordinatorConfig.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/analysisPlan.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/analysisPlan.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/analysisPolicy.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/analysisPolicy.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/analysisRunLifecycle.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/analysisRunLifecycle.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/fitlGraph.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/fitlGraph.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/fitlGraphTypes.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/fitlGraphTypes.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/gameReplay.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/gameReplay.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/puzzlePlaybackConfig.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/puzzlePlaybackConfig.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/puzzles.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/puzzles.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/types.ts->touches->layer:contracts",
+      "from": "file:apps/web/src/domain/types.ts",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/engine/engine.worker.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/engine/engine.worker.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/engine/engineClient.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/engine/engineClient.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/engine/engineClient.ts->touches->layer:contracts",
+      "from": "file:apps/web/src/engine/engineClient.ts",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/generated/fitlGraphSnapshot.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/generated/fitlGraphSnapshot.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/convex.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/convex.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/mockData.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/mockData.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/mockData.ts->touches->layer:composition",
+      "from": "file:apps/web/src/lib/mockData.ts",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/storage/*->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/storage/*",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/storage/db.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/storage/db.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/storage/migrations.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/storage/migrations.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/storage/repositories/analysisRepo.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/storage/repositories/analysisRepo.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/storage/repositories/gamesRepo.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/storage/repositories/gamesRepo.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/main.tsx->touches->layer:composition",
+      "from": "file:apps/web/src/main.tsx",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/presentation/*->touches->layer:presentation",
+      "from": "file:apps/web/src/presentation/*",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/presentation/analysisBenchmarkView.ts->touches->layer:presentation",
+      "from": "file:apps/web/src/presentation/analysisBenchmarkView.ts",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/presentation/analysisView.ts->touches->layer:presentation",
+      "from": "file:apps/web/src/presentation/analysisView.ts",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/presentation/backofficeView.ts->touches->layer:presentation",
+      "from": "file:apps/web/src/presentation/backofficeView.ts",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/presentation/gameView.ts->touches->layer:presentation",
+      "from": "file:apps/web/src/presentation/gameView.ts",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/router.tsx->touches->layer:composition",
+      "from": "file:apps/web/src/router.tsx",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/*.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/routes/*.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/analysisBenchmark.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/routes/analysisBenchmark.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/backoffice.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/routes/backoffice.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/game.tsx->touches->layer:application",
+      "from": "file:apps/web/src/routes/game.tsx",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/game.tsx->touches->layer:composition",
+      "from": "file:apps/web/src/routes/game.tsx",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/game.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/routes/game.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/import.tsx->touches->layer:application",
+      "from": "file:apps/web/src/routes/import.tsx",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/import.tsx->touches->layer:composition",
+      "from": "file:apps/web/src/routes/import.tsx",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/import.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/routes/import.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/import.tsx->touches->layer:remaining-orchestration-currently-in",
+      "from": "file:apps/web/src/routes/import.tsx",
+      "to": "layer:remaining-orchestration-currently-in",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/library.tsx->touches->layer:application",
+      "from": "file:apps/web/src/routes/library.tsx",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/library.tsx->touches->layer:composition",
+      "from": "file:apps/web/src/routes/library.tsx",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/library.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/routes/library.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/library.tsx->touches->layer:remaining-orchestration-currently-in",
+      "from": "file:apps/web/src/routes/library.tsx",
+      "to": "layer:remaining-orchestration-currently-in",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/puzzle.tsx->touches->layer:application",
+      "from": "file:apps/web/src/routes/puzzle.tsx",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/puzzle.tsx->touches->layer:composition",
+      "from": "file:apps/web/src/routes/puzzle.tsx",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/puzzle.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/routes/puzzle.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/puzzle.tsx->touches->layer:remaining-orchestration-currently-in",
+      "from": "file:apps/web/src/routes/puzzle.tsx",
+      "to": "layer:remaining-orchestration-currently-in",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/puzzles.tsx->touches->layer:application",
+      "from": "file:apps/web/src/routes/puzzles.tsx",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/puzzles.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/routes/puzzles.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/routes/root.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/routes/root.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/styles.css->touches->layer:presentation",
+      "from": "file:apps/web/src/styles.css",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:packages/chess-core/package.json->touches->layer:composition",
+      "from": "file:packages/chess-core/package.json",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "file:packages/chess-core/src/hash.ts->touches->layer:domain",
+      "from": "file:packages/chess-core/src/hash.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:packages/chess-core/src/headers.ts->touches->layer:contracts",
+      "from": "file:packages/chess-core/src/headers.ts",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "file:packages/chess-core/src/headers.ts->touches->layer:domain",
+      "from": "file:packages/chess-core/src/headers.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:packages/chess-core/src/index.ts->touches->layer:contracts",
+      "from": "file:packages/chess-core/src/index.ts",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "file:packages/chess-core/src/pgn.ts->touches->layer:contracts",
+      "from": "file:packages/chess-core/src/pgn.ts",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "file:packages/chess-core/src/pgn.ts->touches->layer:domain",
+      "from": "file:packages/chess-core/src/pgn.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "intent:v1-import-and-persist-pgn->realizes->vertical:v1-import-and-persist-pgn",
+      "from": "intent:v1-import-and-persist-pgn",
+      "to": "vertical:v1-import-and-persist-pgn",
+      "kind": "realizes"
+    },
+    {
+      "id": "intent:v2-replay-and-navigation->realizes->vertical:v2-replay-and-navigation",
+      "from": "intent:v2-replay-and-navigation",
+      "to": "vertical:v2-replay-and-navigation",
+      "kind": "realizes"
+    },
+    {
+      "id": "intent:v3-engine-analysis-and-annotations->realizes->vertical:v3-engine-analysis-and-annotations",
+      "from": "intent:v3-engine-analysis-and-annotations",
+      "to": "vertical:v3-engine-analysis-and-annotations",
+      "kind": "realizes"
+    },
+    {
+      "id": "intent:v4-library-and-game-lifecycle->realizes->vertical:v4-library-and-game-lifecycle",
+      "from": "intent:v4-library-and-game-lifecycle",
+      "to": "vertical:v4-library-and-game-lifecycle",
+      "kind": "realizes"
+    },
+    {
+      "id": "intent:v5-puzzle-generation-and-review->realizes->vertical:v5-puzzle-generation-and-review",
+      "from": "intent:v5-puzzle-generation-and-review",
+      "to": "vertical:v5-puzzle-generation-and-review",
+      "kind": "realizes"
+    },
+    {
+      "id": "intent:v6-game-view-and-analysis-workbench->realizes->vertical:v6-game-view-and-analysis-workbench",
+      "from": "intent:v6-game-view-and-analysis-workbench",
+      "to": "vertical:v6-game-view-and-analysis-workbench",
+      "kind": "realizes"
+    },
+    {
+      "id": "intent:v7-backoffice-and-benchmarking->realizes->vertical:v7-backoffice-and-benchmarking",
+      "from": "intent:v7-backoffice-and-benchmarking",
+      "to": "vertical:v7-backoffice-and-benchmarking",
+      "kind": "realizes"
+    },
+    {
+      "id": "layer:adapters->uses->tool:chessboard-element",
+      "from": "layer:adapters",
+      "to": "tool:chessboard-element",
+      "kind": "uses"
+    },
+    {
+      "id": "layer:adapters->uses->tool:convex-auth",
+      "from": "layer:adapters",
+      "to": "tool:convex-auth",
+      "kind": "uses"
+    },
+    {
+      "id": "layer:adapters->uses->tool:indexeddb",
+      "from": "layer:adapters",
+      "to": "tool:indexeddb",
+      "kind": "uses"
+    },
+    {
+      "id": "layer:adapters->uses->tool:stockfish",
+      "from": "layer:adapters",
+      "to": "tool:stockfish",
+      "kind": "uses"
+    },
+    {
+      "id": "layer:application->uses->tool:stockfish",
+      "from": "layer:application",
+      "to": "tool:stockfish",
+      "kind": "uses"
+    },
+    {
+      "id": "layer:composition->deploys->tool:vercel",
+      "from": "layer:composition",
+      "to": "tool:vercel",
+      "kind": "deploys"
+    },
+    {
+      "id": "layer:composition->uses->tool:convex-auth",
+      "from": "layer:composition",
+      "to": "tool:convex-auth",
+      "kind": "uses"
+    },
+    {
+      "id": "layer:composition->uses->tool:tanstack-router",
+      "from": "layer:composition",
+      "to": "tool:tanstack-router",
+      "kind": "uses"
+    },
+    {
+      "id": "layer:domain->uses->tool:chess-js",
+      "from": "layer:domain",
+      "to": "tool:chess-js",
+      "kind": "uses"
+    },
+    {
+      "id": "layer:presentation->uses->tool:chess-js",
+      "from": "layer:presentation",
+      "to": "tool:chess-js",
+      "kind": "uses"
+    },
+    {
+      "id": "layer:presentation->uses->tool:chessboard-element",
+      "from": "layer:presentation",
+      "to": "tool:chessboard-element",
+      "kind": "uses"
+    },
+    {
+      "id": "layer:presentation->uses->tool:tanstack-router",
+      "from": "layer:presentation",
+      "to": "tool:tanstack-router",
+      "kind": "uses"
+    },
+    {
+      "id": "module:chess-core-package->implemented_by->file:packages/chess-core/package.json",
+      "from": "module:chess-core-package",
+      "to": "file:packages/chess-core/package.json",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:chess-core-package->implemented_by->file:packages/chess-core/src/hash.ts",
+      "from": "module:chess-core-package",
+      "to": "file:packages/chess-core/src/hash.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:chess-core-package->implemented_by->file:packages/chess-core/src/headers.ts",
+      "from": "module:chess-core-package",
+      "to": "file:packages/chess-core/src/headers.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:chess-core-package->implemented_by->file:packages/chess-core/src/index.ts",
+      "from": "module:chess-core-package",
+      "to": "file:packages/chess-core/src/index.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:chess-core-package->implemented_by->file:packages/chess-core/src/pgn.ts",
+      "from": "module:chess-core-package",
+      "to": "file:packages/chess-core/src/pgn.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:chess-core-package->touches->layer:composition",
+      "from": "module:chess-core-package",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "module:chess-core-package->touches->layer:contracts",
+      "from": "module:chess-core-package",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "module:chess-core-package->touches->layer:domain",
+      "from": "module:chess-core-package",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/scripts/fitlGraphSource.mjs",
+      "from": "module:web-app",
+      "to": "file:apps/web/scripts/fitlGraphSource.mjs",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/scripts/generate-fitl-graph.mjs",
+      "from": "module:web-app",
+      "to": "file:apps/web/scripts/generate-fitl-graph.mjs",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/application/analysisCoordinator.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/application/analysisCoordinator.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/application/runAnalysisBenchmark.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/application/runAnalysisBenchmark.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/application/runGameAnalysis.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/application/runGameAnalysis.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/board/BoardAdapter.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/board/BoardAdapter.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/board/boardResize.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/board/boardResize.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/board/ChessboardElementAdapter.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/board/ChessboardElementAdapter.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/components/InlineLoader.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/components/InlineLoader.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/components/useDelayedBusy.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/components/useDelayedBusy.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/analysisCoordinatorConfig.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/analysisCoordinatorConfig.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/analysisPlan.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/analysisPlan.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/analysisPolicy.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/analysisPolicy.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/analysisRunLifecycle.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/analysisRunLifecycle.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/fitlGraph.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/fitlGraph.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/fitlGraphTypes.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/fitlGraphTypes.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/gameReplay.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/gameReplay.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/puzzlePlaybackConfig.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/puzzlePlaybackConfig.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/puzzles.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/puzzles.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/types.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/types.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/engine/engine.worker.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/engine/engine.worker.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/engine/engineClient.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/engine/engineClient.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/generated/fitlGraphSnapshot.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/generated/fitlGraphSnapshot.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/convex.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/convex.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/mockData.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/mockData.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/storage/*",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/storage/*",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/storage/db.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/storage/db.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/storage/migrations.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/storage/migrations.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/storage/repositories/analysisRepo.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/storage/repositories/analysisRepo.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/storage/repositories/gamesRepo.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/storage/repositories/gamesRepo.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/main.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/main.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/presentation/*",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/presentation/*",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/presentation/analysisBenchmarkView.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/presentation/analysisBenchmarkView.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/presentation/analysisView.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/presentation/analysisView.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/presentation/backofficeView.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/presentation/backofficeView.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/presentation/gameView.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/presentation/gameView.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/router.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/router.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/routes/*.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/routes/*.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/routes/analysisBenchmark.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/routes/analysisBenchmark.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/routes/backoffice.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/routes/backoffice.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/routes/game.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/routes/game.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/routes/import.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/routes/import.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/routes/library.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/routes/library.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/routes/puzzle.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/routes/puzzle.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/routes/puzzles.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/routes/puzzles.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/routes/root.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/routes/root.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/styles.css",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/styles.css",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->touches->layer:adapters",
+      "from": "module:web-app",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "module:web-app->touches->layer:application",
+      "from": "module:web-app",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "module:web-app->touches->layer:composition",
+      "from": "module:web-app",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "module:web-app->touches->layer:contracts",
+      "from": "module:web-app",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "module:web-app->touches->layer:domain",
+      "from": "module:web-app",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "module:web-app->touches->layer:presentation",
+      "from": "module:web-app",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "module:web-app->touches->layer:remaining-orchestration-currently-in",
+      "from": "module:web-app",
+      "to": "layer:remaining-orchestration-currently-in",
+      "kind": "touches"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:deferred-1",
+      "from": "project:web-app",
+      "to": "decision:deferred-1",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:deferred-2",
+      "from": "project:web-app",
+      "to": "decision:deferred-2",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:deferred-3",
+      "from": "project:web-app",
+      "to": "decision:deferred-3",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:deferred-4",
+      "from": "project:web-app",
+      "to": "decision:deferred-4",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:deferred-5",
+      "from": "project:web-app",
+      "to": "decision:deferred-5",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:locked-1",
+      "from": "project:web-app",
+      "to": "decision:locked-1",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:locked-2",
+      "from": "project:web-app",
+      "to": "decision:locked-2",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:locked-3",
+      "from": "project:web-app",
+      "to": "decision:locked-3",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:locked-4",
+      "from": "project:web-app",
+      "to": "decision:locked-4",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:locked-5",
+      "from": "project:web-app",
+      "to": "decision:locked-5",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:locked-6",
+      "from": "project:web-app",
+      "to": "decision:locked-6",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:locked-7",
+      "from": "project:web-app",
+      "to": "decision:locked-7",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:locked-8",
+      "from": "project:web-app",
+      "to": "decision:locked-8",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->decision:locked-9",
+      "from": "project:web-app",
+      "to": "decision:locked-9",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->risk:backoffice-config-is-only-partially-persisted",
+      "from": "project:web-app",
+      "to": "risk:backoffice-config-is-only-partially-persisted",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->risk:deployment-smoke-automation-is-missing",
+      "from": "project:web-app",
+      "to": "risk:deployment-smoke-automation-is-missing",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->risk:deployment-smoke-automation-is-still-missing",
+      "from": "project:web-app",
+      "to": "risk:deployment-smoke-automation-is-still-missing",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "from": "project:web-app",
+      "to": "risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->risk:indexeddb-migration-coverage-is-still-shallow",
+      "from": "project:web-app",
+      "to": "risk:indexeddb-migration-coverage-is-still-shallow",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->risk:move-pane-focus-and-scroll-consistency",
+      "from": "project:web-app",
+      "to": "risk:move-pane-focus-and-scroll-consistency",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->risk:route-level-ui-tests-are-still-missing",
+      "from": "project:web-app",
+      "to": "risk:route-level-ui-tests-are-still-missing",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->risk:route-local-orchestration-increases-regression-risk",
+      "from": "project:web-app",
+      "to": "risk:route-local-orchestration-increases-regression-risk",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->deferred_by->tool:convex-auth",
+      "from": "project:web-app",
+      "to": "tool:convex-auth",
+      "kind": "deferred_by"
+    },
+    {
+      "id": "project:web-app->deploys->tool:vercel",
+      "from": "project:web-app",
+      "to": "tool:vercel",
+      "kind": "deploys"
+    },
+    {
+      "id": "project:web-app->implemented_by->module:chess-core-package",
+      "from": "project:web-app",
+      "to": "module:chess-core-package",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "project:web-app->implemented_by->module:web-app",
+      "from": "project:web-app",
+      "to": "module:web-app",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "project:web-app->realizes->intent:v1-import-and-persist-pgn",
+      "from": "project:web-app",
+      "to": "intent:v1-import-and-persist-pgn",
+      "kind": "realizes"
+    },
+    {
+      "id": "project:web-app->realizes->intent:v2-replay-and-navigation",
+      "from": "project:web-app",
+      "to": "intent:v2-replay-and-navigation",
+      "kind": "realizes"
+    },
+    {
+      "id": "project:web-app->realizes->intent:v3-engine-analysis-and-annotations",
+      "from": "project:web-app",
+      "to": "intent:v3-engine-analysis-and-annotations",
+      "kind": "realizes"
+    },
+    {
+      "id": "project:web-app->realizes->intent:v4-library-and-game-lifecycle",
+      "from": "project:web-app",
+      "to": "intent:v4-library-and-game-lifecycle",
+      "kind": "realizes"
+    },
+    {
+      "id": "project:web-app->realizes->intent:v5-puzzle-generation-and-review",
+      "from": "project:web-app",
+      "to": "intent:v5-puzzle-generation-and-review",
+      "kind": "realizes"
+    },
+    {
+      "id": "project:web-app->realizes->intent:v6-game-view-and-analysis-workbench",
+      "from": "project:web-app",
+      "to": "intent:v6-game-view-and-analysis-workbench",
+      "kind": "realizes"
+    },
+    {
+      "id": "project:web-app->realizes->intent:v7-backoffice-and-benchmarking",
+      "from": "project:web-app",
+      "to": "intent:v7-backoffice-and-benchmarking",
+      "kind": "realizes"
+    },
+    {
+      "id": "project:web-app->touches->layer:adapters",
+      "from": "project:web-app",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "project:web-app->touches->layer:application",
+      "from": "project:web-app",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "project:web-app->touches->layer:composition",
+      "from": "project:web-app",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "project:web-app->touches->layer:contracts",
+      "from": "project:web-app",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "project:web-app->touches->layer:domain",
+      "from": "project:web-app",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "project:web-app->touches->layer:presentation",
+      "from": "project:web-app",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "project:web-app->uses->tool:chess-js",
+      "from": "project:web-app",
+      "to": "tool:chess-js",
+      "kind": "uses"
+    },
+    {
+      "id": "project:web-app->uses->tool:chessboard-element",
+      "from": "project:web-app",
+      "to": "tool:chessboard-element",
+      "kind": "uses"
+    },
+    {
+      "id": "project:web-app->uses->tool:indexeddb",
+      "from": "project:web-app",
+      "to": "tool:indexeddb",
+      "kind": "uses"
+    },
+    {
+      "id": "project:web-app->uses->tool:stockfish",
+      "from": "project:web-app",
+      "to": "tool:stockfish",
+      "kind": "uses"
+    },
+    {
+      "id": "project:web-app->uses->tool:tanstack-router",
+      "from": "project:web-app",
+      "to": "tool:tanstack-router",
+      "kind": "uses"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-application-runanalysisbenchmark-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-application-runanalysisbenchmark-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-application-rungameanalysis-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-application-rungameanalysis-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-domain-analysisbenchmark-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-domain-analysisbenchmark-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-domain-analysisplan-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-domain-analysisplan-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-domain-analysisrunlifecycle-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-domain-analysisrunlifecycle-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-domain-fitlgraph-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-domain-fitlgraph-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-lib-storage-repositories-analysisrepo-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-lib-storage-repositories-analysisrepo-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-lib-storage-repositories-benchmarkanalysisrepo-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-lib-storage-repositories-benchmarkanalysisrepo-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-presentation-analysisbenchmarkview-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-presentation-analysisbenchmarkview-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-presentation-analysisview-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-presentation-analysisview-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-presentation-backofficeview-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-presentation-backofficeview-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-presentation-fitlmapexplorer-test-tsx",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-presentation-fitlmapexplorer-test-tsx",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-presentation-fitlmapview-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-presentation-fitlmapview-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:apps-web-src-presentation-gameview-test-ts",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-presentation-gameview-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:npm-run-build",
+      "from": "project:web-app",
+      "to": "test:npm-run-build",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:npm-run-test",
+      "from": "project:web-app",
+      "to": "test:npm-run-test",
+      "kind": "validated_by"
+    },
+    {
+      "id": "project:web-app->validated_by->test:npm-run-typecheck",
+      "from": "project:web-app",
+      "to": "test:npm-run-typecheck",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->constrained_by->decision:deferred-3",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "decision:deferred-3",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->constrained_by->risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->constrained_by->risk:route-local-orchestration-increases-regression-risk",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "risk:route-local-orchestration-increases-regression-risk",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->file:apps/web/src/domain/gameReplay.ts",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "file:apps/web/src/domain/gameReplay.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->file:apps/web/src/domain/types.ts",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "file:apps/web/src/domain/types.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->file:apps/web/src/lib/mockData.ts",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "file:apps/web/src/lib/mockData.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->file:apps/web/src/lib/storage/repositories/gamesRepo.ts",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "file:apps/web/src/lib/storage/repositories/gamesRepo.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->file:apps/web/src/router.tsx",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "file:apps/web/src/router.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->file:apps/web/src/routes/import.tsx",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "file:apps/web/src/routes/import.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->file:packages/chess-core/src/hash.ts",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "file:packages/chess-core/src/hash.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->file:packages/chess-core/src/headers.ts",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "file:packages/chess-core/src/headers.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->file:packages/chess-core/src/pgn.ts",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "file:packages/chess-core/src/pgn.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->module:chess-core-package",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "module:chess-core-package",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->implemented_by->module:web-app",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "module:web-app",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->touches->layer:adapters",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->touches->layer:application",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->touches->layer:composition",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->touches->layer:contracts",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->touches->layer:domain",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->touches->layer:presentation",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->uses->tool:chess-js",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "tool:chess-js",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->uses->tool:indexeddb",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "tool:indexeddb",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->uses->tool:tanstack-router",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "tool:tanstack-router",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->validated_by->test:npm-run-build",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "test:npm-run-build",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->validated_by->test:npm-run-test",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "test:npm-run-test",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->validated_by->test:npm-run-typecheck",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "test:npm-run-typecheck",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->constrained_by->risk:move-pane-focus-and-scroll-consistency",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "risk:move-pane-focus-and-scroll-consistency",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->implemented_by->file:apps/web/src/board/BoardAdapter.ts",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "file:apps/web/src/board/BoardAdapter.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->implemented_by->file:apps/web/src/board/ChessboardElementAdapter.ts",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "file:apps/web/src/board/ChessboardElementAdapter.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->implemented_by->file:apps/web/src/domain/gameReplay.ts",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "file:apps/web/src/domain/gameReplay.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->implemented_by->file:apps/web/src/domain/types.ts",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "file:apps/web/src/domain/types.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->implemented_by->file:apps/web/src/router.tsx",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "file:apps/web/src/router.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->implemented_by->file:apps/web/src/routes/game.tsx",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "file:apps/web/src/routes/game.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->implemented_by->file:apps/web/src/styles.css",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "file:apps/web/src/styles.css",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->implemented_by->module:web-app",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "module:web-app",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->touches->layer:adapters",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->touches->layer:application",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->touches->layer:composition",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->touches->layer:contracts",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->touches->layer:domain",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->touches->layer:presentation",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->uses->tool:chess-js",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "tool:chess-js",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->uses->tool:chessboard-element",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "tool:chessboard-element",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->constrained_by->decision:locked-7",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "decision:locked-7",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->constrained_by->risk:backoffice-config-is-only-partially-persisted",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "risk:backoffice-config-is-only-partially-persisted",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->constrained_by->risk:move-pane-focus-and-scroll-consistency",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "risk:move-pane-focus-and-scroll-consistency",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->file:apps/web/src/application/runGameAnalysis.ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "file:apps/web/src/application/runGameAnalysis.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->file:apps/web/src/domain/analysisPlan.ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "file:apps/web/src/domain/analysisPlan.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->file:apps/web/src/domain/analysisPolicy.ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "file:apps/web/src/domain/analysisPolicy.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->file:apps/web/src/domain/analysisRunLifecycle.ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "file:apps/web/src/domain/analysisRunLifecycle.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->file:apps/web/src/domain/types.ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "file:apps/web/src/domain/types.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->file:apps/web/src/engine/engine.worker.ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "file:apps/web/src/engine/engine.worker.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->file:apps/web/src/engine/engineClient.ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "file:apps/web/src/engine/engineClient.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->file:apps/web/src/lib/storage/repositories/analysisRepo.ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "file:apps/web/src/lib/storage/repositories/analysisRepo.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->file:apps/web/src/main.tsx",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "file:apps/web/src/main.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->file:apps/web/src/routes/game.tsx",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "file:apps/web/src/routes/game.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->implemented_by->module:web-app",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "module:web-app",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->touches->layer:adapters",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->touches->layer:application",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->touches->layer:composition",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->touches->layer:contracts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->touches->layer:domain",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->touches->layer:presentation",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->uses->tool:indexeddb",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "tool:indexeddb",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->uses->tool:stockfish",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "tool:stockfish",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->validated_by->test:apps-web-src-application-runanalysisbenchmark-test-ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "test:apps-web-src-application-runanalysisbenchmark-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->validated_by->test:apps-web-src-application-rungameanalysis-test-ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "test:apps-web-src-application-rungameanalysis-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->validated_by->test:apps-web-src-domain-analysisbenchmark-test-ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "test:apps-web-src-domain-analysisbenchmark-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->validated_by->test:apps-web-src-domain-analysisplan-test-ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "test:apps-web-src-domain-analysisplan-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->validated_by->test:apps-web-src-domain-analysisrunlifecycle-test-ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "test:apps-web-src-domain-analysisrunlifecycle-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->validated_by->test:apps-web-src-lib-storage-repositories-analysisrepo-test-ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "test:apps-web-src-lib-storage-repositories-analysisrepo-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v3-engine-analysis-and-annotations->validated_by->test:apps-web-src-lib-storage-repositories-benchmarkanalysisrepo-test-ts",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "test:apps-web-src-lib-storage-repositories-benchmarkanalysisrepo-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->constrained_by->risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->constrained_by->risk:route-local-orchestration-increases-regression-risk",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "risk:route-local-orchestration-increases-regression-risk",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->implemented_by->file:apps/web/src/domain/gameReplay.ts",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "file:apps/web/src/domain/gameReplay.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->implemented_by->file:apps/web/src/domain/types.ts",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "file:apps/web/src/domain/types.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->implemented_by->file:apps/web/src/lib/storage/db.ts",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "file:apps/web/src/lib/storage/db.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->implemented_by->file:apps/web/src/lib/storage/migrations.ts",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "file:apps/web/src/lib/storage/migrations.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->implemented_by->file:apps/web/src/lib/storage/repositories/gamesRepo.ts",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "file:apps/web/src/lib/storage/repositories/gamesRepo.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->implemented_by->file:apps/web/src/main.tsx",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "file:apps/web/src/main.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->implemented_by->file:apps/web/src/router.tsx",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "file:apps/web/src/router.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->implemented_by->file:apps/web/src/routes/game.tsx",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "file:apps/web/src/routes/game.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->implemented_by->file:apps/web/src/routes/library.tsx",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "file:apps/web/src/routes/library.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->implemented_by->module:web-app",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "module:web-app",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->touches->layer:adapters",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->touches->layer:application",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->touches->layer:composition",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->touches->layer:contracts",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->touches->layer:domain",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->touches->layer:presentation",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->uses->tool:chess-js",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "tool:chess-js",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->uses->tool:indexeddb",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "tool:indexeddb",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->uses->tool:tanstack-router",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "tool:tanstack-router",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->constrained_by->decision:deferred-5",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "decision:deferred-5",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->constrained_by->risk:backoffice-config-is-only-partially-persisted",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "risk:backoffice-config-is-only-partially-persisted",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->constrained_by->risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->constrained_by->risk:route-local-orchestration-increases-regression-risk",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "risk:route-local-orchestration-increases-regression-risk",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->deferred_by->tool:convex-auth",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "tool:convex-auth",
+      "kind": "deferred_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/domain/puzzles.ts",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "file:apps/web/src/domain/puzzles.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/domain/types.ts",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "file:apps/web/src/domain/types.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/lib/mockData.ts",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "file:apps/web/src/lib/mockData.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/router.tsx",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "file:apps/web/src/router.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/routes/game.tsx",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "file:apps/web/src/routes/game.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/routes/import.tsx",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "file:apps/web/src/routes/import.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/routes/library.tsx",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "file:apps/web/src/routes/library.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/routes/puzzle.tsx",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "file:apps/web/src/routes/puzzle.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/routes/puzzles.tsx",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "file:apps/web/src/routes/puzzles.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->implemented_by->module:web-app",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "module:web-app",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->touches->layer:adapters",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->touches->layer:application",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->touches->layer:composition",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->touches->layer:contracts",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->touches->layer:domain",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->touches->layer:presentation",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->touches->layer:presentation-detail",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "layer:presentation-detail",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->uses->tool:chess-js",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "tool:chess-js",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->uses->tool:chessboard-element",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "tool:chessboard-element",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->uses->tool:indexeddb",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "tool:indexeddb",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->uses->tool:tanstack-router",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "tool:tanstack-router",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->constrained_by->decision:locked-7",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "decision:locked-7",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->constrained_by->risk:backoffice-config-is-only-partially-persisted",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "risk:backoffice-config-is-only-partially-persisted",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->constrained_by->risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->constrained_by->risk:move-pane-focus-and-scroll-consistency",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "risk:move-pane-focus-and-scroll-consistency",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->constrained_by->risk:route-local-orchestration-increases-regression-risk",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "risk:route-local-orchestration-increases-regression-risk",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->implemented_by->file:apps/web/src/board/ChessboardElementAdapter.ts",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "file:apps/web/src/board/ChessboardElementAdapter.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->implemented_by->file:apps/web/src/engine/engine.worker.ts",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "file:apps/web/src/engine/engine.worker.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->implemented_by->file:apps/web/src/engine/engineClient.ts",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "file:apps/web/src/engine/engineClient.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->implemented_by->file:apps/web/src/presentation/analysisView.ts",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "file:apps/web/src/presentation/analysisView.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->implemented_by->file:apps/web/src/presentation/gameView.ts",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "file:apps/web/src/presentation/gameView.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->implemented_by->file:apps/web/src/routes/game.tsx",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "file:apps/web/src/routes/game.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->implemented_by->module:web-app",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "module:web-app",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->touches->layer:adapters",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->touches->layer:application",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->touches->layer:composition",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->touches->layer:contracts",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->touches->layer:domain",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->touches->layer:presentation",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->uses->tool:chess-js",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "tool:chess-js",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->uses->tool:chessboard-element",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "tool:chessboard-element",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->uses->tool:stockfish",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "tool:stockfish",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->uses->tool:tanstack-router",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "tool:tanstack-router",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->validated_by->test:apps-web-src-application-rungameanalysis-test-ts",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "test:apps-web-src-application-rungameanalysis-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->validated_by->test:apps-web-src-presentation-analysisview-test-ts",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "test:apps-web-src-presentation-analysisview-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->validated_by->test:apps-web-src-presentation-gameview-test-ts",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "test:apps-web-src-presentation-gameview-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->decision:deferred-5",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "decision:deferred-5",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->decision:locked-7",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "decision:locked-7",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:backoffice-config-is-only-partially-persisted",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "risk:backoffice-config-is-only-partially-persisted",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:deployment-smoke-automation-is-missing",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "risk:deployment-smoke-automation-is-missing",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:deployment-smoke-automation-is-still-missing",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "risk:deployment-smoke-automation-is-still-missing",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:move-pane-focus-and-scroll-consistency",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "risk:move-pane-focus-and-scroll-consistency",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:route-local-orchestration-increases-regression-risk",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "risk:route-local-orchestration-increases-regression-risk",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->deferred_by->tool:convex-auth",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "tool:convex-auth",
+      "kind": "deferred_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->deploys->tool:vercel",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "tool:vercel",
+      "kind": "deploys"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->implemented_by->file:apps/web/src/application/runAnalysisBenchmark.ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "file:apps/web/src/application/runAnalysisBenchmark.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->implemented_by->file:apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "file:apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->implemented_by->file:apps/web/src/presentation/analysisBenchmarkView.ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "file:apps/web/src/presentation/analysisBenchmarkView.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->implemented_by->file:apps/web/src/presentation/backofficeView.ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "file:apps/web/src/presentation/backofficeView.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->implemented_by->file:apps/web/src/routes/analysisBenchmark.tsx",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "file:apps/web/src/routes/analysisBenchmark.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->implemented_by->file:apps/web/src/routes/backoffice.tsx",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "file:apps/web/src/routes/backoffice.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->implemented_by->module:web-app",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "module:web-app",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->touches->layer:adapters",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->touches->layer:application",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->touches->layer:composition",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "layer:composition",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->touches->layer:contracts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->touches->layer:domain",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->touches->layer:presentation",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->uses->tool:indexeddb",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "tool:indexeddb",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->uses->tool:stockfish",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "tool:stockfish",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->uses->tool:tanstack-router",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "tool:tanstack-router",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->validated_by->test:apps-web-src-application-runanalysisbenchmark-test-ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "test:apps-web-src-application-runanalysisbenchmark-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->validated_by->test:apps-web-src-domain-analysisbenchmark-test-ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "test:apps-web-src-domain-analysisbenchmark-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->validated_by->test:apps-web-src-domain-fitlgraph-test-ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "test:apps-web-src-domain-fitlgraph-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->validated_by->test:apps-web-src-lib-storage-repositories-benchmarkanalysisrepo-test-ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "test:apps-web-src-lib-storage-repositories-benchmarkanalysisrepo-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->validated_by->test:apps-web-src-presentation-analysisbenchmarkview-test-ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "test:apps-web-src-presentation-analysisbenchmarkview-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->validated_by->test:apps-web-src-presentation-backofficeview-test-ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "test:apps-web-src-presentation-backofficeview-test-ts",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->validated_by->test:apps-web-src-presentation-fitlmapexplorer-test-tsx",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "test:apps-web-src-presentation-fitlmapexplorer-test-tsx",
+      "kind": "validated_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->validated_by->test:apps-web-src-presentation-fitlmapview-test-ts",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "test:apps-web-src-presentation-fitlmapview-test-ts",
+      "kind": "validated_by"
+    }
+  ]
+};

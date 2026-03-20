@@ -1,7 +1,7 @@
 # V7: Backoffice and Benchmarking
 
 ## Business/User Intent
-Give maintainers an operational surface for inspecting shipped analysis and puzzle constants, a small persisted control surface for lazy library analysis runtime settings, and a repeatable benchmark harness for comparing real browser-worker analysis cost on the bundled PGN fixture.
+Give maintainers an operational surface for inspecting shipped analysis and puzzle constants, a small persisted control surface for lazy library analysis runtime settings, a repeatable benchmark harness for comparing real browser-worker analysis cost on the bundled PGN fixture, and a FITL explorer that makes intent, feature, implementation, and tooling relationships visible before planning changes.
 
 ## Flow Narrative
 1. Maintainer opens the backoffice route.
@@ -10,14 +10,17 @@ Give maintainers an operational surface for inspecting shipped analysis and puzz
 4. Maintainer opens the analysis benchmark route from backoffice.
 5. System loads the bundled `single.pgn` fixture, builds benchmark scenarios, and runs repeated analysis through the real worker path.
 6. System reports scenario-level timing summaries, projected full-run runtime, safety-stop counts, and recommended derived safety budgets.
+7. Maintainer opens `/backoffice/fitl-map` from backoffice.
+8. System loads the generated FITL graph snapshot, lands on a project-level overview of intents and verticals, then deepens into architecture or implementation only after the maintainer focuses a vertical or tool.
+9. System exposes a structured copyable AI change brief for the current focus, including relevant docs, files, tools, constraints, and validation commands.
 
 ## Impacted Layers
-- Contracts: benchmark scenario, repetition, summary, progress, config-section contracts, and persisted lazy-analysis plus puzzle-playback runtime config.
-- Domain: movetime-first analysis policy, lazy-analysis config normalization, puzzle playback config normalization, benchmark scenario definitions, summary aggregation, and blocked-knob rules.
-- Application: shared analysis-coordinator config updates, puzzle runtime setting consumption, repeated benchmark execution, step-level error reporting, failure normalization, and progress event emission.
-- Adapters: `appMeta`-backed runtime config storage, isolated benchmark IndexedDB database, benchmark repositories, and engine-worker client wiring.
-- Presentation: `/backoffice` runtime controls plus config sections, `/backoffice/analysis-benchmark` scenario cards, status/failure surfaces, and benchmark results table.
-- Composition: route registration for both backoffice pages and linkage from the admin landing page.
+- Contracts: benchmark scenario, repetition, summary, progress, config-section contracts, persisted lazy-analysis plus puzzle-playback runtime config, and FITL graph node/edge/search contracts.
+- Domain: movetime-first analysis policy, lazy-analysis config normalization, puzzle playback config normalization, benchmark scenario definitions, summary aggregation, blocked-knob rules, FITL graph filtering, focus-depth dossier generation, and AI-brief export formatting.
+- Application: shared analysis-coordinator config updates, puzzle runtime setting consumption, repeated benchmark execution, step-level error reporting, and failure normalization. FITL explorer remains route-driven and read-only in v1.
+- Adapters: `appMeta`-backed runtime config storage, isolated benchmark IndexedDB database, benchmark repositories, engine-worker client wiring, and the build-time FITL graph extractor plus tooling manifest merge.
+- Presentation: `/backoffice` runtime controls plus config sections, `/backoffice/analysis-benchmark` scenario cards, status/failure surfaces, benchmark results table, and `/backoffice/fitl-map` balanced map-plus-dossier workspace with route-backed search and depth controls.
+- Composition: route registration for all backoffice pages and linkage from the admin landing page.
 
 ## Execution Order Per Layer
 1. Tests (Red): benchmark aggregation, storage isolation, and backoffice presentation expectations fail first.
@@ -39,14 +42,24 @@ Give maintainers an operational surface for inspecting shipped analysis and puzz
   - Benchmark failures show scenario, repetition, and failing step instead of opaque errors.
   - Benchmark writes never pollute normal library analysis history.
   - Benchmark results expose projected full-run runtime and recommended derived safety budget for the tested game.
+  - FITL explorer lands on a project summary that shows the project node, all seven intents, and all seven verticals without global tooling or file clutter.
+  - FITL explorer can include or hide deferred surfaces, and `Convex/Auth` only appears when deferred surfaces are enabled.
+  - Selecting V3 or V6 and switching to implementation depth reveals Stockfish plus the worker/runtime implementation references needed for analysis work.
+  - Selecting V7 reveals Vercel as a deploy-time concern rather than a runtime dependency.
+  - Implementation depth is blocked until the maintainer focuses a vertical or tool.
 - Tests/gates:
   - `apps/web/src/domain/analysisBenchmark.test.ts`
   - `apps/web/src/application/runAnalysisBenchmark.test.ts`
   - `apps/web/src/lib/storage/repositories/benchmarkAnalysisRepo.test.ts`
   - `apps/web/src/presentation/analysisBenchmarkView.test.ts`
   - `apps/web/src/presentation/backofficeView.test.ts`
+  - `apps/web/scripts/fitlGraphSource.test.mjs`
+  - `apps/web/src/domain/fitlGraph.test.ts`
+  - `apps/web/src/presentation/fitlMapView.test.ts`
+  - `apps/web/src/presentation/FitlMapExplorer.test.tsx`
 
 ## Risk/Deferment References
 - Backoffice now persists lazy-analysis runtime settings locally, but the broader analysis and puzzle constants remain source-backed and read-only.
 - Benchmark coverage is intentionally narrow: one bundled short game and a fixed scenario sweep.
 - Threads and Hash remain excluded from benchmark comparison until the worker runtime accepts and applies those options.
+- FITL explorer v2 is intentionally docs-driven and does not infer arbitrary code dependencies outside the curated FITL docs, module maps, layer matrix, and tooling manifest.

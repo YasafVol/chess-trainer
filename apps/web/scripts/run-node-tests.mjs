@@ -20,7 +20,10 @@ async function collectTests(dir) {
 }
 
 const testDir = fileURLToPath(new URL("../.tmp-test-build/src", import.meta.url));
-const files = await collectTests(testDir);
+const compiledFiles = await collectTests(testDir);
+const scriptTestDir = fileURLToPath(new URL("../scripts", import.meta.url));
+const scriptFiles = (await collectTests(scriptTestDir)).filter((file) => file.endsWith(".test.mjs"));
+const files = [...compiledFiles, ...scriptFiles];
 if (files.length === 0) {
   throw new Error("No compiled test files found.");
 }

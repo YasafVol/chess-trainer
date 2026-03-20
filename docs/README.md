@@ -48,6 +48,7 @@ This repository uses FITL Nav as the canonical documentation structure. Read doc
 ## Reference docs
 - `reference/README.md`
 - `reference/stockfish-analysis-capabilities.md`
+- `reference/fitl-visualization.md`
 
 ## Product plans and transition specs
 - `../Spec/ROADMAP.md`

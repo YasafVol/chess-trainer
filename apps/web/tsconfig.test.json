@@ -19,6 +19,9 @@
     "src/domain/analysisPolicy.test.ts",
     "src/domain/analysisRunLifecycle.ts",
     "src/domain/analysisRunLifecycle.test.ts",
+    "src/domain/fitlGraph.ts",
+    "src/domain/fitlGraph.test.ts",
+    "src/domain/fitlGraphTypes.ts",
     "src/domain/puzzles.ts",
     "src/domain/puzzles.test.ts",
     "src/domain/puzzlePlaybackConfig.ts",
@@ -40,10 +43,15 @@
     "src/board/boardResize.test.ts",
     "src/presentation/backofficeView.ts",
     "src/presentation/backofficeView.test.ts",
+    "src/presentation/FitlMapCanvas.tsx",
+    "src/presentation/FitlMapExplorer.tsx",
+    "src/presentation/FitlMapExplorer.test.tsx",
     "src/presentation/analysisBenchmarkView.ts",
     "src/presentation/analysisBenchmarkView.test.ts",
     "src/presentation/analysisView.ts",
     "src/presentation/analysisView.test.ts",
+    "src/presentation/fitlMapView.ts",
+    "src/presentation/fitlMapView.test.ts",
     "src/presentation/PuzzleActionControls.tsx",
     "src/presentation/PuzzleActionControls.test.tsx",
     "src/presentation/gameView.ts",
@@ -58,7 +66,9 @@
     "src/lib/storage/repositories/benchmarkAnalysisRepo.ts",
     "src/lib/storage/repositories/benchmarkAnalysisRepo.test.ts",
     "src/lib/storage/db.ts",
-    "src/lib/storage/migrations.ts"
+    "src/lib/storage/migrations.ts",
+    "src/routes/fitlMap.tsx",
+    "src/generated/fitlGraphSnapshot.ts"
   ],
   "exclude": []
 }
