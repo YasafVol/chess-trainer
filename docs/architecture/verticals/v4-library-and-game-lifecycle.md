@@ -5,15 +5,15 @@ Give users a reliable way to find previously imported games, reopen them quickly
 
 ## Flow Narrative
 1. User opens library view.
-2. System fetches stored games ordered by recent activity.
+2. System fetches stored games ordered by recent activity, regardless of whether they arrived from paste, upload, or Chess.com archive import.
 3. User selects a game to open detailed replay/analysis view.
 4. System loads latest analysis summary and per-ply snapshots.
 5. User continues replay or reruns analysis as needed.
 
 ## Impacted Layers
-- Contracts: game and analysis run record contracts.
+- Contracts: game and analysis run record contracts, including source metadata for imported Chess.com games.
 - Domain: sorting/lifecycle read-model rules.
-- Application: fetch/refresh orchestration and fallback state handling.
+- Application: fetch/refresh orchestration, background sync cursor persistence, and fallback state handling.
 - Adapters: IndexedDB repositories and migration layer.
 - Presentation: library list and game summary views.
 - Composition: route registration and app bootstrap.
@@ -33,6 +33,7 @@ Give users a reliable way to find previously imported games, reopen them quickly
 ## Tests and Acceptance Criteria
 - Acceptance criteria:
   - Library lists all games sorted by `updatedAt` descending.
+  - Successfully imported Chess.com archive games appear in the same library lifecycle as pasted or uploaded PGN.
   - Opening a game loads replay and latest analysis summary.
   - Empty states and storage errors are user-visible and non-fatal.
 - Tests/gates:

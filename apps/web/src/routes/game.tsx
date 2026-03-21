@@ -9,7 +9,7 @@ import { InlineLoader } from "../components/InlineLoader";
 import { useDelayedBusy } from "../components/useDelayedBusy";
 import { buildReplayData } from "../domain/gameReplay";
 import { formatUnknownError } from "../lib/formatUnknownError";
-import { useLocalAnalysisSnapshot, useLocalGame } from "../lib/mockData";
+import { useAnalysisSnapshot, useGame, useRuntimeSession } from "../lib/runtimeGateway";
 import { buildEvalBarState, buildEvalGraphState, buildMoveAnnotation, formatEval } from "../presentation/analysisView";
 import { buildGameMetaChips, buildReplayPositionItems, resolveBoardPresentation } from "../presentation/gameView";
 
@@ -25,8 +25,9 @@ function formatBudgetLabel(budgetMs: number | undefined): string {
 
 export function GamePage() {
   const { gameId } = useParams({ from: "/game/$gameId" });
-  const game = useLocalGame(gameId);
-  const snapshot = useLocalAnalysisSnapshot(gameId);
+  const session = useRuntimeSession();
+  const game = useGame(gameId);
+  const snapshot = useAnalysisSnapshot(gameId);
   const analysisCoordinator = useSyncExternalStore(
     (listener) => sharedAnalysisCoordinator.subscribe(listener),
     () => sharedAnalysisCoordinator.getSnapshot()
@@ -414,7 +415,13 @@ export function GamePage() {
               <button className="action-button" onClick={() => { setManualFen(null); setIsPlaying((playing) => !playing); }}>{isPlaying ? "Pause" : "Play"}</button>
               <button className="action-button" onClick={() => setFlipped((value) => !value)}>Flip</button>
               {!activeGameIsRunning ? (
-                <button className="action-button" onClick={() => void runAnalysis()} disabled={!analysisCoordinator.engineReady}>Analyze game</button>
+                <button
+                  className="action-button"
+                  onClick={() => void runAnalysis()}
+                  disabled={!session.canMutate || !analysisCoordinator.engineReady}
+                >
+                  Analyze game
+                </button>
               ) : (
                 <button className="action-button" onClick={() => void cancelAnalysis()}>Cancel analysis</button>
               )}
@@ -423,6 +430,7 @@ export function GamePage() {
             </div>
 
             <div className="analysis-inline">
+              {!session.canMutate ? <p className="muted">Analysis writes are disabled while offline or signed out.</p> : null}
               {showAnalysisLoader ? (
                 <InlineLoader
                   inline

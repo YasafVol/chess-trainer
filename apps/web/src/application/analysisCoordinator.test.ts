@@ -96,6 +96,7 @@ function createHarness(overrides: Partial<AnalysisCoordinatorDeps> = {}) {
     hasCompletedRun: async () => false,
     saveRun: async () => undefined,
     savePly: async () => undefined,
+    flushPendingPlies: async () => undefined,
     generatePuzzlesForRun: async (runId, gameId) => {
       generated.push({ runId, gameId });
       return 2;
@@ -115,6 +116,8 @@ function createHarness(overrides: Partial<AnalysisCoordinatorDeps> = {}) {
       intervalMs: BACKGROUND_ANALYSIS_INTERVAL_MS
     }),
     saveConfig: async () => undefined,
+    canPersistMutations: () => true,
+    mutationGuardMessage: () => "Reconnect to save changes. Offline mode is view-only.",
     setIntervalFn: (callback) => {
       intervals.push(callback as () => void);
       return intervals.length as ReturnType<typeof setInterval>;
@@ -207,6 +210,18 @@ test("analysis coordinator cancels background work and starts the requested fore
 
   assert.deepEqual(harness.calls, ["game-1", "game-2"]);
   assert.equal(harness.coordinator.getSnapshot().activeGameId, null);
+});
+
+test("analysis coordinator blocks foreground analysis when mutations are unavailable", async () => {
+  const harness = createHarness({
+    canPersistMutations: () => false,
+    mutationGuardMessage: () => "Reconnect to save changes. Offline mode is view-only."
+  });
+
+  await harness.coordinator.requestForegroundAnalysis("game-1");
+
+  assert.equal(harness.calls.length, 0);
+  assert.equal(harness.coordinator.getSnapshot().error, "Reconnect to save changes. Offline mode is view-only.");
 });
 
 test("analysis coordinator retries an interrupted background game on a later tick until completed", async () => {

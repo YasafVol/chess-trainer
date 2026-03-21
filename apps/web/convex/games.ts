@@ -11,20 +11,38 @@ const importableGame = v.object({
   headers: v.record(v.string(), v.string()),
   initialFen: v.string(),
   movesUci: v.array(v.string()),
-  source: v.union(v.literal("paste"), v.literal("upload")),
+  source: v.union(v.literal("paste"), v.literal("upload"), v.literal("chesscom")),
   createdAt: v.string(),
   updatedAt: v.string()
 });
+
+function toGameRecord(userId, game) {
+  return {
+    id: game.clientId,
+    userId: String(userId),
+    schemaVersion: game.schemaVersion,
+    hash: game.hash,
+    pgn: game.pgn,
+    headers: game.headers,
+    initialFen: game.initialFen,
+    movesUci: game.movesUci,
+    source: game.source,
+    createdAt: game.createdAt,
+    updatedAt: game.updatedAt
+  };
+}
 
 export const list = queryGeneric({
   args: {},
   handler: async (ctx) => {
     const userId = await requireUserId(ctx);
-    return await ctx.db
+    const games = await ctx.db
       .query("games")
       .withIndex("by_user_updatedAt", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
+
+    return games.map((game) => toGameRecord(userId, game));
   }
 });
 
@@ -32,10 +50,12 @@ export const get = queryGeneric({
   args: { gameId: v.string() },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx);
-    return await ctx.db
+    const game = await ctx.db
       .query("games")
       .withIndex("by_user_clientId", (q) => q.eq("userId", userId).eq("clientId", args.gameId))
       .unique();
+
+    return game ? toGameRecord(userId, game) : null;
   }
 });
 
@@ -48,7 +68,7 @@ export const importBatch = mutationGeneric({
     let imported = 0;
     let skippedDuplicates = 0;
     let skippedInvalid = 0;
-    const gameIds: string[] = [];
+    const gameIds = [];
 
     for (const game of args.games) {
       if (!game.pgn || game.movesUci.length === 0) {
@@ -79,6 +99,7 @@ export const importBatch = mutationGeneric({
         createdAt: game.createdAt,
         updatedAt: game.updatedAt
       });
+
       imported += 1;
       gameIds.push(game.id);
     }
@@ -91,4 +112,3 @@ export const importBatch = mutationGeneric({
     };
   }
 });
-

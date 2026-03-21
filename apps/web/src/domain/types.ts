@@ -1,4 +1,6 @@
 export type SchemaVersion = 1;
+export type GameSource = "paste" | "upload" | "chesscom";
+export type ChessComSyncInterval = "daily" | "weekly";
 
 export type GameRecord = {
   id: string;
@@ -9,7 +11,7 @@ export type GameRecord = {
   headers: Record<string, string>;
   initialFen: string;
   movesUci: string[];
-  source: "paste" | "upload";
+  source: GameSource;
   createdAt: string;
   updatedAt: string;
 };
@@ -47,6 +49,33 @@ export type PuzzlePlaybackConfig = {
   stepMs: number;
 };
 
+export type ChessComSyncConfig = {
+  username: string;
+  enabled: boolean;
+  interval: ChessComSyncInterval;
+  lastSyncAt?: string;
+  lastSuccessfulArchive?: string;
+  lastStatus?: string;
+};
+
+export type ChessComArchiveMonth = {
+  id: string;
+  year: number;
+  month: number;
+  url: string;
+  label: string;
+};
+
+export type ChessComImportResult = {
+  requestedMonths: string[];
+  processedMonths: string[];
+  imported: number;
+  skippedDuplicates: number;
+  failedMonths: string[];
+  statusMessage: string;
+  latestProcessedArchive?: string;
+};
+
 export type PlyAnalysis = {
   id: string;
   userId: string;
@@ -78,7 +107,7 @@ export type ImportPreviewGame = {
   hasMoves: boolean;
   duplicateOfGameId?: string;
   selected: boolean;
-  source: "paste" | "upload";
+  source: GameSource;
 };
 
 export type ImportBatchResult = {

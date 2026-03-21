@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-20T13:14:07.583Z",
+  "generatedAt": "2026-03-21T08:41:45.363Z",
   "sourceDocs": [
     "apps/web/README.md",
     "apps/web/fitl-tooling.manifest.json",
@@ -335,6 +335,60 @@
       "references": [
         {
           "type": "file",
+          "label": "apps/web/src/application/chessComImport.ts",
+          "path": "apps/web/src/application/chessComImport.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/application/chessComImport.ts",
+      "kind": "file",
+      "label": "chessComImport.ts",
+      "summary": "apps/web/src/application/chessComImport.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/application/chessComSyncCoordinator.ts",
+          "path": "apps/web/src/application/chessComSyncCoordinator.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/application/chessComSyncCoordinator.ts",
+      "kind": "file",
+      "label": "chessComSyncCoordinator.ts",
+      "summary": "apps/web/src/application/chessComSyncCoordinator.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/application/importGames.ts",
+          "path": "apps/web/src/application/importGames.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/application/importGames.ts",
+      "kind": "file",
+      "label": "importGames.ts",
+      "summary": "apps/web/src/application/importGames.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
           "label": "apps/web/src/application/runAnalysisBenchmark.ts",
           "path": "apps/web/src/application/runAnalysisBenchmark.ts"
         }
@@ -533,6 +587,60 @@
       "references": [
         {
           "type": "file",
+          "label": "apps/web/src/domain/chessComArchives.ts",
+          "path": "apps/web/src/domain/chessComArchives.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/chessComArchives.ts",
+      "kind": "file",
+      "label": "chessComArchives.ts",
+      "summary": "apps/web/src/domain/chessComArchives.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/chessComSyncConfig.ts",
+          "path": "apps/web/src/domain/chessComSyncConfig.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/chessComSyncConfig.ts",
+      "kind": "file",
+      "label": "chessComSyncConfig.ts",
+      "summary": "apps/web/src/domain/chessComSyncConfig.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/domain/continuousPuzzleSession.ts",
+          "path": "apps/web/src/domain/continuousPuzzleSession.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/domain/continuousPuzzleSession.ts",
+      "kind": "file",
+      "label": "continuousPuzzleSession.ts",
+      "summary": "apps/web/src/domain/continuousPuzzleSession.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
           "label": "apps/web/src/domain/fitlGraph.ts",
           "path": "apps/web/src/domain/fitlGraph.ts"
         }
@@ -688,6 +796,24 @@
       "kind": "file",
       "label": "fitlGraphSnapshot.ts",
       "summary": "apps/web/src/generated/fitlGraphSnapshot.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/chessComApi.ts",
+          "path": "apps/web/src/lib/chessComApi.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/lib/chessComApi.ts",
+      "kind": "file",
+      "label": "chessComApi.ts",
+      "summary": "apps/web/src/lib/chessComApi.ts",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -879,9 +1005,7 @@
           "path": "apps/web/src/presentation/*"
         }
       ],
-      "tags": [
-        ""
-      ],
+      "tags": [],
       "id": "file:apps/web/src/presentation/*",
       "kind": "file",
       "label": "*",
@@ -1263,7 +1387,7 @@
       "id": "intent:v1-import-and-persist-pgn",
       "kind": "intent",
       "label": "Import and Persist PGN",
-      "summary": "Allow a user to paste or upload PGN once and reliably persist a reusable local game record with metadata, deterministic identity, and immediate feedback.",
+      "summary": "Allow a user to paste or upload PGN, or fetch bounded Chess.com archive PGN by a saved username, and reliably persist reusable local game records with metadata, deterministic identity, and immediate feedback.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -1371,7 +1495,7 @@
       "id": "intent:v7-backoffice-and-benchmarking",
       "kind": "intent",
       "label": "Backoffice and Benchmarking",
-      "summary": "Give maintainers an operational surface for inspecting shipped analysis and puzzle constants, a small persisted control surface for lazy library analysis runtime settings, a repeatable benchmark harness for comparing real browser-worker analysis cost on the bundled PGN fixture, and a FITL explorer that makes intent, feature, implementation, and tooling relationships visible before planning changes.",
+      "summary": "Give maintainers an operational surface for inspecting shipped analysis and puzzle constants, a small persisted control surface for lazy library analysis runtime settings and Chess.com sync identity/cadence, a repeatable benchmark harness for comparing real browser-worker analysis cost on the bundled PGN fixture, and a FITL explorer that makes intent, feature, implementation, and tooling relationships visible before planning changes.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -2396,7 +2520,7 @@
       "id": "vertical:v1-import-and-persist-pgn",
       "kind": "vertical",
       "label": "V1 Import and Persist PGN",
-      "summary": "Allow a user to paste or upload PGN once and reliably persist a reusable local game record with metadata, deterministic identity, and immediate feedback.",
+      "summary": "Allow a user to paste or upload PGN, or fetch bounded Chess.com archive PGN by a saved username, and reliably persist reusable local game records with metadata, deterministic identity, and immediate feedback.",
       "description": "",
       "lifecycle": "active",
       "system": "internal"
@@ -2494,7 +2618,7 @@
       "kind": "vertical",
       "label": "V4 Library and Game Lifecycle",
       "summary": "Give users a reliable way to find previously imported games, reopen them quickly, and continue analysis/review without data loss.",
-      "description": "1. User opens library view. 2. System fetches stored games ordered by recent activity. 3. User selects a game to open detailed replay/analysis view. 4. System loads latest analysis summary and per-ply snapshots. 5. User continues replay or reruns analysis as needed.",
+      "description": "1. User opens library view. 2. System fetches stored games ordered by recent activity, regardless of whether they arrived from paste, upload, or Chess.com archive import. 3. User selects a game to open detailed replay/analysis view. 4. System loads latest analysis summary and per-ply snapshots. 5. User continues replay or reruns analysis as needed.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -2513,7 +2637,7 @@
       "kind": "vertical",
       "label": "V5 Puzzle Generation and Review",
       "summary": "Turn analyzed mistakes and blunders into reusable training material and let users review those puzzles locally with persistent spaced-repetition progress.",
-      "description": "1. User imports a game and opens the game view. 2. User runs browser-side analysis. 3. System stores analysis snapshots locally and derives puzzle candidates from qualifying eval swings. 4. System saves generated puzzles and review metadata in IndexedDB. 5. User opens the puzzles view, switches between blunder and mistake tabs, and narrows the bank by ownership (`All`, `Mine`, `Other`) and difficulty when needed. 6. User opens a puzzle card, attempts the best move, asks for a candidate-piece hint, or reveals the best move while keeping the full stored solution line behind collapsed disclosure. 7. System holds legal-but-suboptimal moves on the board with an error highlight until the user resets or retries, then records attempts and animates the reveal/continuation sequence on the board.",
+      "description": "1. User imports a game and opens the game view. 2. User runs browser-side analysis. 3. System stores analysis snapshots locally and derives puzzle candidates from qualifying eval swings. 4. System saves generated puzzles and review metadata in IndexedDB. 5. User opens the puzzles view, switches between blunder and mistake tabs, narrows the bank by ownership (`All`, `Mine`, `Other`) and difficulty when needed, or starts continuous mode for personal training. 6. Continuous mode builds an in-memory queue from the user's own puzzles only, serves blunders before mistakes, prioritizes due items before non-due items, and ranks each due-status bucket from weakest to strongest using failures and solve history. 7. User opens a single puzzle card or the continuous queue, attempts the best move, asks for a candidate-piece hint, or reveals the best move while keeping the full stored solution line behind collapsed disclosure. 8. System holds legal-but-suboptimal moves on the board with an error highlight until the user resets or retries, records attempts, animates the reveal/continuation sequence on the board, and in continuous mode short-cycle requeues failed or revealed puzzles later in the same session.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -2615,8 +2739,8 @@
       "id": "vertical:v7-backoffice-and-benchmarking",
       "kind": "vertical",
       "label": "V7 Backoffice and Benchmarking",
-      "summary": "Give maintainers an operational surface for inspecting shipped analysis and puzzle constants, a small persisted control surface for lazy library analysis runtime settings, a repeatable benchmark harness for comparing real browser-worker analysis cost on the bundled PGN fixture, and a FITL explorer that makes intent, feature, implementation, and tooling relationships visible before planning changes.",
-      "description": "1. Maintainer opens the backoffice route. 2. System loads the persisted lazy-analysis runtime settings and puzzle playback settings, then renders editable controls for enablement, scan interval, and playback speed. 3. System renders the remaining shipped source-backed constants grouped into readable sections. 4. Maintainer opens the analysis benchmark route from backoffice. 5. System loads the bundled `single.pgn` fixture, builds benchmark scenarios, and runs repeated analysis through the real worker path. 6. System reports scenario-level timing summaries, projected full-run runtime, safety-stop counts, and recommended derived safety budgets. 7. Maintainer opens `/backoffice/fitl-map` from backoffice. 8. System loads the generated FITL graph snapshot, lands on a project-level overview of intents and verticals, then deepens into architecture or implementation only after the maintainer focuses a vertical or tool. 9. System exposes a structured copyable AI change brief for the current focus, including relevant docs, files, tools, constraints, and validation commands.",
+      "summary": "Give maintainers an operational surface for inspecting shipped analysis and puzzle constants, a small persisted control surface for lazy library analysis runtime settings and Chess.com sync identity/cadence, a repeatable benchmark harness for comparing real browser-worker analysis cost on the bundled PGN fixture, and a FITL explorer that makes intent, feature, implementation, and tooling relationships visible before planning changes.",
+      "description": "1. Maintainer opens the backoffice route. 2. System loads the persisted lazy-analysis runtime settings, Chess.com sync settings, and puzzle playback settings, then renders editable controls for enablement, scan interval, username, cadence, and playback speed. 3. System renders the remaining shipped source-backed constants grouped into readable sections. 4. Maintainer opens the analysis benchmark route from backoffice. 5. System loads the bundled `single.pgn` fixture, builds benchmark scenarios, and runs repeated analysis through the real worker path. 6. System reports scenario-level timing summaries, projected full-run runtime, safety-stop counts, and recommended derived safety budgets. 7. Maintainer opens `/backoffice/fitl-map` from backoffice. 8. System loads the generated FITL graph snapshot, lands on a project-level overview of intents and verticals, then deepens into architecture or implementation only after the maintainer focuses a vertical or tool. 9. System exposes a structured copyable AI change brief for the current focus, including relevant docs, files, tools, constraints, and validation commands.",
       "lifecycle": "active",
       "system": "internal"
     }
@@ -2637,6 +2761,24 @@
     {
       "id": "file:apps/web/src/application/analysisCoordinator.ts->touches->layer:application",
       "from": "file:apps/web/src/application/analysisCoordinator.ts",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/application/chessComImport.ts->touches->layer:application",
+      "from": "file:apps/web/src/application/chessComImport.ts",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/application/chessComSyncCoordinator.ts->touches->layer:application",
+      "from": "file:apps/web/src/application/chessComSyncCoordinator.ts",
+      "to": "layer:application",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/application/importGames.ts->touches->layer:application",
+      "from": "file:apps/web/src/application/importGames.ts",
       "to": "layer:application",
       "kind": "touches"
     },
@@ -2707,6 +2849,24 @@
       "kind": "touches"
     },
     {
+      "id": "file:apps/web/src/domain/chessComArchives.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/chessComArchives.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/chessComSyncConfig.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/chessComSyncConfig.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/domain/continuousPuzzleSession.ts->touches->layer:domain",
+      "from": "file:apps/web/src/domain/continuousPuzzleSession.ts",
+      "to": "layer:domain",
+      "kind": "touches"
+    },
+    {
       "id": "file:apps/web/src/domain/fitlGraph.ts->touches->layer:domain",
       "from": "file:apps/web/src/domain/fitlGraph.ts",
       "to": "layer:domain",
@@ -2763,6 +2923,12 @@
     {
       "id": "file:apps/web/src/generated/fitlGraphSnapshot.ts->touches->layer:adapters",
       "from": "file:apps/web/src/generated/fitlGraphSnapshot.ts",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/chessComApi.ts->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/chessComApi.ts",
       "to": "layer:adapters",
       "kind": "touches"
     },
@@ -2920,12 +3086,6 @@
       "id": "file:apps/web/src/routes/import.tsx->touches->layer:presentation",
       "from": "file:apps/web/src/routes/import.tsx",
       "to": "layer:presentation",
-      "kind": "touches"
-    },
-    {
-      "id": "file:apps/web/src/routes/import.tsx->touches->layer:remaining-orchestration-currently-in",
-      "from": "file:apps/web/src/routes/import.tsx",
-      "to": "layer:remaining-orchestration-currently-in",
       "kind": "touches"
     },
     {
@@ -3223,6 +3383,24 @@
       "kind": "implemented_by"
     },
     {
+      "id": "module:web-app->implemented_by->file:apps/web/src/application/chessComImport.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/application/chessComImport.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/application/chessComSyncCoordinator.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/application/chessComSyncCoordinator.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/application/importGames.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/application/importGames.ts",
+      "kind": "implemented_by"
+    },
+    {
       "id": "module:web-app->implemented_by->file:apps/web/src/application/runAnalysisBenchmark.ts",
       "from": "module:web-app",
       "to": "file:apps/web/src/application/runAnalysisBenchmark.ts",
@@ -3289,6 +3467,24 @@
       "kind": "implemented_by"
     },
     {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/chessComArchives.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/chessComArchives.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/chessComSyncConfig.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/chessComSyncConfig.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/domain/continuousPuzzleSession.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/domain/continuousPuzzleSession.ts",
+      "kind": "implemented_by"
+    },
+    {
       "id": "module:web-app->implemented_by->file:apps/web/src/domain/fitlGraph.ts",
       "from": "module:web-app",
       "to": "file:apps/web/src/domain/fitlGraph.ts",
@@ -3340,6 +3536,12 @@
       "id": "module:web-app->implemented_by->file:apps/web/src/generated/fitlGraphSnapshot.ts",
       "from": "module:web-app",
       "to": "file:apps/web/src/generated/fitlGraphSnapshot.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/chessComApi.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/chessComApi.ts",
       "kind": "implemented_by"
     },
     {

@@ -1,14 +1,101 @@
 import { useEffect } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
 import { sharedAnalysisCoordinator } from "../application/analysisCoordinator";
-import { useMockSession } from "../lib/mockData";
+import { sharedChessComSyncCoordinator } from "../application/chessComSyncCoordinator";
+import { useRuntimeSession } from "../lib/runtimeGateway";
+import { useAuthActions } from "@convex-dev/auth/react";
 
 export function RootLayout() {
-  const session = useMockSession();
+  const session = useRuntimeSession();
 
   useEffect(() => {
     sharedAnalysisCoordinator.ensureStarted();
+    sharedChessComSyncCoordinator.ensureStarted();
   }, []);
+
+  if (!session.isConfigured) {
+    return (
+      <div className="app-shell">
+        <header className="shell-header">
+          <div>
+            <h1>Chess Trainer</h1>
+            <p className="muted">Import, analyze, and turn blunders into puzzles.</p>
+          </div>
+        </header>
+        <main>
+          <section className="page">
+            <p>Convex is not configured. Set `VITE_CONVEX_URL` before running the web app.</p>
+          </section>
+        </main>
+      </div>
+    );
+  }
+
+  if (session.isLoading) {
+    return (
+      <div className="app-shell">
+        <header className="shell-header">
+          <div>
+            <h1>Chess Trainer</h1>
+            <p className="muted">Import, analyze, and turn blunders into puzzles.</p>
+          </div>
+        </header>
+        <main>
+          <section className="page">
+            <p>Loading your session...</p>
+          </section>
+        </main>
+      </div>
+    );
+  }
+
+  if (!session.isAuthenticated || !session.user) {
+    return <SignedOutLayout />;
+  }
+
+  return <SignedInLayout />;
+}
+
+function SignedOutLayout() {
+  const { signIn } = useAuthActions();
+
+  async function startGoogleSignIn() {
+    await signIn("google", {
+      redirectTo: window.location.pathname
+    });
+  }
+
+  return (
+    <div className="app-shell">
+      <header className="shell-header">
+        <div>
+          <h1>Chess Trainer</h1>
+          <p className="muted">Import, analyze, and turn blunders into puzzles.</p>
+        </div>
+      </header>
+      <main>
+        <section className="page stack-gap">
+          <h2>Sign in required</h2>
+          <p className="muted">Remote persistence is active. Sign in with Google to access your library, analysis, and puzzles.</p>
+          <div className="inline-actions">
+            <button type="button" className="action-button" onClick={() => void startGoogleSignIn()}>
+              Continue with Google
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+function SignedInLayout() {
+  const session = useRuntimeSession();
+  const { signOut } = useAuthActions();
+  const user = session.user;
+
+  async function handleSignOut() {
+    await signOut();
+  }
 
   return (
     <div className="app-shell">
@@ -18,8 +105,11 @@ export function RootLayout() {
           <p className="muted">Import, analyze, and turn blunders into puzzles.</p>
         </div>
         <div className="session-box">
-          <span className="muted">Mock mode</span>
-          <span className="muted">{session.user.name}</span>
+          <span className="muted">{session.browserOnline && session.backendConnected ? "Online" : "Offline (view-only)"}</span>
+          <span className="muted">{user?.name ?? user?.email ?? user?.id ?? "Unknown user"}</span>
+          <button type="button" className="action-button" onClick={() => void handleSignOut()}>
+            Sign out
+          </button>
         </div>
       </header>
 

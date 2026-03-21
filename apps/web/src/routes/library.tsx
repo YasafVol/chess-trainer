@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { GameRecord } from "../domain/types";
-import { useLocalGames } from "../lib/mockData";
+import { useGames } from "../lib/runtimeGateway";
 
 function readHeader(headers: Record<string, string>, key: string): string | null {
   const value = headers[key]?.trim();
@@ -105,11 +105,11 @@ function formatTimeControl(game: GameRecord): string | null {
 }
 
 export function LibraryPage() {
-  const games = useLocalGames();
+  const games = useGames();
   const navigate = useNavigate();
 
   if (games === undefined) {
-    return <section className="page"><p>Loading library…</p></section>;
+    return <section className="page"><p>Loading library...</p></section>;
   }
 
   const rows: GameRecord[] = games;

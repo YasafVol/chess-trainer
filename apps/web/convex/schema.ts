@@ -14,7 +14,7 @@ export default defineSchema({
     headers: v.record(v.string(), v.string()),
     initialFen: v.string(),
     movesUci: v.array(v.string()),
-    source: v.union(v.literal("paste"), v.literal("upload")),
+    source: v.union(v.literal("paste"), v.literal("upload"), v.literal("chesscom")),
     createdAt: v.string(),
     updatedAt: v.string()
   })
@@ -33,6 +33,7 @@ export default defineSchema({
       depth: v.number(),
       multiPV: v.number(),
       movetimeMs: v.optional(v.number()),
+      foregroundBudgetMs: v.optional(v.number()),
       threads: v.optional(v.number()),
       hashMb: v.optional(v.number())
     }),
@@ -53,6 +54,10 @@ export default defineSchema({
     ply: v.number(),
     fen: v.string(),
     playedMoveUci: v.optional(v.string()),
+    playedMoveEvaluationType: v.optional(v.union(v.literal("cp"), v.literal("mate"))),
+    playedMoveEvaluation: v.optional(v.number()),
+    playedMoveDepth: v.optional(v.number()),
+    playedMovePvUci: v.optional(v.array(v.string())),
     bestMoveUci: v.optional(v.string()),
     evaluationType: v.union(v.literal("cp"), v.literal("mate")),
     evaluation: v.number(),
@@ -62,36 +67,42 @@ export default defineSchema({
     timeMs: v.optional(v.number()),
     pvUci: v.array(v.string())
   })
-    .index("by_run_ply", ["runId", "ply"])
-    .index("by_game_ply", ["gameId", "ply"])
+    .index("by_user_run_ply", ["userId", "runId", "ply"])
+    .index("by_user_game_ply", ["userId", "gameId", "ply"])
     .index("by_user_clientId", ["userId", "clientId"]),
   puzzles: defineTable({
     clientId: v.string(),
     userId: v.id("users"),
     gameId: v.string(),
-    runId: v.string(),
-    sourcePly: v.number(),
-    sourceGameHash: v.string(),
     sourceKey: v.string(),
     classification: v.union(v.literal("inaccuracy"), v.literal("mistake"), v.literal("blunder")),
+    ownership: v.union(v.literal("mine"), v.literal("other")),
+    source: v.object({
+      runId: v.string(),
+      ply: v.number(),
+      sourceGameHash: v.string()
+    }),
     fen: v.string(),
     sideToMove: v.union(v.literal("w"), v.literal("b")),
     evalSwing: v.number(),
     expectedBestMove: v.string(),
     expectedLine: v.array(v.string()),
+    solutionMoves: v.array(v.string()),
     playedBadMove: v.optional(v.string()),
     themes: v.array(v.string()),
     difficulty: v.number(),
-    repetition: v.number(),
-    intervalDays: v.number(),
-    easeFactor: v.number(),
-    dueAt: v.string(),
-    lastReviewedAt: v.optional(v.string()),
-    consecutiveFailures: v.number(),
+    schedule: v.object({
+      repetition: v.number(),
+      intervalDays: v.number(),
+      easeFactor: v.number(),
+      dueAt: v.string(),
+      lastReviewedAt: v.optional(v.string()),
+      consecutiveFailures: v.number()
+    }),
     createdAt: v.string(),
     updatedAt: v.string()
   })
-    .index("by_user_dueAt", ["userId", "dueAt"])
+    .index("by_user_updatedAt", ["userId", "updatedAt"])
     .index("by_user_sourceKey", ["userId", "sourceKey"])
     .index("by_user_clientId", ["userId", "clientId"]),
   puzzleAttempts: defineTable({
@@ -104,6 +115,21 @@ export default defineSchema({
     hintsUsed: v.number(),
     revealed: v.boolean(),
     attemptedAt: v.string()
-  }).index("by_user_puzzle_attemptedAt", ["userId", "puzzleId", "attemptedAt"])
+  })
+    .index("by_user_puzzle_attemptedAt", ["userId", "puzzleId", "attemptedAt"])
+    .index("by_user_attemptedAt", ["userId", "attemptedAt"]),
+  appMeta: defineTable({
+    userId: v.id("users"),
+    key: v.union(v.literal("analysisCoordinatorConfig"), v.literal("puzzlePlaybackConfig")),
+    value: v.union(
+      v.object({
+        enabled: v.boolean(),
+        intervalMs: v.number()
+      }),
+      v.object({
+        stepMs: v.number()
+      })
+    ),
+    updatedAt: v.string()
+  }).index("by_user_key", ["userId", "key"])
 });
-

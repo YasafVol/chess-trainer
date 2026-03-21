@@ -1,17 +1,20 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { Link } from "@tanstack/react-router";
 import { sharedAnalysisCoordinator } from "../application/analysisCoordinator";
+import { sharedChessComSyncCoordinator } from "../application/chessComSyncCoordinator";
 import {
   ANALYSIS_COORDINATOR_INTERVAL_MAX_MS,
   ANALYSIS_COORDINATOR_INTERVAL_MIN_MS
 } from "../domain/analysisCoordinatorConfig";
+import { validateChessComSyncConfig } from "../domain/chessComSyncConfig";
 import {
   PUZZLE_PLAYBACK_CONFIG_DEFAULTS,
   PUZZLE_PLAYBACK_STEP_MAX_MS,
   PUZZLE_PLAYBACK_STEP_MIN_MS
 } from "../domain/puzzlePlaybackConfig";
 import { formatUnknownError } from "../lib/formatUnknownError";
-import { getPuzzlePlaybackConfig, savePuzzlePlaybackConfig } from "../lib/storage/repositories/appMetaRepo";
+import { runtimeGateway, useRuntimeSession } from "../lib/runtimeGateway";
+import { ChessComSyncSettings } from "../presentation/ChessComSyncSettings";
 import { buildBackofficeConfigSections } from "../presentation/backofficeView";
 
 const ANALYSIS_COORDINATOR_INTERVAL_MIN_SECONDS = ANALYSIS_COORDINATOR_INTERVAL_MIN_MS / 1000;
@@ -19,20 +22,31 @@ const ANALYSIS_COORDINATOR_INTERVAL_MAX_SECONDS = ANALYSIS_COORDINATOR_INTERVAL_
 
 export function BackofficePage() {
   const sections = buildBackofficeConfigSections();
+  const session = useRuntimeSession();
   const coordinator = useSyncExternalStore(
     (listener) => sharedAnalysisCoordinator.subscribe(listener),
     () => sharedAnalysisCoordinator.getSnapshot()
   );
+  const chessComCoordinator = useSyncExternalStore(
+    (listener) => sharedChessComSyncCoordinator.subscribe(listener),
+    () => sharedChessComSyncCoordinator.getSnapshot()
+  );
   const [enabled, setEnabled] = useState(coordinator.config.enabled);
   const [intervalSeconds, setIntervalSeconds] = useState(String(coordinator.config.intervalMs / 1000));
   const [puzzlePlaybackStepMs, setPuzzlePlaybackStepMs] = useState(String(PUZZLE_PLAYBACK_CONFIG_DEFAULTS.stepMs));
+  const [chessComUsername, setChessComUsername] = useState(chessComCoordinator.config.username);
+  const [chessComEnabled, setChessComEnabled] = useState(chessComCoordinator.config.enabled);
+  const [chessComInterval, setChessComInterval] = useState(chessComCoordinator.config.interval);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [puzzlePlaybackSaveStatus, setPuzzlePlaybackSaveStatus] = useState<string | null>(null);
+  const [chessComSaveStatus, setChessComSaveStatus] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [savingPuzzlePlayback, setSavingPuzzlePlayback] = useState(false);
+  const [savingChessCom, setSavingChessCom] = useState(false);
 
   useEffect(() => {
     sharedAnalysisCoordinator.ensureStarted();
+    sharedChessComSyncCoordinator.ensureStarted();
   }, []);
 
   useEffect(() => {
@@ -41,8 +55,18 @@ export function BackofficePage() {
   }, [coordinator.config.enabled, coordinator.config.intervalMs]);
 
   useEffect(() => {
+    setChessComUsername(chessComCoordinator.config.username);
+    setChessComEnabled(chessComCoordinator.config.enabled);
+    setChessComInterval(chessComCoordinator.config.interval);
+  }, [
+    chessComCoordinator.config.enabled,
+    chessComCoordinator.config.interval,
+    chessComCoordinator.config.username
+  ]);
+
+  useEffect(() => {
     let active = true;
-    void getPuzzlePlaybackConfig().then((config) => {
+    void runtimeGateway.getPuzzlePlaybackConfig().then((config) => {
       if (active) {
         setPuzzlePlaybackStepMs(String(config.stepMs));
       }
@@ -72,7 +96,7 @@ export function BackofficePage() {
     setSavingPuzzlePlayback(true);
     setPuzzlePlaybackSaveStatus(null);
     try {
-      await savePuzzlePlaybackConfig({
+      await runtimeGateway.savePuzzlePlaybackConfig({
         stepMs: Number(puzzlePlaybackStepMs)
       });
       setPuzzlePlaybackSaveStatus("Puzzle playback settings saved.");
@@ -80,6 +104,41 @@ export function BackofficePage() {
       setPuzzlePlaybackSaveStatus(`Failed to save puzzle playback settings: ${formatUnknownError(error)}`);
     } finally {
       setSavingPuzzlePlayback(false);
+    }
+  }
+
+  async function saveChessComSettings() {
+    setSavingChessCom(true);
+    setChessComSaveStatus(null);
+
+    const nextConfig = {
+      ...chessComCoordinator.config,
+      username: chessComUsername,
+      enabled: chessComEnabled,
+      interval: chessComInterval
+    } as const;
+    const validationError = validateChessComSyncConfig({
+      username: nextConfig.username.trim().toLowerCase(),
+      enabled: nextConfig.enabled,
+      interval: nextConfig.interval,
+      lastSyncAt: chessComCoordinator.config.lastSyncAt,
+      lastSuccessfulArchive: chessComCoordinator.config.lastSuccessfulArchive,
+      lastStatus: chessComCoordinator.config.lastStatus
+    });
+
+    if (validationError) {
+      setChessComSaveStatus(validationError);
+      setSavingChessCom(false);
+      return;
+    }
+
+    try {
+      await sharedChessComSyncCoordinator.updateConfig(nextConfig);
+      setChessComSaveStatus("Chess.com settings saved.");
+    } catch (error) {
+      setChessComSaveStatus(`Failed to save Chess.com settings: ${formatUnknownError(error)}`);
+    } finally {
+      setSavingChessCom(false);
     }
   }
 
@@ -120,13 +179,30 @@ export function BackofficePage() {
           </label>
         </div>
         <div className="inline-actions">
-          <button type="button" className="action-button" onClick={() => void saveRuntimeSettings()} disabled={saving}>
+          <button type="button" className="action-button" onClick={() => void saveRuntimeSettings()} disabled={!session.canMutate || saving}>
             {saving ? "Saving..." : "Save lazy-analysis settings"}
           </button>
         </div>
         <p className="muted">Current runtime status: {coordinator.status}</p>
         {saveStatus ? <p className="muted">{saveStatus}</p> : null}
       </div>
+
+      <ChessComSyncSettings
+        config={{
+          ...chessComCoordinator.config,
+          username: chessComUsername,
+          enabled: chessComEnabled,
+          interval: chessComInterval
+        }}
+        status={chessComCoordinator.status}
+        running={chessComCoordinator.running}
+        saving={savingChessCom}
+        saveStatus={chessComSaveStatus}
+        onUsernameChange={setChessComUsername}
+        onEnabledChange={setChessComEnabled}
+        onIntervalChange={setChessComInterval}
+        onSave={() => void saveChessComSettings()}
+      />
 
       <div className="config-notice">
         <strong>Puzzle playback</strong>
@@ -147,7 +223,7 @@ export function BackofficePage() {
           </label>
         </div>
         <div className="inline-actions">
-          <button type="button" className="action-button" onClick={() => void savePuzzlePlaybackSettings()} disabled={savingPuzzlePlayback}>
+          <button type="button" className="action-button" onClick={() => void savePuzzlePlaybackSettings()} disabled={!session.canMutate || savingPuzzlePlayback}>
             {savingPuzzlePlayback ? "Saving..." : "Save puzzle playback settings"}
           </button>
         </div>

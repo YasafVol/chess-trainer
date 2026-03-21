@@ -11,11 +11,10 @@ export const current = queryGeneric({
       return null;
     }
     return {
-      id: userId,
+      id: String(userId),
       name: user.name,
       email: user.email,
       image: user.image
     };
   }
 });
-

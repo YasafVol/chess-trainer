@@ -6,18 +6,7 @@ import { buildReplayData } from "../domain/gameReplay.js";
 import type { AnalysisCoordinatorConfig, AnalysisRun, GameRecord, PlyAnalysis } from "../domain/types.js";
 import { EngineClient, type EngineFlavor } from "../engine/engineClient.js";
 import { formatUnknownError } from "../lib/formatUnknownError.js";
-import {
-  generatePuzzlesForRunLocal,
-  getLocalGameForCurrentUser,
-  hasCompletedAnalysisRunForGameLocal,
-  listLocalGamesForCurrentUser,
-  savePlyLocal,
-  saveRunLocal
-} from "../lib/mockData.js";
-import {
-  getAnalysisCoordinatorConfig,
-  saveAnalysisCoordinatorConfig
-} from "../lib/storage/repositories/appMetaRepo.js";
+import { runtimeGateway } from "../lib/runtimeGateway.js";
 import {
   runGameAnalysis,
   type AnalyzePositionInput,
@@ -61,11 +50,14 @@ export type AnalysisCoordinatorDeps = {
   hasCompletedRun: (gameId: string) => Promise<boolean>;
   saveRun: (run: AnalysisRun) => Promise<void>;
   savePly: (ply: PlyAnalysis) => Promise<void>;
+  flushPendingPlies: (runId?: string) => Promise<void>;
   generatePuzzlesForRun: (runId: string, gameId: string) => Promise<number>;
   parseReplayData: typeof buildReplayData;
   chooseEngineFlavor: () => EngineFlavor;
   loadConfig: () => Promise<AnalysisCoordinatorConfig>;
   saveConfig: (config: AnalysisCoordinatorConfig) => Promise<void>;
+  canPersistMutations: () => boolean;
+  mutationGuardMessage: () => string;
   setIntervalFn: typeof setInterval;
   clearIntervalFn: typeof clearInterval;
 };
@@ -89,16 +81,19 @@ function defaultDeps(): AnalysisCoordinatorDeps {
   return {
     createEngineClient: () => new EngineClient(),
     runGameAnalysis,
-    listGames: listLocalGamesForCurrentUser,
-    getGame: getLocalGameForCurrentUser,
-    hasCompletedRun: hasCompletedAnalysisRunForGameLocal,
-    saveRun: saveRunLocal,
-    savePly: (ply) => savePlyLocal([ply]),
-    generatePuzzlesForRun: generatePuzzlesForRunLocal,
+    listGames: () => runtimeGateway.listGames(),
+    getGame: (gameId) => runtimeGateway.getGame(gameId),
+    hasCompletedRun: (gameId) => runtimeGateway.hasCompletedRun(gameId),
+    saveRun: (run) => runtimeGateway.saveRun(run),
+    savePly: (ply) => runtimeGateway.savePly(ply),
+    flushPendingPlies: (runId) => runtimeGateway.flushPendingPlies(runId),
+    generatePuzzlesForRun: (runId, gameId) => runtimeGateway.generatePuzzlesForRun(runId, gameId),
     parseReplayData: buildReplayData,
     chooseEngineFlavor,
-    loadConfig: getAnalysisCoordinatorConfig,
-    saveConfig: saveAnalysisCoordinatorConfig,
+    loadConfig: () => runtimeGateway.getAnalysisCoordinatorConfig(),
+    saveConfig: (config) => runtimeGateway.saveAnalysisCoordinatorConfig(config),
+    canPersistMutations: () => runtimeGateway.getSessionSnapshot().canMutate,
+    mutationGuardMessage: () => runtimeGateway.mutationGuardMessage(),
     setIntervalFn: (handler, timeout) => window.setInterval(handler, timeout),
     clearIntervalFn: (intervalId) => window.clearInterval(intervalId)
   };
@@ -188,6 +183,10 @@ export class AnalysisCoordinator {
   }
 
   async updateConfig(config: Partial<AnalysisCoordinatorConfig>): Promise<void> {
+    if (!this.deps.canPersistMutations()) {
+      throw new Error(this.deps.mutationGuardMessage());
+    }
+
     const normalized = normalizeAnalysisCoordinatorConfig({
       ...this.snapshot.config,
       ...config
@@ -197,6 +196,15 @@ export class AnalysisCoordinator {
   }
 
   async requestForegroundAnalysis(gameId: string): Promise<void> {
+    if (!this.deps.canPersistMutations()) {
+      const message = this.deps.mutationGuardMessage();
+      this.setSnapshot({
+        status: message,
+        error: message
+      });
+      return;
+    }
+
     this.ensureStarted();
 
     if (this.activeTask?.mode === "foreground" && this.activeTask.gameId === gameId) {
@@ -348,6 +356,10 @@ export class AnalysisCoordinator {
       return;
     }
 
+    if (!this.deps.canPersistMutations()) {
+      return;
+    }
+
     this.backgroundScanInFlight = true;
     try {
       const games = await this.deps.listGames();
@@ -486,6 +498,8 @@ export class AnalysisCoordinator {
         }
       });
 
+      await this.deps.flushPendingPlies(result.finalRun.id);
+
       if (result.finalRun.status === "completed") {
         try {
           createdPuzzles = await this.deps.generatePuzzlesForRun(result.finalRun.id, game.id);
@@ -494,6 +508,9 @@ export class AnalysisCoordinator {
         }
       }
     } catch (error) {
+      await this.deps.flushPendingPlies().catch((flushError) => {
+        console.warn("[analysisCoordinator] failed to flush pending plies after analysis error", flushError);
+      });
       const message = formatUnknownError(error, "Analysis failed");
       this.setSnapshot({
         running: false,

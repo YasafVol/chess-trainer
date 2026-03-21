@@ -1,10 +1,12 @@
+import { CHESS_COM_SYNC_CONFIG_DEFAULTS, normalizeChessComSyncConfig } from "../../../domain/chessComSyncConfig.js";
 import { normalizeAnalysisCoordinatorConfig } from "../../../domain/analysisCoordinatorConfig.js";
 import { normalizePuzzlePlaybackConfig } from "../../../domain/puzzlePlaybackConfig.js";
-import type { AnalysisCoordinatorConfig, PuzzlePlaybackConfig } from "../../../domain/types.js";
+import type { AnalysisCoordinatorConfig, ChessComSyncConfig, PuzzlePlaybackConfig } from "../../../domain/types.js";
 import { withStore } from "../db.js";
 
 const ANALYSIS_COORDINATOR_CONFIG_KEY = "analysisCoordinatorConfig";
 const PUZZLE_PLAYBACK_CONFIG_KEY = "puzzlePlaybackConfig";
+const CHESS_COM_SYNC_CONFIG_KEY = "chessComSyncConfig";
 
 type AppMetaRecord<T> = {
   key: string;
@@ -48,6 +50,23 @@ export async function savePuzzlePlaybackConfig(config: PuzzlePlaybackConfig): Pr
     await requestToPromise(store.put({
       key: PUZZLE_PLAYBACK_CONFIG_KEY,
       value: normalizePuzzlePlaybackConfig(config)
+    }));
+  });
+}
+
+export async function getChessComSyncConfig(): Promise<ChessComSyncConfig> {
+  return withStore("appMeta", "readonly", async (store) => {
+    const result = await requestToPromise(store.get(CHESS_COM_SYNC_CONFIG_KEY));
+    const record = (result as AppMetaRecord<ChessComSyncConfig> | undefined) ?? null;
+    return normalizeChessComSyncConfig(record?.value ?? CHESS_COM_SYNC_CONFIG_DEFAULTS);
+  });
+}
+
+export async function saveChessComSyncConfig(config: ChessComSyncConfig): Promise<void> {
+  await withStore("appMeta", "readwrite", async (store) => {
+    await requestToPromise(store.put({
+      key: CHESS_COM_SYNC_CONFIG_KEY,
+      value: normalizeChessComSyncConfig(config)
     }));
   });
 }

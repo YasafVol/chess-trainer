@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import type { Puzzle } from "../domain/types";
-import { useLocalPuzzles } from "../lib/mockData";
+import { usePuzzles } from "../lib/runtimeGateway";
 import type { PuzzleDifficultyFilter, PuzzleOwnershipFilter, PuzzleTab } from "../presentation/puzzleView";
 import { filterPuzzles } from "../presentation/puzzleView";
 
@@ -39,7 +39,7 @@ function readOwnershipFilter(value: string): PuzzleOwnershipFilter {
 }
 
 export function PuzzlesPage() {
-  const puzzles = useLocalPuzzles();
+  const puzzles = usePuzzles();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<PuzzleTab>("blunder");
   const [ownershipFilter, setOwnershipFilter] = useState<PuzzleOwnershipFilter>("all");
@@ -59,6 +59,7 @@ export function PuzzlesPage() {
       <div>
         <h2>Puzzles</h2>
         <p className="muted">Puzzles are generated automatically from analyzed domain-level mistakes and blunders, then ordered by due date and failures. Use the ownership filter to focus on your own mistakes or the opponent's.</p>
+        <p><Link to="/puzzles/continuous">Start continuous mode</Link></p>
       </div>
 
       {rows.length === 0 ? <p className="muted">No puzzles generated yet. Analyze a game to create some.</p> : null}

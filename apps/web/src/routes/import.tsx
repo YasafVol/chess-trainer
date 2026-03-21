@@ -1,35 +1,40 @@
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
-import { parsePgnCollection, shortHash } from "@chess-trainer/chess-core";
+import { ChangeEvent, FormEvent, useEffect, useState, useSyncExternalStore } from "react";
 import { InlineLoader } from "../components/InlineLoader";
 import { useDelayedBusy } from "../components/useDelayedBusy";
-import type { ImportPreviewGame } from "../domain/types";
-import { buildReplayData, moveToUci } from "../domain/gameReplay";
-import { importBatchLocal, useLocalGames } from "../lib/mockData";
+import { discoverChessComArchiveMonths, importChessComArchiveRange } from "../application/chessComImport";
+import { sharedChessComSyncCoordinator } from "../application/chessComSyncCoordinator";
+import { buildImportPreviews, importSelectedPreviews } from "../application/importGames";
+import { ChessComImportPanel } from "../presentation/ChessComImportPanel";
+import type { ChessComArchiveMonth, ImportPreviewGame } from "../domain/types";
+import { useGames, useRuntimeSession } from "../lib/runtimeGateway";
 
 function previewId(preview: Pick<ImportPreviewGame, "index" | "hash">): string {
   return `${preview.index}:${preview.hash}`;
 }
 
 export function ImportPage() {
-  const existingGames = useLocalGames() ?? [];
+  const session = useRuntimeSession();
+  const existingGames = useGames() ?? [];
+  const chessComCoordinator = useSyncExternalStore(
+    (listener) => sharedChessComSyncCoordinator.subscribe(listener),
+    () => sharedChessComSyncCoordinator.getSnapshot()
+  );
   const [rawInput, setRawInput] = useState("");
   const [status, setStatus] = useState("Paste a PGN or upload a file to begin.");
   const [busy, setBusy] = useState(false);
   const [isReadingFile, setIsReadingFile] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [previews, setPreviews] = useState<ImportPreviewGame[]>([]);
+  const [chessComArchives, setChessComArchives] = useState<ChessComArchiveMonth[]>([]);
+  const [chessComStatus, setChessComStatus] = useState("Configure a Chess.com username in Backoffice to import archive months.");
+  const [loadingChessComArchives, setLoadingChessComArchives] = useState(false);
+  const [importingChessComArchives, setImportingChessComArchives] = useState(false);
+  const [startMonthId, setStartMonthId] = useState("");
+  const [endMonthId, setEndMonthId] = useState("");
   const [source, setSource] = useState<"paste" | "upload">("paste");
 
   const showParseLoader = useDelayedBusy(isReadingFile || isParsing, { delayMs: 180, minVisibleMs: 400 });
   const showImportLoader = useDelayedBusy(busy, { delayMs: 180, minVisibleMs: 400 });
-
-  const existingByHash = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const game of existingGames) {
-      map.set(game.hash, game.id);
-    }
-    return map;
-  }, [existingGames]);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,35 +53,11 @@ export function ImportPage() {
         rawLength: rawInput.length
       });
 
-      const parsed = parsePgnCollection(rawInput);
-      const next: ImportPreviewGame[] = [];
-
-      for (const game of parsed) {
-        if (!game.hasMoves) {
-          continue;
-        }
-
-        try {
-          const replayData = buildReplayData(game.normalized, "startpos");
-          const hash = await shortHash(game.normalized);
-          next.push({
-            index: game.index,
-            normalized: game.normalized,
-            hash,
-            headers: game.headers,
-            movesUci: replayData.moves.map(moveToUci),
-            hasMoves: game.hasMoves,
-            duplicateOfGameId: existingByHash.get(hash),
-            selected: !existingByHash.has(hash),
-            source
-          });
-        } catch (error) {
-          console.warn("[import] failed to build preview for parsed game", {
-            index: game.index,
-            error
-          });
-        }
-      }
+      const next = await buildImportPreviews({
+        rawInput,
+        source,
+        existingGames
+      });
 
       if (cancelled) {
         return;
@@ -97,11 +78,32 @@ export function ImportPage() {
       setIsParsing(false);
     }
 
-    void buildPreviews();
+    void buildPreviews().catch((error) => {
+      if (!cancelled) {
+        setStatus(error instanceof Error ? error.message : "Failed to parse the PGN input.");
+        setIsParsing(false);
+      }
+    });
     return () => {
       cancelled = true;
     };
-  }, [existingByHash, rawInput, source]);
+  }, [existingGames, rawInput, source]);
+
+  useEffect(() => {
+    if (!chessComCoordinator.config.username) {
+      setChessComArchives([]);
+      setStartMonthId("");
+      setEndMonthId("");
+      setChessComStatus("Configure a Chess.com username in Backoffice to import archive months.");
+      return;
+    }
+
+    setChessComStatus((current) =>
+      current.startsWith("Configure a Chess.com username")
+        ? "Load the available Chess.com archive months, then choose a bounded range to import."
+        : current
+    );
+  }, [chessComCoordinator.config.username]);
 
   async function onFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -151,21 +153,7 @@ export function ImportPage() {
     setBusy(true);
     try {
       setStatus(`Importing ${selected.length} game${selected.length === 1 ? "" : "s"}...`);
-      const now = new Date().toISOString();
-      const result = await importBatchLocal(
-        selected.map((preview) => ({
-          id: crypto.randomUUID(),
-          schemaVersion: 1,
-          hash: preview.hash,
-          pgn: preview.normalized,
-          headers: preview.headers,
-          initialFen: "startpos",
-          movesUci: preview.movesUci,
-          source: preview.source,
-          createdAt: now,
-          updatedAt: now
-        }))
-      );
+      const result = await importSelectedPreviews(selected);
       setStatus(`Imported ${result.imported} game(s). Skipped ${result.skippedDuplicates} duplicates and ${result.skippedInvalid} invalid entries.`);
       setPreviews((current) => current.map((preview) => ({ ...preview, selected: false })));
     } catch (error) {
@@ -175,10 +163,63 @@ export function ImportPage() {
     }
   }
 
+  async function loadChessComArchives() {
+    if (!chessComCoordinator.config.username) {
+      setChessComStatus("Configure a Chess.com username in Backoffice before loading archives.");
+      return;
+    }
+
+    setLoadingChessComArchives(true);
+    try {
+      const archives = await discoverChessComArchiveMonths(chessComCoordinator.config.username);
+      setChessComArchives(archives);
+      if (archives.length === 0) {
+        setStartMonthId("");
+        setEndMonthId("");
+        setChessComStatus("No finished Chess.com archive months were available for this username.");
+      } else {
+        setStartMonthId(archives[0].id);
+        setEndMonthId(archives[archives.length - 1].id);
+        setChessComStatus(`Loaded ${archives.length} archive month(s). Choose a bounded date range to import.`);
+      }
+    } catch (error) {
+      setChessComStatus(error instanceof Error ? error.message : "Failed to load Chess.com archives.");
+    } finally {
+      setLoadingChessComArchives(false);
+    }
+  }
+
+  async function importChessComArchives() {
+    if (!chessComCoordinator.config.username) {
+      setChessComStatus("Configure a Chess.com username in Backoffice before importing archives.");
+      return;
+    }
+    if (!startMonthId || !endMonthId) {
+      setChessComStatus("Load the available archive months, then choose a valid start and end month.");
+      return;
+    }
+
+    setImportingChessComArchives(true);
+    try {
+      const result = await importChessComArchiveRange({
+        username: chessComCoordinator.config.username,
+        startMonthId,
+        endMonthId
+      });
+      setChessComStatus(result.statusMessage);
+      await sharedChessComSyncCoordinator.applyManualImportResult(result);
+    } catch (error) {
+      setChessComStatus(error instanceof Error ? error.message : "Chess.com archive import failed.");
+    } finally {
+      setImportingChessComArchives(false);
+    }
+  }
+
   return (
     <section className="page">
       <h2>Import PGN</h2>
       <p className="muted">Paste PGN text or upload a `.pgn` file. Multi-game collections are split into individual preview rows.</p>
+      {!session.canMutate ? <p className="muted">Import is disabled while signed out or offline. Reconnect to save games.</p> : null}
       <form onSubmit={onSubmit} className="stack-gap">
         <label htmlFor="pgn-input">PGN text</label>
         <textarea
@@ -193,14 +234,33 @@ export function ImportPage() {
         />
         <div className="inline-actions">
           <input type="file" accept=".pgn,text/plain" onChange={onFileChange} />
-          <button className="action-button" type="submit" disabled={busy || previews.every((preview) => !preview.selected || !!preview.duplicateOfGameId)}>
+          <button
+            className="action-button"
+            type="submit"
+            disabled={!session.canMutate || busy || previews.every((preview) => !preview.selected || !!preview.duplicateOfGameId)}
+          >
             {busy ? "Importing..." : "Import selected games"}
           </button>
         </div>
       </form>
       <p>{status}</p>
       {showParseLoader ? <InlineLoader label="Processing PGN" detail="Reading and splitting the collection into individual games." /> : null}
-      {showImportLoader ? <InlineLoader label="Importing games" detail="Saving selected games into the local library." /> : null}
+      {showImportLoader ? <InlineLoader label="Importing games" detail="Saving selected games into your Convex-backed library." /> : null}
+
+      <ChessComImportPanel
+        username={chessComCoordinator.config.username}
+        archives={chessComArchives}
+        loadingArchives={loadingChessComArchives}
+        importing={importingChessComArchives}
+        status={chessComStatus}
+        startMonthId={startMonthId}
+        endMonthId={endMonthId}
+        backofficeHref="/backoffice"
+        onDiscoverArchives={() => void loadChessComArchives()}
+        onStartMonthChange={setStartMonthId}
+        onEndMonthChange={setEndMonthId}
+        onImport={() => void importChessComArchives()}
+      />
 
       {previews.length > 0 ? (
         <div className="preview-list">

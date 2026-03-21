@@ -3,7 +3,7 @@ import type { AnalysisRun, GameRecord, ImportBatchResult, PlyAnalysis, Puzzle, P
 import { buildPuzzleStats, candidatePuzzlePairs, classifyEvalSwing, createInitialSchedule, derivePuzzleOwnership, inferThemes, initialPuzzleDifficulty, nextReviewOrder, nextScheduleFromQuality, normalizePuzzleRecord } from "../domain/puzzles.js";
 import { getLatestAnalysisRunByGameId, hasCompletedAnalysisRunForGameId, listPlyAnalysisByRunId, saveAnalysisRun, savePlyAnalysis } from "./storage/repositories/analysisRepo.js";
 import { getGame, listGames, saveGame } from "./storage/repositories/gamesRepo.js";
-import { getPuzzle, listPuzzleAttemptsByPuzzleId, listPuzzles, savePuzzle, savePuzzleAttempt } from "./storage/repositories/puzzlesRepo.js";
+import { getPuzzle, listPuzzleAttempts, listPuzzleAttemptsByPuzzleId, listPuzzles, savePuzzle, savePuzzleAttempt } from "./storage/repositories/puzzlesRepo.js";
 
 export const LOCAL_USER: SessionUser = {
   id: "yasafvolinsky",
@@ -88,6 +88,16 @@ export function useLocalPuzzles() {
   return useAsyncValue(async () => {
     const puzzles = await listPuzzles();
     return nextReviewOrder(puzzles.filter((puzzle) => puzzle.userId === LOCAL_USER.id));
+  }, []);
+}
+
+export function useLocalPuzzleBank() {
+  return useAsyncValue(async () => {
+    const [puzzles, attempts] = await Promise.all([listPuzzles(), listPuzzleAttempts()]);
+    return {
+      puzzles: puzzles.filter((puzzle) => puzzle.userId === LOCAL_USER.id),
+      attempts: attempts.filter((attempt) => attempt.userId === LOCAL_USER.id)
+    };
   }, []);
 }
 

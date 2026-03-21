@@ -1,6 +1,6 @@
 import { getDbVersion, migrations } from "./migrations.js";
 
-const DB_NAME = "chess-trainer-web";
+const DB_NAME = "chess-trainer-web-cache";
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 

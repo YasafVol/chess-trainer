@@ -4,9 +4,9 @@
 
 - Layer taxonomy and inward dependency rule are locked.
 - TDD Red-Green-Refactor is required execution policy.
-- The active shipment target is a local-first web app with browser-side analysis and IndexedDB persistence.
+- The active shipment target is an authenticated Convex-backed web app with browser-side analysis and IndexedDB read caching.
 - TanStack Router remains the active routing layer for the standalone SPA runtime.
-- Auth, cloud DB, and cross-device sync are explicitly deferred.
+- Auth and remote DB are active; cross-device sync conflict handling remains limited to server-last state.
 
 ## Open Issues
 
@@ -19,21 +19,21 @@
 
 1. Route-centric orchestration in the web app is accepted temporarily for delivery velocity.
 2. Manual browser smoke checks are still a primary quality gate for several high-risk paths.
-3. Mock session and local-only persistence are accepted so the product can ship before cloud identity and sync.
-4. Deferred Convex/auth scaffolding stays in-repo, but active runtime surfaces must not depend on live backend packages to typecheck or build.
+3. Offline support is intentionally read-only; write queueing/sync remains out of scope.
+4. Benchmark persistence remains local-only even though product data now lives in Convex.
 
 ## Deferred Items
 
-1. Auth, remote DB, and cross-device sync
-2. Convex-backed storage activation
-3. Cloud platform imports
-4. Advanced analytics and customization
-5. Targeted deeper `MultiPV=3` puzzle extraction
+1. Offline write queueing and conflict resolution
+2. Advanced analytics and customization
+3. Targeted deeper `MultiPV=3` puzzle extraction
+4. Deployment smoke automation
+5. Broader route-level UI coverage
 
 ## Mitigation Plan
 
 1. Extract route orchestration into application services.
 2. Add route-level component coverage for import, game, library, and puzzle flows.
-3. Add deployment smoke coverage before enabling cloud features.
-4. Expand IndexedDB migration tests before schema growth.
-5. Keep deferred backend descriptors explicit so the active web runtime remains isolated from Convex/auth activation work.
+3. Add deployment smoke coverage around the authenticated Convex runtime.
+4. Expand cache- and schema-alignment tests for the Convex-backed persistence path.
+5. Continue extracting route orchestration into shared application/runtime services.

@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
+import { AppRuntimeProviders } from "./lib/runtimeGateway";
 import { router } from "./router";
 import "./styles.css";
 
@@ -11,6 +12,8 @@ if (!rootEl) {
 
 createRoot(rootEl).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AppRuntimeProviders>
+      <RouterProvider router={router} />
+    </AppRuntimeProviders>
   </React.StrictMode>
 );

@@ -43,3 +43,11 @@ export async function listPuzzleAttemptsByPuzzleId(puzzleId: string): Promise<Pu
     return (result ?? []).sort((a, b) => (a.attemptedAt < b.attemptedAt ? -1 : 1));
   });
 }
+
+export async function listPuzzleAttempts(): Promise<PuzzleAttempt[]> {
+  return withStore("puzzleAttempts", "readonly", async (store) => {
+    const index = store.index("by_attemptedAt");
+    const result = (await requestToPromise(index.getAll())) as PuzzleAttempt[];
+    return (result ?? []).sort((a, b) => (a.attemptedAt < b.attemptedAt ? -1 : 1));
+  });
+}

@@ -4,6 +4,7 @@ import { ImportPage } from "./routes/import";
 import { LibraryPage } from "./routes/library";
 import { GamePage } from "./routes/game";
 import { PuzzlesPage } from "./routes/puzzles";
+import { ContinuousPuzzlesPage } from "./routes/puzzlesContinuous";
 import { PuzzlePage } from "./routes/puzzle";
 import { BackofficePage } from "./routes/backoffice";
 import { AnalysisBenchmarkPage } from "./routes/analysisBenchmark";
@@ -37,6 +38,12 @@ const puzzlesRoute = createRoute({
   component: PuzzlesPage
 });
 
+const continuousPuzzlesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/puzzles/continuous",
+  component: ContinuousPuzzlesPage
+});
+
 const puzzleRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/puzzles/$puzzleId",
@@ -66,6 +73,7 @@ const routeTree = rootRoute.addChildren([
   libraryRoute,
   gameRoute,
   puzzlesRoute,
+  continuousPuzzlesRoute,
   puzzleRoute,
   backofficeRoute,
   analysisBenchmarkRoute,

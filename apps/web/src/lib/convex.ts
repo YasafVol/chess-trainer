@@ -1,54 +1,75 @@
-// Deferred backend descriptor for the local-first web runtime.
-// Keep this file import-safe for the active app until Convex/auth is reintroduced.
-type DeferredConvexFunctionType = "action" | "mutation" | "query";
+import { makeFunctionReference } from "convex/server";
+import type {
+  AnalysisCoordinatorConfig,
+  AnalysisRun,
+  GameRecord,
+  ImportBatchResult,
+  PlyAnalysis,
+  Puzzle,
+  PuzzleAttempt,
+  PuzzlePlaybackConfig,
+  PuzzleStats,
+  SessionUser
+} from "../domain/types";
 
-type DeferredConvexReference<T extends DeferredConvexFunctionType> = {
-  deferred: true;
-  functionType: T;
-  name: string;
+type QueryArgs = Record<string, unknown>;
+
+function queryRef<Args extends QueryArgs, Result>(name: string) {
+  return makeFunctionReference<"query", Args, Result>(name);
+}
+
+function mutationRef<Args extends QueryArgs, Result>(name: string) {
+  return makeFunctionReference<"mutation", Args, Result>(name);
+}
+
+export type ImportedGameInput = Omit<GameRecord, "userId">;
+export type PersistedRunInput = Omit<AnalysisRun, "userId">;
+export type PersistedPlyInput = Omit<PlyAnalysis, "userId">;
+export type PersistedPuzzleAttemptInput = Omit<PuzzleAttempt, "id" | "userId">;
+export type AnalysisSnapshot = {
+  run: AnalysisRun | null;
+  plies: PlyAnalysis[];
 };
-
-function deferredFunctionReference<T extends DeferredConvexFunctionType>(
-  functionType: T,
-  name: string
-): DeferredConvexReference<T> {
-  return {
-    deferred: true,
-    functionType,
-    name
-  };
-}
-
-export const convex = null;
-
-export function requireConvexRuntime(): never {
-  throw new Error(
-    "Convex is deferred in the current local-first web runtime. Enable the Convex client before using this module."
-  );
-}
+export type PuzzleDetails = {
+  puzzle: Puzzle | null;
+  attempts: PuzzleAttempt[];
+  stats: PuzzleStats | null;
+};
+export type PuzzleBank = {
+  puzzles: Puzzle[];
+  attempts: PuzzleAttempt[];
+};
 
 export const convexApi = {
   auth: {
-    signIn: deferredFunctionReference("action", "auth:signIn"),
-    signOut: deferredFunctionReference("action", "auth:signOut")
+    signIn: makeFunctionReference<"action", Record<string, unknown>, unknown>("auth:signIn"),
+    signOut: makeFunctionReference<"action", Record<string, unknown>, unknown>("auth:signOut")
   },
   users: {
-    current: deferredFunctionReference("query", "users:current")
+    current: queryRef<Record<string, never>, SessionUser | null>("users:current")
   },
   games: {
-    list: deferredFunctionReference("query", "games:list"),
-    get: deferredFunctionReference("query", "games:get"),
-    importBatch: deferredFunctionReference("mutation", "games:importBatch")
+    list: queryRef<Record<string, never>, GameRecord[]>("games:list"),
+    get: queryRef<{ gameId: string }, GameRecord | null>("games:get"),
+    importBatch: mutationRef<{ games: ImportedGameInput[] }, ImportBatchResult>("games:importBatch")
   },
   analysis: {
-    snapshot: deferredFunctionReference("query", "analysis:snapshot"),
-    saveRun: deferredFunctionReference("mutation", "analysis:saveRun"),
-    savePlies: deferredFunctionReference("mutation", "analysis:savePlies")
+    snapshot: queryRef<{ gameId: string }, AnalysisSnapshot>("analysis:snapshot"),
+    hasCompletedForGame: queryRef<{ gameId: string }, boolean>("analysis:hasCompletedForGame"),
+    saveRun: mutationRef<{ run: PersistedRunInput }, string>("analysis:saveRun"),
+    savePlies: mutationRef<{ plies: PersistedPlyInput[] }, number>("analysis:savePlies")
   },
   puzzles: {
-    list: deferredFunctionReference("query", "puzzles:list"),
-    get: deferredFunctionReference("query", "puzzles:get"),
-    generateForRun: deferredFunctionReference("mutation", "puzzles:generateForRun"),
-    recordAttempt: deferredFunctionReference("mutation", "puzzles:recordAttempt")
+    list: queryRef<Record<string, never>, Puzzle[]>("puzzles:list"),
+    listAttempts: queryRef<Record<string, never>, PuzzleAttempt[]>("puzzles:listAttempts"),
+    get: queryRef<{ puzzleId: string }, PuzzleDetails>("puzzles:get"),
+    generateForRun: mutationRef<{ runId: string; gameId: string }, { created: number }>("puzzles:generateForRun"),
+    recordAttempt: mutationRef<PersistedPuzzleAttemptInput & { puzzleId: string }, { dueAt: string }>("puzzles:recordAttempt")
+  },
+  appMeta: {
+    getAnalysisCoordinatorConfig: queryRef<Record<string, never>, AnalysisCoordinatorConfig>("appMeta:getAnalysisCoordinatorConfig"),
+    saveAnalysisCoordinatorConfig: mutationRef<{ config: AnalysisCoordinatorConfig }, AnalysisCoordinatorConfig>("appMeta:saveAnalysisCoordinatorConfig"),
+    getPuzzlePlaybackConfig: queryRef<Record<string, never>, PuzzlePlaybackConfig>("appMeta:getPuzzlePlaybackConfig"),
+    savePuzzlePlaybackConfig: mutationRef<{ config: PuzzlePlaybackConfig }, PuzzlePlaybackConfig>("appMeta:savePuzzlePlaybackConfig")
   }
 } as const;

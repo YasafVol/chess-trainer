@@ -2,15 +2,15 @@
 
 ## Business/User Intent
 
-Allow a user to paste or upload PGN once and reliably persist a reusable local game record with metadata, deterministic identity, and immediate feedback.
+Allow a signed-in user to paste or upload PGN, or fetch bounded Chess.com archive PGN by a saved username, and reliably persist reusable remote game records with metadata, deterministic identity, and immediate feedback while retaining read-only cached access offline.
 
 ## Impacted Layers
 
 - Contracts: PGN, header, hash, and `GameRecord` contracts
-- Domain: normalization, parsing, replay derivation, and hashing
-- Application: import orchestration and duplicate handling
-- Adapters: IndexedDB write paths
-- Presentation: import form, preview list, and feedback
+- Domain: normalization, parsing, replay derivation, hashing, Chess.com username normalization, and archive-range validation
+- Application: import orchestration, duplicate handling, and Chess.com archive import coordination
+- Adapters: Convex game mutations, IndexedDB read-cache writes, and browser fetches against Chess.com monthly archive endpoints
+- Presentation: import form, preview list, bounded Chess.com archive controls, and feedback
 - Composition: route wiring
 
 ## Tests and Acceptance Criteria
@@ -18,6 +18,9 @@ Allow a user to paste or upload PGN once and reliably persist a reusable local g
 - Valid PGN imports successfully and is persisted
 - Invalid PGN blocks persistence with clear feedback
 - Repeat import is idempotent by hash
+- Chess.com archive import requires an explicit month range and skips duplicate games by hash
+- Import page reads the Chess.com username from Backoffice-owned settings and does not edit it locally
+- Signed-out or offline import attempts fail fast with explicit messaging
 - Root checks remain green:
   - `npm run typecheck`
   - `npm run test`
