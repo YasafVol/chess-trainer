@@ -11,7 +11,7 @@ Define how the backoffice FITL explorer builds its graph so maintainers can trus
 3. Module docs under `docs/modules/`
 4. `docs/architecture/LAYER_X_FEATURE_MATRIX.md`
 5. Decisions and issue docs under `docs/decisions/`
-6. `apps/web/fitl-tooling.manifest.json` for external, deferred, build, and deploy tooling that is not encoded cleanly in FITL markdown alone
+6. `apps/web/fitl-tooling.manifest.json` for external, runtime, deferred, build, and deploy tooling that is not encoded cleanly in FITL markdown alone
 
 ## Curation rules
 
@@ -21,7 +21,7 @@ Define how the backoffice FITL explorer builds its graph so maintainers can trus
 - Tooling manifest entries should exist only for tools that materially affect runtime, persistence, deployment, or future deferred architecture.
 - Tooling entries must declare lifecycle as `active`, `deferred`, `build`, or `deploy`.
 - Tooling entries must declare system as `internal`, `external`, or `browser-platform`.
-- Deferred surfaces such as `Convex/Auth` must stay explicitly marked as deferred and hidden by default in the explorer.
+- Active runtime surfaces such as `Convex/Auth` must be modeled as active tooling, while genuinely deferred surfaces remain hidden by default unless explicitly included.
 - Deploy-only surfaces such as Vercel must be modeled as deployment concerns, not runtime dependencies.
 
 ## Generated artifact

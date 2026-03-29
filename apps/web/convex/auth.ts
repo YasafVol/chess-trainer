@@ -11,8 +11,17 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   ],
   callbacks: {
     async redirect({ redirectTo }) {
-      return redirectTo.startsWith("/") ? redirectTo : "/";
+      const siteUrl = process.env.SITE_URL?.replace(/\/$/, "");
+      if (!siteUrl) {
+        throw new Error("SITE_URL must be configured for auth redirects.");
+      }
+      if (redirectTo.startsWith("/")) {
+        return `${siteUrl}${redirectTo}`;
+      }
+      if (redirectTo.startsWith(siteUrl)) {
+        return redirectTo;
+      }
+      return siteUrl;
     }
   }
 });
-

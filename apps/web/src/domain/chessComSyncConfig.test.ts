@@ -13,7 +13,12 @@ test("normalizeChessComUsername trims and lowercases the configured username", (
 });
 
 test("normalizeChessComSyncConfig falls back to defaults", () => {
-  assert.deepEqual(normalizeChessComSyncConfig(undefined), CHESS_COM_SYNC_CONFIG_DEFAULTS);
+  assert.deepEqual(normalizeChessComSyncConfig(undefined), {
+    ...CHESS_COM_SYNC_CONFIG_DEFAULTS,
+    lastSyncAt: undefined,
+    lastSuccessfulArchive: undefined,
+    lastStatus: undefined
+  });
 });
 
 test("validateChessComSyncConfig rejects enabled sync without a username", () => {

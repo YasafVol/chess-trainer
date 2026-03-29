@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
 import { sharedAnalysisCoordinator } from "../application/analysisCoordinator";
 import { sharedChessComSyncCoordinator } from "../application/chessComSyncCoordinator";
@@ -58,11 +58,20 @@ export function RootLayout() {
 
 function SignedOutLayout() {
   const { signIn } = useAuthActions();
+  const [signInError, setSignInError] = useState<string | null>(null);
+  const [signingIn, setSigningIn] = useState(false);
 
   async function startGoogleSignIn() {
-    await signIn("google", {
-      redirectTo: window.location.pathname
-    });
+    setSigningIn(true);
+    setSignInError(null);
+    try {
+      await signIn("google", {
+        redirectTo: window.location.pathname
+      });
+    } catch (error) {
+      setSignInError(error instanceof Error ? error.message : "Google sign-in failed.");
+      setSigningIn(false);
+    }
   }
 
   return (
@@ -78,10 +87,11 @@ function SignedOutLayout() {
           <h2>Sign in required</h2>
           <p className="muted">Remote persistence is active. Sign in with Google to access your library, analysis, and puzzles.</p>
           <div className="inline-actions">
-            <button type="button" className="action-button" onClick={() => void startGoogleSignIn()}>
-              Continue with Google
+            <button type="button" className="action-button" onClick={() => void startGoogleSignIn()} disabled={signingIn}>
+              {signingIn ? "Connecting..." : "Continue with Google"}
             </button>
           </div>
+          {signInError ? <p className="muted">{signInError}</p> : null}
         </section>
       </main>
     </div>

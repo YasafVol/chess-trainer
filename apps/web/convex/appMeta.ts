@@ -1,10 +1,12 @@
 // @ts-nocheck
 import { mutationGeneric, queryGeneric } from "convex/server";
 import { v } from "convex/values";
+import { CHESS_COM_SYNC_CONFIG_DEFAULTS, normalizeChessComSyncConfig } from "../src/domain/chessComSyncConfig";
 import { requireUserId } from "./helpers";
 
 const ANALYSIS_COORDINATOR_CONFIG_KEY = "analysisCoordinatorConfig";
 const PUZZLE_PLAYBACK_CONFIG_KEY = "puzzlePlaybackConfig";
+const CHESS_COM_SYNC_CONFIG_KEY = "chessComSyncConfig";
 
 const analysisCoordinatorConfigValidator = v.object({
   enabled: v.boolean(),
@@ -13,6 +15,15 @@ const analysisCoordinatorConfigValidator = v.object({
 
 const puzzlePlaybackConfigValidator = v.object({
   stepMs: v.number()
+});
+
+const chessComSyncConfigValidator = v.object({
+  username: v.string(),
+  enabled: v.boolean(),
+  interval: v.union(v.literal("daily"), v.literal("weekly")),
+  lastSyncAt: v.optional(v.string()),
+  lastSuccessfulArchive: v.optional(v.string()),
+  lastStatus: v.optional(v.string())
 });
 
 async function upsertAppMeta(ctx, userId, key, value) {
@@ -85,5 +96,29 @@ export const savePuzzlePlaybackConfig = mutationGeneric({
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx);
     return upsertAppMeta(ctx, userId, PUZZLE_PLAYBACK_CONFIG_KEY, args.config);
+  }
+});
+
+export const getChessComSyncConfig = queryGeneric({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await requireUserId(ctx);
+    const record = await ctx.db
+      .query("appMeta")
+      .withIndex("by_user_key", (q) => q.eq("userId", userId).eq("key", CHESS_COM_SYNC_CONFIG_KEY))
+      .unique();
+
+    return normalizeChessComSyncConfig(record?.value ?? CHESS_COM_SYNC_CONFIG_DEFAULTS);
+  }
+});
+
+export const saveChessComSyncConfig = mutationGeneric({
+  args: {
+    config: chessComSyncConfigValidator
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireUserId(ctx);
+    const normalized = normalizeChessComSyncConfig(args.config);
+    return upsertAppMeta(ctx, userId, CHESS_COM_SYNC_CONFIG_KEY, normalized);
   }
 });

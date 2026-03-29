@@ -88,12 +88,12 @@
     {
       "id": "convex-auth",
       "label": "Convex/Auth",
-      "summary": "Deferred backend and auth surface kept in-repo but outside the active local-first runtime path.",
-      "lifecycle": "deferred",
+      "summary": "Active Convex persistence and Google auth surface used by the shipped web runtime, with IndexedDB retained as a read cache.",
+      "lifecycle": "active",
       "system": "external",
-      "relationship": "deferred_by",
+      "relationship": "uses",
       "layers": ["adapters", "composition"],
-      "verticals": ["v5", "v7"],
+      "verticals": ["v1", "v3", "v4", "v5", "v7"],
       "references": [
         { "label": "docs/modules/web-app.md", "path": "docs/modules/web-app.md", "type": "doc" },
         { "label": "apps/web/src/lib/convex.ts", "path": "apps/web/src/lib/convex.ts", "type": "file" }

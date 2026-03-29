@@ -2,6 +2,7 @@ import { makeFunctionReference } from "convex/server";
 import type {
   AnalysisCoordinatorConfig,
   AnalysisRun,
+  ChessComSyncConfig,
   GameRecord,
   ImportBatchResult,
   PlyAnalysis,
@@ -70,6 +71,8 @@ export const convexApi = {
     getAnalysisCoordinatorConfig: queryRef<Record<string, never>, AnalysisCoordinatorConfig>("appMeta:getAnalysisCoordinatorConfig"),
     saveAnalysisCoordinatorConfig: mutationRef<{ config: AnalysisCoordinatorConfig }, AnalysisCoordinatorConfig>("appMeta:saveAnalysisCoordinatorConfig"),
     getPuzzlePlaybackConfig: queryRef<Record<string, never>, PuzzlePlaybackConfig>("appMeta:getPuzzlePlaybackConfig"),
-    savePuzzlePlaybackConfig: mutationRef<{ config: PuzzlePlaybackConfig }, PuzzlePlaybackConfig>("appMeta:savePuzzlePlaybackConfig")
+    savePuzzlePlaybackConfig: mutationRef<{ config: PuzzlePlaybackConfig }, PuzzlePlaybackConfig>("appMeta:savePuzzlePlaybackConfig"),
+    getChessComSyncConfig: queryRef<Record<string, never>, ChessComSyncConfig>("appMeta:getChessComSyncConfig"),
+    saveChessComSyncConfig: mutationRef<{ config: ChessComSyncConfig }, ChessComSyncConfig>("appMeta:saveChessComSyncConfig")
   }
 } as const;

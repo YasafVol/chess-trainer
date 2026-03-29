@@ -5,6 +5,7 @@ import { buildPuzzleStats, nextReviewOrder, normalizePuzzleRecord } from "../dom
 import type {
   AnalysisCoordinatorConfig,
   AnalysisRun,
+  ChessComSyncConfig,
   GameRecord,
   ImportBatchResult,
   PlyAnalysis,
@@ -29,8 +30,10 @@ import {
 } from "./storage/repositories/analysisRepo.js";
 import {
   getAnalysisCoordinatorConfig,
+  getChessComSyncConfig,
   getPuzzlePlaybackConfig,
   saveAnalysisCoordinatorConfig,
+  saveChessComSyncConfig,
   savePuzzlePlaybackConfig
 } from "./storage/repositories/appMetaRepo.js";
 import { getGame, listGames, saveGame } from "./storage/repositories/gamesRepo.js";
@@ -45,13 +48,8 @@ import {
 
 const MUTATION_REQUIRES_SESSION = "This action requires a signed-in online session.";
 const ANALYSIS_BATCH_SIZE = 8;
-const runtimeImportMeta = import.meta as ImportMeta & {
-  env?: {
-    VITE_CONVEX_URL?: string;
-  };
-};
-const convexUrl = runtimeImportMeta.env?.VITE_CONVEX_URL;
-const convexClient = convexUrl ? new ConvexReactClient(convexUrl, { expectAuth: true }) : null;
+const convexUrl = (import.meta as ImportMeta & { env?: ImportMetaEnv }).env?.VITE_CONVEX_URL;
+const convexClient = convexUrl ? new ConvexReactClient(convexUrl) : null;
 
 export type RuntimeSessionSnapshot = {
   isConfigured: boolean;
@@ -478,6 +476,24 @@ class RuntimeGateway {
     this.ensureMutationAllowed();
     const saved = await this.mutateRemote<PuzzlePlaybackConfig>(convexApi.appMeta.savePuzzlePlaybackConfig, { config });
     await savePuzzlePlaybackConfig(saved);
+    this.emitDataChange();
+  }
+
+  async getChessComSyncConfig(): Promise<ChessComSyncConfig> {
+    return this.withCacheFallback(
+      async () => {
+        const config = await this.queryRemote<ChessComSyncConfig>(convexApi.appMeta.getChessComSyncConfig, {});
+        await saveChessComSyncConfig(config);
+        return config;
+      },
+      async () => getChessComSyncConfig()
+    );
+  }
+
+  async saveChessComSyncConfig(config: ChessComSyncConfig): Promise<void> {
+    this.ensureMutationAllowed();
+    const saved = await this.mutateRemote<ChessComSyncConfig>(convexApi.appMeta.saveChessComSyncConfig, { config });
+    await saveChessComSyncConfig(saved);
     this.emitDataChange();
   }
 

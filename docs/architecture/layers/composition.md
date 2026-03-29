@@ -7,15 +7,15 @@ Wire runtime entrypoints, dependency construction, and lifecycle registration fo
 ## Features / Responsibilities
 
 - App root rendering and TanStack Router construction
-- Mock runtime bootstrap and dependency selection
+- Authenticated runtime bootstrap and dependency selection
 - Engine flavor selection and startup behavior
-- Exclude deferred Convex/auth surfaces from the active shipped runtime path
+- Include Convex/auth providers on the active shipped runtime path while preserving offline read fallback
 
 ## Key Files
 
 - `apps/web/src/main.tsx`
 - `apps/web/src/router.tsx`
-- `apps/web/src/lib/mockData.ts`
+- `apps/web/src/lib/runtimeGateway.tsx`
 
 ## Tests / Quality Gates
 
@@ -26,6 +26,5 @@ Wire runtime entrypoints, dependency construction, and lifecycle registration fo
 
 ## Open Risks / Deferred Items
 
-- Mock and future cloud composition paths still live close together in the same runtime tree.
 - Deployment smoke automation is still missing.
-- Deferred backend activation must remain opt-in until auth and remote persistence are back in scope.
+- Convex deployment and Vercel project linkage now have to stay aligned so GitHub-triggered releases publish both backend and frontend together.

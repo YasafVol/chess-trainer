@@ -30,6 +30,6 @@ Define stable data shapes and protocol boundaries shared across the web app and 
 ## Open Risks / Deferred Items
 
 - Some contract ownership still lives in route-adjacent code instead of dedicated contract modules.
-- Deferred backend descriptors exist for future Convex/auth activation, but active runtime contracts do not depend on live backend package types.
+- Runtime contracts still avoid direct dependency on generated Convex package types; adapter mappings remain the boundary for backend transport details.
 - Browser board integration depends on the contract exposing enough lifecycle hooks for late-mounted route hosts.
 - Move-quality fields remain optional on persisted ply analysis so older IndexedDB rows can still be read without migration errors.

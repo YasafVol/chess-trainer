@@ -120,7 +120,11 @@ export default defineSchema({
     .index("by_user_attemptedAt", ["userId", "attemptedAt"]),
   appMeta: defineTable({
     userId: v.id("users"),
-    key: v.union(v.literal("analysisCoordinatorConfig"), v.literal("puzzlePlaybackConfig")),
+    key: v.union(
+      v.literal("analysisCoordinatorConfig"),
+      v.literal("puzzlePlaybackConfig"),
+      v.literal("chessComSyncConfig")
+    ),
     value: v.union(
       v.object({
         enabled: v.boolean(),
@@ -128,6 +132,14 @@ export default defineSchema({
       }),
       v.object({
         stepMs: v.number()
+      }),
+      v.object({
+        username: v.string(),
+        enabled: v.boolean(),
+        interval: v.union(v.literal("daily"), v.literal("weekly")),
+        lastSyncAt: v.optional(v.string()),
+        lastSuccessfulArchive: v.optional(v.string()),
+        lastStatus: v.optional(v.string())
       })
     ),
     updatedAt: v.string()

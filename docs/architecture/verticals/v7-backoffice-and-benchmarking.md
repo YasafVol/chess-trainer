@@ -36,7 +36,7 @@ Give maintainers an operational surface for inspecting shipped analysis and puzz
 
 ## Tests and Acceptance Criteria
 - Acceptance criteria:
-  - Backoffice can enable or disable lazy library analysis, persist the configured scan interval locally, save the Chess.com username plus daily/weekly cadence, and adjust persisted puzzle playback speed.
+  - Backoffice can enable or disable lazy library analysis, persist the configured scan interval through Convex-backed `appMeta`, save the Chess.com username plus daily/weekly cadence, and adjust persisted puzzle playback speed.
   - Chess.com sync settings remain the only source of truth for the username used by the import page.
   - Backoffice still shows the shipped analysis and puzzle constants separately from the editable lazy-analysis runtime control.
   - Benchmark runs use the real worker pipeline and the bundled `single.pgn` fixture.
@@ -44,9 +44,9 @@ Give maintainers an operational surface for inspecting shipped analysis and puzz
   - Benchmark writes never pollute normal library analysis history.
   - Benchmark results expose projected full-run runtime and recommended derived safety budget for the tested game.
   - FITL explorer lands on a project summary that shows the project node, all seven intents, and all seven verticals without global tooling or file clutter.
-  - FITL explorer can include or hide deferred surfaces, and `Convex/Auth` only appears when deferred surfaces are enabled.
+  - FITL explorer continues to support hidden deferred surfaces, but `Convex/Auth` is modeled as an active runtime concern and remains visible when relevant.
   - Selecting V3 or V6 and switching to implementation depth reveals Stockfish plus the worker/runtime implementation references needed for analysis work.
-  - Selecting V7 reveals Vercel as a deploy-time concern rather than a runtime dependency.
+  - Selecting V7 reveals Vercel as a deploy-time concern rather than a runtime dependency, while `Convex/Auth` appears as an active persistence and auth concern.
   - Implementation depth is blocked until the maintainer focuses a vertical or tool.
 - Tests/gates:
   - `apps/web/src/domain/analysisBenchmark.test.ts`

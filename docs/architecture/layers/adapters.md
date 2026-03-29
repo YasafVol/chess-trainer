@@ -2,15 +2,15 @@
 
 ## Purpose
 
-Bridge application use-cases to browser storage, worker execution, and UI integration points.
+Bridge application use-cases to Convex persistence, browser caching, worker execution, and UI integration points.
 
 ## Features / Responsibilities
 
-- IndexedDB persistence for games, analysis runs, puzzles, and puzzle attempts
-- Reactive local mock-data facade
+- Convex-backed persistence for games, analysis runs, puzzles, attempts, and app metadata
+- IndexedDB read caching for product data plus isolated benchmark-only local storage
 - Worker command transport for browser Stockfish, including `searchmoves`-based played-move analysis
 - Board library integration through an adapter interface, including explicit resize synchronization for late-mounted hosts
-- Deferred backend descriptor for future Convex/auth activation without active runtime coupling
+- Runtime gateway that coordinates live Convex reads and mutations with offline read fallback
 
 ## Key Files
 
@@ -19,7 +19,7 @@ Bridge application use-cases to browser storage, worker execution, and UI integr
 - `apps/web/src/lib/storage/repositories/gamesRepo.ts`
 - `apps/web/src/lib/storage/repositories/analysisRepo.ts`
 - `apps/web/src/lib/storage/repositories/puzzlesRepo.ts`
-- `apps/web/src/lib/mockData.ts`
+- `apps/web/src/lib/runtimeGateway.tsx`
 - `apps/web/src/lib/convex.ts`
 - `apps/web/src/engine/engineClient.ts`
 - `apps/web/src/engine/engine.worker.ts`
@@ -36,4 +36,4 @@ Bridge application use-cases to browser storage, worker execution, and UI integr
 
 - IndexedDB migration coverage is still thin.
 - Worker startup and failure-path coverage need broader automated tests.
-- Deferred backend scaffolding remains nearby in the runtime tree and must stay isolated from build-critical web paths.
+- Offline write queueing remains deferred; the cache is intentionally read-only while disconnected.

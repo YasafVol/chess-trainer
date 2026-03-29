@@ -1,6 +1,6 @@
 # Testing Guide
 
-Last updated: 2026-03-08
+Last updated: 2026-03-27
 
 ## Automated checks
 
@@ -19,7 +19,7 @@ Current meaning:
 - `npm run test`: Node-based TDD suite for analysis planning, lifecycle, and storage behavior in `apps/web`
 - `npm run build`: production Vite build for the active standalone web app runtime
 
-These checks validate the shipped local-first path only. Deferred Convex/auth scaffolding is not required for local development and must not be needed for these commands to pass.
+These checks validate the active authenticated Convex-backed code path at compile/build/test time. They do not require a live signed-in browser session, but manual browser verification for product flows still requires Convex/auth env setup.
 
 ## Web app manual checks
 
@@ -28,6 +28,7 @@ Use `../../Spec/WEB_APP_SMOKE_CHECKLIST.md` for the active browser runtime.
 Recommended local loop:
 
 ```bash
+npm run convex:dev
 npm run dev
 ```
 

@@ -1,12 +1,14 @@
 # Chess Trainer
 
-Chess Trainer is a web chess study app with a local-first runtime backed by IndexedDB. The repository contains the Vite frontend in `apps/web` and shared chess-domain logic in `packages/chess-core`.
+Chess Trainer is a web chess study app with a Convex-backed authenticated runtime, an IndexedDB read cache for offline viewing, and browser-side Stockfish analysis. The repository contains the Vite frontend in `apps/web` and shared chess-domain logic in `packages/chess-core`.
 
 ## Runtime
 
 - React + Vite standalone SPA
 - TanStack Router for route composition, params, and navigation
-- IndexedDB-backed local-first storage for games, analysis, and puzzles
+- Convex-backed storage for games, analysis, puzzles, and runtime settings
+- IndexedDB read caching for offline view-only access and benchmark-only local storage
+- Google auth via `@convex-dev/auth`
 - Browser-side Stockfish workers for analysis
 - Shared chess-domain utilities in [`packages/chess-core`](packages/chess-core)
 - Vercel deployment wiring via [`vercel.json`](vercel.json)
@@ -38,10 +40,11 @@ npm run vercel:deploy:prod
 
 ## Local testing
 
-No auth or backend setup is required for the active runtime. Run:
+Configure Convex and Google auth, then run:
 
 ```bash
 npm install
+npm run convex:dev
 npm run dev
 ```
 
@@ -58,9 +61,14 @@ The current build supports:
 
 ## Environment
 
-No environment variables are required for the active local-first runtime.
+The active runtime uses the env vars documented in [`apps/web/.env.example`](apps/web/.env.example):
 
-Future Convex/auth env placeholders are documented in [`apps/web/.env.example`](apps/web/.env.example), but they are deferred and not used by the shipped web app path.
+- `VITE_CONVEX_URL`
+- `VITE_CONVEX_SITE_URL`
+- `CONVEX_SITE_URL`
+- `SITE_URL`
+- `AUTH_GOOGLE_ID`
+- `AUTH_GOOGLE_SECRET`
 
 ## Verification
 
@@ -73,11 +81,11 @@ The current web app passes:
 
 ## Notes
 
-- Mock runtime and reactive local storage live in [`apps/web/src/lib/mockData.ts`](apps/web/src/lib/mockData.ts).
 - TanStack Router composition lives in [`apps/web/src/router.tsx`](apps/web/src/router.tsx).
-- IndexedDB schema and repositories live under [`apps/web/src/lib/storage`](apps/web/src/lib/storage).
-- Convex/auth scaffolding still lives in [`apps/web/convex`](apps/web/convex), but it is deferred, not required for local development, and not on the active runtime path.
-- Deferred backend descriptors for the active runtime live in [`apps/web/src/lib/convex.ts`](apps/web/src/lib/convex.ts).
+- Active runtime composition and session/cache coordination live in [`apps/web/src/lib/runtimeGateway.tsx`](apps/web/src/lib/runtimeGateway.tsx).
+- IndexedDB cache and benchmark repositories live under [`apps/web/src/lib/storage`](apps/web/src/lib/storage).
+- Active Convex/auth functions live in [`apps/web/convex`](apps/web/convex).
+- Typed client-side Convex function references live in [`apps/web/src/lib/convex.ts`](apps/web/src/lib/convex.ts).
 - The current puzzle generation path uses the persisted primary PV from analysis. A deeper targeted `MultiPV=3` extraction pass is still deferred.
 
 ## Documentation

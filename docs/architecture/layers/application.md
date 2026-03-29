@@ -12,7 +12,7 @@ Coordinate domain rules to execute use-cases while remaining UI-agnostic where p
 - Scaled foreground-budget calculation and ply-based analysis progress reporting
 - Library load and refresh orchestration
 - Puzzle generation and review workflows
-- Coordinate local-first flows without requiring deferred Convex/auth services
+- Coordinate authenticated Convex-backed flows with explicit offline read-only behavior
 
 ## Key Files
 

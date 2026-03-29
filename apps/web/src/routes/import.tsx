@@ -5,8 +5,10 @@ import { discoverChessComArchiveMonths, importChessComArchiveRange } from "../ap
 import { sharedChessComSyncCoordinator } from "../application/chessComSyncCoordinator";
 import { buildImportPreviews, importSelectedPreviews } from "../application/importGames";
 import { ChessComImportPanel } from "../presentation/ChessComImportPanel";
-import type { ChessComArchiveMonth, ImportPreviewGame } from "../domain/types";
+import type { ChessComArchiveMonth, GameRecord, ImportPreviewGame } from "../domain/types";
 import { useGames, useRuntimeSession } from "../lib/runtimeGateway";
+
+const EMPTY_GAMES: GameRecord[] = [];
 
 function previewId(preview: Pick<ImportPreviewGame, "index" | "hash">): string {
   return `${preview.index}:${preview.hash}`;
@@ -14,7 +16,7 @@ function previewId(preview: Pick<ImportPreviewGame, "index" | "hash">): string {
 
 export function ImportPage() {
   const session = useRuntimeSession();
-  const existingGames = useGames() ?? [];
+  const existingGames = useGames() ?? EMPTY_GAMES;
   const chessComCoordinator = useSyncExternalStore(
     (listener) => sharedChessComSyncCoordinator.subscribe(listener),
     () => sharedChessComSyncCoordinator.getSnapshot()

@@ -58,8 +58,8 @@ test("ChessComSyncCoordinator runs a due sync on bootstrap and persists progress
   await flush();
 
   assert.equal(syncCalls, 1);
-  assert.equal(saved.at(-1)?.lastSuccessfulArchive, "2026-03");
-  assert.equal(saved.at(-1)?.lastSyncAt, "2026-03-20T09:00:00.000Z");
+  assert.equal(saved[saved.length - 1]?.lastSuccessfulArchive, "2026-03");
+  assert.equal(saved[saved.length - 1]?.lastSyncAt, "2026-03-20T09:00:00.000Z");
   assert.equal(intervals.length, 1);
   assert.equal(coordinator.getSnapshot().status, "Imported 2 game(s), skipped 0 duplicates across 1/1 month(s).");
 });
@@ -88,4 +88,56 @@ test("ChessComSyncCoordinator does not auto-sync before the initial manual impor
 
   assert.equal(syncCalls, 0);
   assert.match(coordinator.getSnapshot().status, /Run a manual Chess.com import/);
+});
+
+test("ChessComSyncCoordinator normalizes saved config and triggers a due sync after enabling persisted settings", async () => {
+  const saved: ChessComImportResult[] = [];
+  const persisted: Array<{ username: string; enabled: boolean; interval: "daily" | "weekly"; lastSyncAt?: string }> = [];
+  let syncCalls = 0;
+
+  const coordinator = new ChessComSyncCoordinator({
+    loadConfig: async () => ({
+      username: "",
+      enabled: false,
+      interval: "weekly",
+      lastSuccessfulArchive: "2026-02"
+    }),
+    saveConfig: async (config) => {
+      persisted.push({
+        username: config.username,
+        enabled: config.enabled,
+        interval: config.interval,
+        lastSyncAt: config.lastSyncAt
+      });
+    },
+    syncArchives: async () => {
+      syncCalls += 1;
+      const result = createResult({
+        latestProcessedArchive: "2026-03"
+      });
+      saved.push(result);
+      return result;
+    },
+    setIntervalFn: () => CHESS_COM_SYNC_POLL_INTERVAL_MS as ReturnType<typeof setInterval>,
+    clearIntervalFn: () => undefined,
+    now: () => new Date("2026-03-20T09:00:00.000Z")
+  });
+
+  coordinator.ensureStarted();
+  await flush();
+  await coordinator.updateConfig({
+    username: "  Hikaru  ",
+    enabled: true,
+    interval: "daily",
+    lastSyncAt: "2026-03-18T09:00:00.000Z"
+  });
+  await flush();
+
+  assert.equal(syncCalls, 1);
+  assert.equal(saved.length, 1);
+  assert.equal(persisted[0]?.username, "hikaru");
+  assert.equal(persisted[0]?.enabled, true);
+  assert.equal(persisted[persisted.length - 1]?.lastSyncAt, "2026-03-20T09:00:00.000Z");
+  assert.equal(coordinator.getSnapshot().config.username, "hikaru");
+  assert.equal(coordinator.getSnapshot().config.lastSuccessfulArchive, "2026-03");
 });

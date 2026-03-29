@@ -11,7 +11,7 @@ test("buildFitlGraphSnapshot emits the expected verticals, layers, and manifest 
   assert.equal(verticals.length, 7);
   assert.equal(layers.length, 6);
   assert.ok(tools.some((node) => node.label === "Stockfish"));
-  assert.ok(tools.some((node) => node.label === "Convex/Auth" && node.lifecycle === "deferred"));
+  assert.ok(tools.some((node) => node.label === "Convex/Auth" && node.lifecycle === "active"));
 });
 
 test("parseVerticalDoc fails when a required FITL section is missing", () => {

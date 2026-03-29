@@ -4,18 +4,18 @@
 
 - Repo root: repository root (`chess-trainer`)
 - Main runtime stack:
-  - Web app: React 18 + Vite + TanStack Router + IndexedDB
+  - Web app: React 18 + Vite + TanStack Router + Convex Auth + Convex storage + IndexedDB read cache
   - Engine: Stockfish Web Worker (`stockfish` npm package)
   - Shared package: `packages/chess-core` (TypeScript)
 - Current project objective:
-  - Ship a stable local-first web app for import, replay, analysis, and puzzle review.
+  - Ship a stable authenticated web app for import, replay, analysis, puzzle review, and cross-session persistence.
 - Required quality bar:
   - Red-Green-Refactor per vertical
   - Outer-to-inner dependency discipline
-  - Offline-first behavior and explicit network boundaries
+  - Explicit online-write and offline-read boundaries
   - Docs + tests + code all required for completion
 - Deferred scope baseline:
-  - Web auth/cloud DB and platform sync out of scope in v1
+  - Offline write queueing and conflict resolution remain out of scope in v1
   - Advanced analytics and customization deferred
 
 ## Canonical layer order
@@ -56,7 +56,7 @@ For every vertical:
 2. Contract alignment for game record and metadata shapes
 3. Domain normalization, header extraction, and hashing
 4. Application import orchestration
-5. IndexedDB adapter writes
+5. Convex persistence adapters plus IndexedDB cache writes
 6. Import route UX and validation display
 7. Router wiring
 8. Green + refactor + docs sync
@@ -86,7 +86,7 @@ For every vertical:
 2. Contract updates for listing and summary views
 3. Domain rules for sorting and lifecycle transitions
 4. Application flows for list, open, refresh, and delete
-5. Storage adapters and migrations
+5. Convex read adapters, cache synchronization, and migrations
 6. Library presentation
 7. Router and app-shell wiring
 8. Green + refactor + docs sync

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-21T08:41:45.363Z",
+  "generatedAt": "2026-03-29T15:52:15.406Z",
   "sourceDocs": [
     "apps/web/README.md",
     "apps/web/fitl-tooling.manifest.json",
@@ -38,8 +38,8 @@
       ],
       "id": "decision:deferred-1",
       "kind": "decision",
-      "label": "Deferred: Auth and remote DB",
-      "summary": "Auth and remote DB",
+      "label": "Deferred: Offline write queueing and conflict resolution",
+      "summary": "Offline write queueing and conflict resolution",
       "lifecycle": "deferred",
       "system": "internal"
     },
@@ -56,8 +56,8 @@
       ],
       "id": "decision:deferred-2",
       "kind": "decision",
-      "label": "Deferred: Cross-device sync",
-      "summary": "Cross-device sync",
+      "label": "Deferred: Cross-device sync conflict tooling beyond server-last behavior",
+      "summary": "Cross-device sync conflict tooling beyond server-last behavior",
       "lifecycle": "deferred",
       "system": "internal"
     },
@@ -74,8 +74,8 @@
       ],
       "id": "decision:deferred-3",
       "kind": "decision",
-      "label": "Deferred: Chess.com and Lichess imports",
-      "summary": "Chess.com and Lichess imports",
+      "label": "Deferred: Lichess imports",
+      "summary": "Lichess imports",
       "lifecycle": "deferred",
       "system": "internal"
     },
@@ -218,8 +218,8 @@
       ],
       "id": "decision:locked-6",
       "kind": "decision",
-      "label": "Web v1 remains local-first with no auth and no cloud DB",
-      "summary": "Web v1 remains local-first with no auth and no cloud DB.",
+      "label": "Web v1 uses Convex-backed authenticated persistence with IndexedDB retained as a read cache and benchmark-only local store",
+      "summary": "Web v1 uses Convex-backed authenticated persistence with IndexedDB retained as a read cache and benchmark-only local store.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -272,8 +272,8 @@
       ],
       "id": "decision:locked-9",
       "kind": "decision",
-      "label": "Deferred Convex/auth scaffolding may remain in-repo, but active runtime code must not require live backend packages to build",
-      "summary": "Deferred Convex/auth scaffolding may remain in-repo, but active runtime code must not require live backend packages to build.",
+      "label": "Convex/auth is on the active runtime path, but compile/test/build checks must still run without requiring a live signed-in browser session",
+      "summary": "Convex/auth is on the active runtime path, but compile/test/build checks must still run without requiring a live signed-in browser session.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -857,6 +857,24 @@
       "references": [
         {
           "type": "file",
+          "label": "apps/web/src/lib/runtimeGateway.tsx",
+          "path": "apps/web/src/lib/runtimeGateway.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/lib/runtimeGateway.tsx",
+      "kind": "file",
+      "label": "runtimeGateway.tsx",
+      "summary": "apps/web/src/lib/runtimeGateway.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
           "label": "apps/web/src/lib/storage/*",
           "path": "apps/web/src/lib/storage/*"
         }
@@ -1387,7 +1405,7 @@
       "id": "intent:v1-import-and-persist-pgn",
       "kind": "intent",
       "label": "Import and Persist PGN",
-      "summary": "Allow a user to paste or upload PGN, or fetch bounded Chess.com archive PGN by a saved username, and reliably persist reusable local game records with metadata, deterministic identity, and immediate feedback.",
+      "summary": "Allow a signed-in user to paste or upload PGN, or fetch bounded Chess.com archive PGN by a saved username, and reliably persist reusable remote game records with metadata, deterministic identity, and immediate feedback while retaining read-only cached access offline.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -1459,7 +1477,7 @@
       "id": "intent:v5-puzzle-generation-and-review",
       "kind": "intent",
       "label": "Puzzle Generation and Review",
-      "summary": "Turn analyzed mistakes and blunders into reusable training material and let users review those puzzles locally with persistent spaced-repetition progress.",
+      "summary": "Turn analyzed mistakes and blunders into reusable training material and let signed-in users review those puzzles with persistent spaced-repetition progress backed by Convex and mirrored into a local read cache.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -1533,8 +1551,8 @@
         },
         {
           "type": "file",
-          "label": "apps/web/src/lib/mockData.ts",
-          "path": "apps/web/src/lib/mockData.ts"
+          "label": "apps/web/src/lib/runtimeGateway.tsx",
+          "path": "apps/web/src/lib/runtimeGateway.tsx"
         },
         {
           "type": "file",
@@ -1563,7 +1581,7 @@
       "id": "layer:adapters",
       "kind": "layer",
       "label": "Adapters",
-      "summary": "Bridge application use-cases to browser storage, worker execution, and UI integration points.",
+      "summary": "Bridge application use-cases to Convex persistence, browser caching, worker execution, and UI integration points.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -1629,8 +1647,8 @@
         },
         {
           "type": "file",
-          "label": "apps/web/src/lib/mockData.ts",
-          "path": "apps/web/src/lib/mockData.ts"
+          "label": "apps/web/src/lib/runtimeGateway.tsx",
+          "path": "apps/web/src/lib/runtimeGateway.tsx"
         }
       ],
       "tags": [
@@ -2395,14 +2413,14 @@
         }
       ],
       "tags": [
-        "deferred",
+        "active",
         "external"
       ],
       "id": "tool:convex-auth",
       "kind": "tool",
       "label": "Convex/Auth",
-      "summary": "Deferred backend and auth surface kept in-repo but outside the active local-first runtime path.",
-      "lifecycle": "deferred",
+      "summary": "Active Convex persistence and Google auth surface used by the shipped web runtime, with IndexedDB retained as a read cache.",
+      "lifecycle": "active",
       "system": "external"
     },
     {
@@ -2520,7 +2538,7 @@
       "id": "vertical:v1-import-and-persist-pgn",
       "kind": "vertical",
       "label": "V1 Import and Persist PGN",
-      "summary": "Allow a user to paste or upload PGN, or fetch bounded Chess.com archive PGN by a saved username, and reliably persist reusable local game records with metadata, deterministic identity, and immediate feedback.",
+      "summary": "Allow a signed-in user to paste or upload PGN, or fetch bounded Chess.com archive PGN by a saved username, and reliably persist reusable remote game records with metadata, deterministic identity, and immediate feedback while retaining read-only cached access offline.",
       "description": "",
       "lifecycle": "active",
       "system": "internal"
@@ -2636,8 +2654,8 @@
       "id": "vertical:v5-puzzle-generation-and-review",
       "kind": "vertical",
       "label": "V5 Puzzle Generation and Review",
-      "summary": "Turn analyzed mistakes and blunders into reusable training material and let users review those puzzles locally with persistent spaced-repetition progress.",
-      "description": "1. User imports a game and opens the game view. 2. User runs browser-side analysis. 3. System stores analysis snapshots locally and derives puzzle candidates from qualifying eval swings. 4. System saves generated puzzles and review metadata in IndexedDB. 5. User opens the puzzles view, switches between blunder and mistake tabs, narrows the bank by ownership (`All`, `Mine`, `Other`) and difficulty when needed, or starts continuous mode for personal training. 6. Continuous mode builds an in-memory queue from the user's own puzzles only, serves blunders before mistakes, prioritizes due items before non-due items, and ranks each due-status bucket from weakest to strongest using failures and solve history. 7. User opens a single puzzle card or the continuous queue, attempts the best move, asks for a candidate-piece hint, or reveals the best move while keeping the full stored solution line behind collapsed disclosure. 8. System holds legal-but-suboptimal moves on the board with an error highlight until the user resets or retries, records attempts, animates the reveal/continuation sequence on the board, and in continuous mode short-cycle requeues failed or revealed puzzles later in the same session.",
+      "summary": "Turn analyzed mistakes and blunders into reusable training material and let signed-in users review those puzzles with persistent spaced-repetition progress backed by Convex and mirrored into a local read cache.",
+      "description": "1. User imports a game and opens the game view. 2. User runs browser-side analysis. 3. System stores analysis snapshots in Convex, then derives puzzle candidates from qualifying eval swings. 4. System saves generated puzzles and review metadata in Convex and mirrors them into the local cache. 5. User opens the puzzles view, switches between blunder and mistake tabs, narrows the bank by ownership (`All`, `Mine`, `Other`) and difficulty when needed, or starts continuous mode for personal training. 6. Continuous mode builds an in-memory queue from the user's own puzzles only, serves blunders before mistakes, prioritizes due items before non-due items, and ranks each due-status bucket from weakest to strongest using failures and solve history. 7. User opens a single puzzle card or the continuous queue, attempts the best move, asks for a candidate-piece hint, or reveals the best move while keeping the full stored solution line behind collapsed disclosure. 8. System holds legal-but-suboptimal moves on the board with an error highlight until the user resets or retries, records attempts, animates the reveal/continuation sequence on the board, and in continuous mode short-cycle requeues failed or revealed puzzles later in the same session.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -2945,8 +2963,14 @@
       "kind": "touches"
     },
     {
-      "id": "file:apps/web/src/lib/mockData.ts->touches->layer:composition",
-      "from": "file:apps/web/src/lib/mockData.ts",
+      "id": "file:apps/web/src/lib/runtimeGateway.tsx->touches->layer:adapters",
+      "from": "file:apps/web/src/lib/runtimeGateway.tsx",
+      "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/runtimeGateway.tsx->touches->layer:composition",
+      "from": "file:apps/web/src/lib/runtimeGateway.tsx",
       "to": "layer:composition",
       "kind": "touches"
     },
@@ -3557,6 +3581,12 @@
       "kind": "implemented_by"
     },
     {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/runtimeGateway.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/runtimeGateway.tsx",
+      "kind": "implemented_by"
+    },
+    {
       "id": "module:web-app->implemented_by->file:apps/web/src/lib/storage/*",
       "from": "module:web-app",
       "to": "file:apps/web/src/lib/storage/*",
@@ -3875,12 +3905,6 @@
       "kind": "constrained_by"
     },
     {
-      "id": "project:web-app->deferred_by->tool:convex-auth",
-      "from": "project:web-app",
-      "to": "tool:convex-auth",
-      "kind": "deferred_by"
-    },
-    {
       "id": "project:web-app->deploys->tool:vercel",
       "from": "project:web-app",
       "to": "tool:vercel",
@@ -3986,6 +4010,12 @@
       "id": "project:web-app->uses->tool:chessboard-element",
       "from": "project:web-app",
       "to": "tool:chessboard-element",
+      "kind": "uses"
+    },
+    {
+      "id": "project:web-app->uses->tool:convex-auth",
+      "from": "project:web-app",
+      "to": "tool:convex-auth",
       "kind": "uses"
     },
     {
@@ -4232,6 +4262,12 @@
       "id": "vertical:v1-import-and-persist-pgn->uses->tool:chess-js",
       "from": "vertical:v1-import-and-persist-pgn",
       "to": "tool:chess-js",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->uses->tool:convex-auth",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "tool:convex-auth",
       "kind": "uses"
     },
     {
@@ -4487,6 +4523,12 @@
       "kind": "touches"
     },
     {
+      "id": "vertical:v3-engine-analysis-and-annotations->uses->tool:convex-auth",
+      "from": "vertical:v3-engine-analysis-and-annotations",
+      "to": "tool:convex-auth",
+      "kind": "uses"
+    },
+    {
       "id": "vertical:v3-engine-analysis-and-annotations->uses->tool:indexeddb",
       "from": "vertical:v3-engine-analysis-and-annotations",
       "to": "tool:indexeddb",
@@ -4655,6 +4697,12 @@
       "kind": "uses"
     },
     {
+      "id": "vertical:v4-library-and-game-lifecycle->uses->tool:convex-auth",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "tool:convex-auth",
+      "kind": "uses"
+    },
+    {
       "id": "vertical:v4-library-and-game-lifecycle->uses->tool:indexeddb",
       "from": "vertical:v4-library-and-game-lifecycle",
       "to": "tool:indexeddb",
@@ -4689,12 +4737,6 @@
       "from": "vertical:v5-puzzle-generation-and-review",
       "to": "risk:route-local-orchestration-increases-regression-risk",
       "kind": "constrained_by"
-    },
-    {
-      "id": "vertical:v5-puzzle-generation-and-review->deferred_by->tool:convex-auth",
-      "from": "vertical:v5-puzzle-generation-and-review",
-      "to": "tool:convex-auth",
-      "kind": "deferred_by"
     },
     {
       "id": "vertical:v5-puzzle-generation-and-review->implemented_by->file:apps/web/src/domain/puzzles.ts",
@@ -4814,6 +4856,12 @@
       "id": "vertical:v5-puzzle-generation-and-review->uses->tool:chessboard-element",
       "from": "vertical:v5-puzzle-generation-and-review",
       "to": "tool:chessboard-element",
+      "kind": "uses"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->uses->tool:convex-auth",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "tool:convex-auth",
       "kind": "uses"
     },
     {
@@ -5027,12 +5075,6 @@
       "kind": "constrained_by"
     },
     {
-      "id": "vertical:v7-backoffice-and-benchmarking->deferred_by->tool:convex-auth",
-      "from": "vertical:v7-backoffice-and-benchmarking",
-      "to": "tool:convex-auth",
-      "kind": "deferred_by"
-    },
-    {
       "id": "vertical:v7-backoffice-and-benchmarking->deploys->tool:vercel",
       "from": "vertical:v7-backoffice-and-benchmarking",
       "to": "tool:vercel",
@@ -5115,6 +5157,12 @@
       "from": "vertical:v7-backoffice-and-benchmarking",
       "to": "layer:presentation",
       "kind": "touches"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->uses->tool:convex-auth",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "tool:convex-auth",
+      "kind": "uses"
     },
     {
       "id": "vertical:v7-backoffice-and-benchmarking->uses->tool:indexeddb",

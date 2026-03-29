@@ -14,7 +14,7 @@ Give users a reliable way to find previously imported games, reopen them quickly
 - Contracts: game and analysis run record contracts, including source metadata for imported Chess.com games.
 - Domain: sorting/lifecycle read-model rules.
 - Application: fetch/refresh orchestration, background sync cursor persistence, and fallback state handling.
-- Adapters: IndexedDB repositories and migration layer.
+- Adapters: Convex-backed game and analysis reads plus IndexedDB read-cache repositories and migration layer.
 - Presentation: library list and game summary views.
 - Composition: route registration and app bootstrap.
 
@@ -42,4 +42,4 @@ Give users a reliable way to find previously imported games, reopen them quickly
 
 ## Risk/Deferment References
 - `Spec/WEB_APP_BACKLOG.md` tickets: `WEB-005`, `WEB-302`.
-- Deferred cloud sync/auth remain out of scope for this lifecycle in v1.
+- Offline write queueing and richer cross-device conflict handling remain out of scope for this lifecycle in v1.

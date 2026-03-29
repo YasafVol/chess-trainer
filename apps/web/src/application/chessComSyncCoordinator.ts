@@ -1,8 +1,7 @@
 import { CHESS_COM_SYNC_CONFIG_DEFAULTS, isChessComSyncDue, normalizeChessComSyncConfig } from "../domain/chessComSyncConfig.js";
 import type { ChessComImportResult, ChessComSyncConfig } from "../domain/types.js";
 import { formatUnknownError } from "../lib/formatUnknownError.js";
-import { getChessComSyncConfig, saveChessComSyncConfig } from "../lib/storage/repositories/appMetaRepo.js";
-import { syncChessComArchives } from "./chessComImport.js";
+import { runtimeGateway } from "../lib/runtimeGateway.js";
 
 export const CHESS_COM_SYNC_POLL_INTERVAL_MS = 60_000;
 
@@ -24,9 +23,12 @@ export type ChessComSyncCoordinatorDeps = {
 
 function defaultDeps(): ChessComSyncCoordinatorDeps {
   return {
-    loadConfig: getChessComSyncConfig,
-    saveConfig: saveChessComSyncConfig,
-    syncArchives: syncChessComArchives,
+    loadConfig: () => runtimeGateway.getChessComSyncConfig(),
+    saveConfig: (config) => runtimeGateway.saveChessComSyncConfig(config),
+    syncArchives: async (config) => {
+      const module = await import("./chessComImport.js");
+      return module.syncChessComArchives(config);
+    },
     setIntervalFn: (handler, timeout) => window.setInterval(handler, timeout),
     clearIntervalFn: (intervalId) => window.clearInterval(intervalId),
     now: () => new Date()
