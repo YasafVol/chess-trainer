@@ -1,11 +1,12 @@
+import { cn } from "../lib/utils.js";
 import type { FitlCanvasModel } from "./fitlMapView.js";
 
 export function FitlMapCanvas(props: { canvas: FitlCanvasModel; onFocusNode: (nodeId: string) => void }) {
   if (props.canvas.nodes.length === 0) {
     return (
-      <div className="empty-state">
-        <strong>No FITL nodes match the current search and filter set.</strong>
-        <p className="muted">Clear the search term or re-enable more node kinds to expand the map again.</p>
+      <div className="rounded-2xl border border-dashed border-muted-foreground/30 bg-card/50 p-6">
+        <strong className="text-sm">No FITL nodes match the current search and filter set.</strong>
+        <p className="text-sm text-muted-foreground">Clear the search term or re-enable more node kinds to expand the map again.</p>
       </div>
     );
   }
@@ -13,14 +14,14 @@ export function FitlMapCanvas(props: { canvas: FitlCanvasModel; onFocusNode: (no
   const laneTemplate = props.canvas.lanes.map((lane) => `${lane.width}px`).join(" ");
 
   return (
-    <div className="fitl-canvas-shell">
-      <div className="fitl-lane-strip" style={{ gridTemplateColumns: laneTemplate }}>
+    <div className="flex flex-col gap-3">
+      <div className="grid gap-5" style={{ gridTemplateColumns: laneTemplate }}>
         {props.canvas.lanes.map((lane) => (
-          <div key={lane.id} className="fitl-lane-chip">{lane.label}</div>
+          <div key={lane.id} className="rounded-full bg-foreground/5 px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">{lane.label}</div>
         ))}
       </div>
 
-      <div className="fitl-canvas-scroll">
+      <div className="overflow-auto rounded-2xl border border-border/20 bg-gradient-to-b from-white to-slate-50/90">
         <div className="fitl-canvas-surface" style={{ width: props.canvas.width, height: props.canvas.height }}>
           {props.canvas.lanes.map((lane) => (
             <div
@@ -35,7 +36,7 @@ export function FitlMapCanvas(props: { canvas: FitlCanvasModel; onFocusNode: (no
               <path
                 key={edge.id}
                 d={edge.path}
-                className={`fitl-canvas-edge${edge.isHighlighted ? " highlighted" : ""}`}
+                className={cn("fitl-canvas-edge", edge.isHighlighted && "highlighted")}
                 data-kind={edge.kind}
               />
             ))}
@@ -45,18 +46,23 @@ export function FitlMapCanvas(props: { canvas: FitlCanvasModel; onFocusNode: (no
             <button
               key={node.id}
               type="button"
-              className={`fitl-node-card${node.isSelected ? " selected" : ""}${node.isConnected ? " connected" : ""}${node.isMuted ? " muted" : ""}`}
+              className={cn(
+                "fitl-node-card",
+                node.isSelected && "selected",
+                node.isConnected && "connected",
+                node.isMuted && "opacity-50"
+              )}
               style={{ left: node.x, top: node.y, width: node.width, height: node.height }}
               onClick={() => props.onFocusNode(node.id)}
               data-fitl-node-id={node.id}
               data-fitl-kind={node.kind}
             >
-              <span className="fitl-node-meta">
+              <span className="flex flex-wrap gap-2 text-[0.69rem] font-extrabold uppercase tracking-wider text-muted-foreground">
                 <span>{node.kind.replace("_", " ")}</span>
                 {node.lifecycle ? <span>{node.lifecycle}</span> : null}
               </span>
-              <strong>{node.label}</strong>
-              <span className="muted fitl-node-summary">{node.summary}</span>
+              <strong className="text-sm">{node.label}</strong>
+              <span className="line-clamp-2 text-xs text-muted-foreground">{node.summary}</span>
             </button>
           ))}
         </div>

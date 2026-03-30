@@ -1,4 +1,10 @@
 import { ChangeEvent, FormEvent, useEffect, useState, useSyncExternalStore } from "react";
+import { Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { InlineLoader } from "../components/InlineLoader";
 import { useDelayedBusy } from "../components/useDelayedBusy";
 import { discoverChessComArchiveMonths, importChessComArchiveRange } from "../application/chessComImport";
@@ -218,13 +224,16 @@ export function ImportPage() {
   }
 
   return (
-    <section className="page">
-      <h2>Import PGN</h2>
-      <p className="muted">Paste PGN text or upload a `.pgn` file. Multi-game collections are split into individual preview rows.</p>
-      {!session.canMutate ? <p className="muted">Import is disabled while signed out or offline. Reconnect to save games.</p> : null}
-      <form onSubmit={onSubmit} className="stack-gap">
-        <label htmlFor="pgn-input">PGN text</label>
-        <textarea
+    <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-5">
+      <div>
+        <h2 className="text-lg font-semibold">Import PGN</h2>
+        <p className="text-sm text-muted-foreground">Paste PGN text or upload a `.pgn` file. Multi-game collections are split into individual preview rows.</p>
+        {!session.canMutate ? <p className="mt-1 text-sm text-muted-foreground">Import is disabled while signed out or offline. Reconnect to save games.</p> : null}
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-4">
+        <Label htmlFor="pgn-input">PGN text</Label>
+        <Textarea
           id="pgn-input"
           value={rawInput}
           onChange={(event) => {
@@ -232,20 +241,21 @@ export function ImportPage() {
             setRawInput(event.target.value);
           }}
           rows={14}
-          className="full-width-textarea"
+          className="font-mono text-sm"
         />
-        <div className="inline-actions">
-          <input type="file" accept=".pgn,text/plain" onChange={onFileChange} />
-          <button
-            className="action-button"
+        <div className="flex flex-wrap items-center gap-3">
+          <input type="file" accept=".pgn,text/plain" onChange={onFileChange} className="text-sm" />
+          <Button
             type="submit"
             disabled={!session.canMutate || busy || previews.every((preview) => !preview.selected || !!preview.duplicateOfGameId)}
           >
+            <Upload className="size-4" />
             {busy ? "Importing..." : "Import selected games"}
-          </button>
+          </Button>
         </div>
       </form>
-      <p>{status}</p>
+
+      <p className="text-sm">{status}</p>
       {showParseLoader ? <InlineLoader label="Processing PGN" detail="Reading and splitting the collection into individual games." /> : null}
       {showImportLoader ? <InlineLoader label="Importing games" detail="Saving selected games into your Convex-backed library." /> : null}
 
@@ -265,13 +275,13 @@ export function ImportPage() {
       />
 
       {previews.length > 0 ? (
-        <div className="preview-list">
+        <div className="space-y-3">
           {previews.map((preview) => {
             const id = previewId(preview);
             return (
               <div
                 key={id}
-                className="preview-card"
+                className="flex items-start gap-3 rounded-xl border border-border bg-card p-3.5 transition-colors hover:border-border/80 hover:bg-muted/30 cursor-pointer"
                 role="button"
                 tabIndex={preview.duplicateOfGameId ? -1 : 0}
                 onClick={() => {
@@ -289,18 +299,18 @@ export function ImportPage() {
                   }
                 }}
               >
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={preview.selected}
                   disabled={!!preview.duplicateOfGameId}
-                  onChange={() => togglePreview(id)}
+                  onCheckedChange={() => togglePreview(id)}
                   onClick={(event) => event.stopPropagation()}
+                  className="mt-0.5"
                 />
-                <div>
-                  <strong>{preview.headers.White ?? "White"} vs {preview.headers.Black ?? "Black"}</strong>
-                  <p className="muted">Hash: {preview.hash} - Moves: {preview.movesUci.length}</p>
-                  <p className="muted">{preview.headers.Event ?? "Unknown event"}</p>
-                  {preview.duplicateOfGameId ? <p>Already imported as {preview.duplicateOfGameId}.</p> : null}
+                <div className="min-w-0">
+                  <strong className="text-sm">{preview.headers.White ?? "White"} vs {preview.headers.Black ?? "Black"}</strong>
+                  <p className="text-xs text-muted-foreground">Hash: {preview.hash} - Moves: {preview.movesUci.length}</p>
+                  <p className="text-xs text-muted-foreground">{preview.headers.Event ?? "Unknown event"}</p>
+                  {preview.duplicateOfGameId ? <p className="text-xs text-amber-600">Already imported as {preview.duplicateOfGameId}.</p> : null}
                 </div>
               </div>
             );

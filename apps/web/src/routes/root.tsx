@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
+import { LogOut, Wifi, WifiOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { sharedAnalysisCoordinator } from "../application/analysisCoordinator";
 import { sharedChessComSyncCoordinator } from "../application/chessComSyncCoordinator";
 import { useRuntimeSession } from "../lib/runtimeGateway";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { cn } from "@/lib/utils";
 
 export function RootLayout() {
   const session = useRuntimeSession();
@@ -15,37 +18,27 @@ export function RootLayout() {
 
   if (!session.isConfigured) {
     return (
-      <div className="app-shell">
-        <header className="shell-header">
-          <div>
-            <h1>Chess Trainer</h1>
-            <p className="muted">Import, analyze, and turn blunders into puzzles.</p>
-          </div>
-        </header>
+      <Shell>
+        <ShellHeader />
         <main>
-          <section className="page">
+          <PageCard>
             <p>Convex is not configured. Set `VITE_CONVEX_URL` before running the web app.</p>
-          </section>
+          </PageCard>
         </main>
-      </div>
+      </Shell>
     );
   }
 
   if (session.isLoading) {
     return (
-      <div className="app-shell">
-        <header className="shell-header">
-          <div>
-            <h1>Chess Trainer</h1>
-            <p className="muted">Import, analyze, and turn blunders into puzzles.</p>
-          </div>
-        </header>
+      <Shell>
+        <ShellHeader />
         <main>
-          <section className="page">
-            <p>Loading your session...</p>
-          </section>
+          <PageCard>
+            <p className="text-muted-foreground">Loading your session...</p>
+          </PageCard>
         </main>
-      </div>
+      </Shell>
     );
   }
 
@@ -54,6 +47,33 @@ export function RootLayout() {
   }
 
   return <SignedInLayout />;
+}
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mx-auto min-h-screen max-w-[1180px] px-6 py-6">
+      {children}
+    </div>
+  );
+}
+
+function ShellHeader() {
+  return (
+    <header className="mb-5 flex items-start justify-between gap-5">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Chess Trainer</h1>
+        <p className="text-sm text-muted-foreground">Import, analyze, and turn blunders into puzzles.</p>
+      </div>
+    </header>
+  );
+}
+
+function PageCard({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
+      {children}
+    </section>
+  );
 }
 
 function SignedOutLayout() {
@@ -75,26 +95,23 @@ function SignedOutLayout() {
   }
 
   return (
-    <div className="app-shell">
-      <header className="shell-header">
-        <div>
-          <h1>Chess Trainer</h1>
-          <p className="muted">Import, analyze, and turn blunders into puzzles.</p>
-        </div>
-      </header>
+    <Shell>
+      <ShellHeader />
       <main>
-        <section className="page stack-gap">
-          <h2>Sign in required</h2>
-          <p className="muted">Remote persistence is active. Sign in with Google to access your library, analysis, and puzzles.</p>
-          <div className="inline-actions">
-            <button type="button" className="action-button" onClick={() => void startGoogleSignIn()} disabled={signingIn}>
+        <PageCard>
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-lg font-semibold">Sign in required</h2>
+              <p className="text-sm text-muted-foreground">Remote persistence is active. Sign in with Google to access your library, analysis, and puzzles.</p>
+            </div>
+            <Button onClick={() => void startGoogleSignIn()} disabled={signingIn}>
               {signingIn ? "Connecting..." : "Continue with Google"}
-            </button>
+            </Button>
+            {signInError ? <p className="text-sm text-destructive">{signInError}</p> : null}
           </div>
-          {signInError ? <p className="muted">{signInError}</p> : null}
-        </section>
+        </PageCard>
       </main>
-    </div>
+    </Shell>
   );
 }
 
@@ -102,37 +119,56 @@ function SignedInLayout() {
   const session = useRuntimeSession();
   const { signOut } = useAuthActions();
   const user = session.user;
+  const isOnline = session.browserOnline && session.backendConnected;
 
   async function handleSignOut() {
     await signOut();
   }
 
   return (
-    <div className="app-shell">
-      <header className="shell-header">
+    <Shell>
+      <header className="mb-5 flex items-start justify-between gap-5">
         <div>
-          <h1>Chess Trainer</h1>
-          <p className="muted">Import, analyze, and turn blunders into puzzles.</p>
+          <h1 className="text-2xl font-bold tracking-tight">Chess Trainer</h1>
+          <p className="text-sm text-muted-foreground">Import, analyze, and turn blunders into puzzles.</p>
         </div>
-        <div className="session-box">
-          <span className="muted">{session.browserOnline && session.backendConnected ? "Online" : "Offline (view-only)"}</span>
-          <span className="muted">{user?.name ?? user?.email ?? user?.id ?? "Unknown user"}</span>
-          <button type="button" className="action-button" onClick={() => void handleSignOut()}>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            {isOnline ? <Wifi className="size-3.5" /> : <WifiOff className="size-3.5" />}
+            {isOnline ? "Online" : "Offline"}
+          </span>
+          <span className="text-xs text-muted-foreground">{user?.name ?? user?.email ?? user?.id ?? "Unknown user"}</span>
+          <Button variant="ghost" size="sm" onClick={() => void handleSignOut()}>
+            <LogOut className="size-3.5" />
             Sign out
-          </button>
+          </Button>
         </div>
       </header>
 
-      <nav className="top-nav" aria-label="Main navigation">
-        <Link to="/" activeOptions={{ exact: true }}>Import</Link>
-        <Link to="/library" activeOptions={{ exact: true }}>Library</Link>
-        <Link to="/puzzles" activeOptions={{ exact: true }}>Puzzles</Link>
-        <Link to="/backoffice" activeOptions={{ exact: true }}>Backoffice</Link>
+      <nav className="mb-5 flex flex-wrap gap-1" aria-label="Main navigation">
+        {[
+          { to: "/" as const, label: "Import", exact: true },
+          { to: "/library" as const, label: "Library", exact: true },
+          { to: "/puzzles" as const, label: "Puzzles", exact: true },
+          { to: "/backoffice" as const, label: "Backoffice", exact: true },
+        ].map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            activeOptions={{ exact: item.exact }}
+            className={cn(
+              "relative rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
+              "[&[data-status=active]]:bg-secondary [&[data-status=active]]:text-foreground [&[data-status=active]]:font-semibold"
+            )}
+          >
+            {item.label}
+          </Link>
+        ))}
       </nav>
 
       <main>
         <Outlet />
       </main>
-    </div>
+    </Shell>
   );
 }

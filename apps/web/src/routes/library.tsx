@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import { Badge } from "@/components/ui/badge";
 import type { GameRecord } from "../domain/types";
 import { useGames } from "../lib/runtimeGateway";
 
@@ -109,16 +110,16 @@ export function LibraryPage() {
   const navigate = useNavigate();
 
   if (games === undefined) {
-    return <section className="page"><p>Loading library...</p></section>;
+    return <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm"><p className="text-muted-foreground">Loading library...</p></section>;
   }
 
   const rows: GameRecord[] = games;
 
   return (
-    <section className="page">
-      <h2>Library</h2>
-      {rows.length === 0 ? <p className="muted">No games saved yet.</p> : null}
-      <ul className="list card-list">
+    <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-4">
+      <h2 className="text-lg font-semibold">Library</h2>
+      {rows.length === 0 ? <p className="text-sm text-muted-foreground">No games saved yet.</p> : null}
+      <ul className="space-y-3">
         {rows.map((game) => {
           const white = readHeader(game.headers, "White") ?? "White";
           const black = readHeader(game.headers, "Black") ?? "Black";
@@ -131,18 +132,18 @@ export function LibraryPage() {
             <li key={game.id}>
               <button
                 type="button"
-                className="library-card-button"
+                className="w-full text-left rounded-xl border border-border bg-card p-4 transition-all hover:border-ring/30 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                 onClick={() => {
                   void navigate({ to: "/game/$gameId", params: { gameId: game.id } });
                 }}
               >
-                <div className="library-card-head">
-                  <strong>{white} vs {black}</strong>
-                  <div className="library-card-meta">
-                    <span>{outcome}</span>
-                    {rating ? <span>{rating}</span> : null}
-                    {timeControl ? <span>{timeControl}</span> : null}
-                    {playedOn ? <span>{playedOn}</span> : null}
+                <div className="flex items-center justify-between gap-4">
+                  <strong className="text-sm">{white} vs {black}</strong>
+                  <div className="flex flex-wrap justify-end gap-1.5">
+                    <Badge variant="secondary">{outcome}</Badge>
+                    {rating ? <Badge variant="outline">{rating}</Badge> : null}
+                    {timeControl ? <Badge variant="outline">{timeControl}</Badge> : null}
+                    {playedOn ? <Badge variant="outline">{playedOn}</Badge> : null}
                   </div>
                 </div>
               </button>

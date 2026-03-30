@@ -50,6 +50,7 @@ Definition of done:
 | Puzzles | `docs/architecture/verticals/v5-puzzle-generation-and-review.md` | `docs/modules/web-app.md`, `docs/quality/testing-guide.md` |
 | Game view/workbench | `docs/architecture/verticals/v6-game-view-and-analysis-workbench.md` | `docs/architecture/verticals/v2-replay-and-navigation.md`, `docs/architecture/verticals/v3-engine-analysis-and-annotations.md` |
 | Backoffice/benchmarking | `docs/architecture/verticals/v7-backoffice-and-benchmarking.md` | `docs/modules/web-app.md`, `docs/quality/performance-baselines.md`, `docs/decisions/ANALYSIS_BENCHMARK_2026-03-10.md` |
+| Design system/styling | `docs/architecture/layers/presentation.md` | `apps/web/src/index.css` (theme), `apps/web/src/styles.css` (domain CSS) |
 | Layer rules/governance | `docs/README.md` | `docs/architecture/layers/*.md`, `docs/architecture/LAYER_X_FEATURE_MATRIX.md` |
 
 ## Repository focus
@@ -62,7 +63,10 @@ Definition of done:
 
 - Package manager: `npm`
 - Frontend: React + Vite + TanStack Router
-- Persistence: IndexedDB
+- Styling: Tailwind CSS v4 (`@tailwindcss/vite` plugin, CSS-first config in `apps/web/src/index.css`) + shadcn/ui component library (`apps/web/src/components/ui/`)
+- Icons: `lucide-react`
+- Persistence: IndexedDB + Convex (serverless backend)
+- Auth: Google via `@convex-dev/auth`
 - Shared logic: `packages/chess-core`
 
 ## Commands

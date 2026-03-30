@@ -10,7 +10,11 @@
     "skipLibCheck": true,
     "types": [],
     "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["src/**/*.test.ts", ".tmp-test-build"]

@@ -2,7 +2,7 @@ import type { FitlGraphSnapshot } from "../domain/fitlGraphTypes.js";
 
 export const fitlGraphSnapshot: FitlGraphSnapshot = {
   "version": 1,
-  "generatedAt": "2026-03-29T15:52:15.406Z",
+  "generatedAt": "2026-03-30T13:48:33.156Z",
   "sourceDocs": [
     "apps/web/README.md",
     "apps/web/fitl-tooling.manifest.json",
@@ -499,6 +499,24 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "references": [
         {
           "type": "file",
+          "label": "apps/web/src/components/ui/*.tsx",
+          "path": "apps/web/src/components/ui/*.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/components/ui/*.tsx",
+      "kind": "file",
+      "label": "*.tsx",
+      "summary": "apps/web/src/components/ui/*.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
           "label": "apps/web/src/components/useDelayedBusy.ts",
           "path": "apps/web/src/components/useDelayedBusy.ts"
         }
@@ -805,6 +823,24 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "references": [
         {
           "type": "file",
+          "label": "apps/web/src/index.css",
+          "path": "apps/web/src/index.css"
+        }
+      ],
+      "tags": [
+        "css"
+      ],
+      "id": "file:apps/web/src/index.css",
+      "kind": "file",
+      "label": "index.css",
+      "summary": "apps/web/src/index.css",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
           "label": "apps/web/src/lib/chessComApi.ts",
           "path": "apps/web/src/lib/chessComApi.ts"
         }
@@ -996,6 +1032,24 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "file",
       "label": "puzzlesRepo.ts",
       "summary": "apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/utils.ts",
+          "path": "apps/web/src/lib/utils.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/lib/utils.ts",
+      "kind": "file",
+      "label": "utils.ts",
+      "summary": "apps/web/src/lib/utils.ts",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -1773,6 +1827,26 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
         },
         {
           "type": "file",
+          "label": "apps/web/src/index.css",
+          "path": "apps/web/src/index.css"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/styles.css",
+          "path": "apps/web/src/styles.css"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/lib/utils.ts",
+          "path": "apps/web/src/lib/utils.ts"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/components/ui/*.tsx",
+          "path": "apps/web/src/components/ui/*.tsx"
+        },
+        {
+          "type": "file",
           "label": "apps/web/src/routes/root.tsx",
           "path": "apps/web/src/routes/root.tsx"
         },
@@ -1815,11 +1889,6 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
           "type": "file",
           "label": "apps/web/src/presentation/backofficeView.ts",
           "path": "apps/web/src/presentation/backofficeView.ts"
-        },
-        {
-          "type": "file",
-          "label": "apps/web/src/styles.css",
-          "path": "apps/web/src/styles.css"
         },
         {
           "type": "file",
@@ -2839,6 +2908,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "touches"
     },
     {
+      "id": "file:apps/web/src/components/ui/*.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/components/ui/*.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
       "id": "file:apps/web/src/components/useDelayedBusy.ts->touches->layer:presentation",
       "from": "file:apps/web/src/components/useDelayedBusy.ts",
       "to": "layer:presentation",
@@ -2947,6 +3022,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "touches"
     },
     {
+      "id": "file:apps/web/src/index.css->touches->layer:presentation",
+      "from": "file:apps/web/src/index.css",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
       "id": "file:apps/web/src/lib/chessComApi.ts->touches->layer:adapters",
       "from": "file:apps/web/src/lib/chessComApi.ts",
       "to": "layer:adapters",
@@ -3016,6 +3097,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "id": "file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts->touches->layer:adapters",
       "from": "file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
       "to": "layer:adapters",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/lib/utils.ts->touches->layer:presentation",
+      "from": "file:apps/web/src/lib/utils.ts",
+      "to": "layer:presentation",
       "kind": "touches"
     },
     {
@@ -3178,6 +3265,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "id": "file:apps/web/src/routes/root.tsx->touches->layer:presentation",
       "from": "file:apps/web/src/routes/root.tsx",
       "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/styles.css->touches->layer:design-system",
+      "from": "file:apps/web/src/styles.css",
+      "to": "layer:design-system",
       "kind": "touches"
     },
     {
@@ -3463,6 +3556,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "implemented_by"
     },
     {
+      "id": "module:web-app->implemented_by->file:apps/web/src/components/ui/*.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/components/ui/*.tsx",
+      "kind": "implemented_by"
+    },
+    {
       "id": "module:web-app->implemented_by->file:apps/web/src/components/useDelayedBusy.ts",
       "from": "module:web-app",
       "to": "file:apps/web/src/components/useDelayedBusy.ts",
@@ -3565,6 +3664,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "implemented_by"
     },
     {
+      "id": "module:web-app->implemented_by->file:apps/web/src/index.css",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/index.css",
+      "kind": "implemented_by"
+    },
+    {
       "id": "module:web-app->implemented_by->file:apps/web/src/lib/chessComApi.ts",
       "from": "module:web-app",
       "to": "file:apps/web/src/lib/chessComApi.ts",
@@ -3628,6 +3733,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "id": "module:web-app->implemented_by->file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
       "from": "module:web-app",
       "to": "file:apps/web/src/lib/storage/repositories/puzzlesRepo.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/lib/utils.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/lib/utils.ts",
       "kind": "implemented_by"
     },
     {
@@ -3754,6 +3865,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "id": "module:web-app->touches->layer:contracts",
       "from": "module:web-app",
       "to": "layer:contracts",
+      "kind": "touches"
+    },
+    {
+      "id": "module:web-app->touches->layer:design-system",
+      "from": "module:web-app",
+      "to": "layer:design-system",
       "kind": "touches"
     },
     {
@@ -4318,6 +4435,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "id": "vertical:v2-replay-and-navigation->implemented_by->file:apps/web/src/board/ChessboardElementAdapter.ts",
       "from": "vertical:v2-replay-and-navigation",
       "to": "file:apps/web/src/board/ChessboardElementAdapter.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "vertical:v2-replay-and-navigation->implemented_by->file:apps/web/src/components/ui/*.tsx",
+      "from": "vertical:v2-replay-and-navigation",
+      "to": "file:apps/web/src/components/ui/*.tsx",
       "kind": "implemented_by"
     },
     {

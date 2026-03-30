@@ -1,3 +1,6 @@
+import { Eye, Lightbulb, RotateCcw, RefreshCw } from "lucide-react";
+import { Button } from "../components/ui/button.js";
+
 type PuzzleActionControlsProps = {
   hintDisabled: boolean;
   revealDisabled: boolean;
@@ -16,19 +19,23 @@ export function PuzzleActionControls({
   onTryAgain
 }: PuzzleActionControlsProps) {
   return (
-    <div className="controls">
-      <button className="action-button" onClick={onHint} disabled={hintDisabled}>
+    <div className="mt-3 flex flex-wrap gap-2">
+      <Button variant="outline" size="sm" onClick={onHint} disabled={hintDisabled}>
+        <Lightbulb className="size-3.5" />
         Hint
-      </button>
-      <button className="action-button" onClick={onReveal} disabled={revealDisabled}>
+      </Button>
+      <Button variant="outline" size="sm" onClick={onReveal} disabled={revealDisabled}>
+        <Eye className="size-3.5" />
         Reveal
-      </button>
-      <button className="action-button" onClick={onReset}>
+      </Button>
+      <Button variant="ghost" size="sm" onClick={onReset}>
+        <RotateCcw className="size-3.5" />
         Reset
-      </button>
-      <button className="action-button" onClick={onTryAgain}>
+      </Button>
+      <Button variant="ghost" size="sm" onClick={onTryAgain}>
+        <RefreshCw className="size-3.5" />
         Try again
-      </button>
+      </Button>
     </div>
   );
 }

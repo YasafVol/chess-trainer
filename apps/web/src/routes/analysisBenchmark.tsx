@@ -1,7 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { parsePgnCollection } from "@chess-trainer/chess-core";
 import singlePgn from "../../../../assets/icons/single.pgn?raw";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { runAnalysisBenchmark } from "../application/runAnalysisBenchmark";
 import { InlineLoader } from "../components/InlineLoader";
 import { useDelayedBusy } from "../components/useDelayedBusy";
@@ -166,151 +172,156 @@ export function AnalysisBenchmarkPage() {
   }
 
   return (
-    <section className="page stack-gap">
-      <div className="stack-gap">
-        <div className="inline-actions">
-          <Link to="/backoffice" className="action-button">Back to backoffice</Link>
-        </div>
+    <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-5">
+      <div className="space-y-3">
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/backoffice"><ArrowLeft className="size-3.5" />Back to backoffice</Link>
+        </Button>
 
         <div>
-          <h2>Analysis Benchmark</h2>
-          <p className="muted">Run the real browser-worker analysis pipeline against the bundled `single.pgn` game and compare movetime-driven timing across fixed benchmark scenarios.</p>
+          <h2 className="text-lg font-semibold">Analysis Benchmark</h2>
+          <p className="text-sm text-muted-foreground">Run the real browser-worker analysis pipeline against the bundled `single.pgn` game and compare movetime-driven timing across fixed benchmark scenarios.</p>
         </div>
 
-        <div className="chip-row" aria-label="Benchmark game details">
+        <div className="flex flex-wrap gap-1.5" aria-label="Benchmark game details">
           {benchmarkMeta.map((chip) => (
-            <span key={chip.id} className="chip">{chip.text}</span>
+            <Badge key={chip.id} variant="outline">{chip.text}</Badge>
           ))}
-          <span className="chip">{benchmarkGame.totalPlies} plies</span>
-          <span className="chip">{ANALYSIS_BENCHMARK_REPETITIONS} repetitions per scenario</span>
+          <Badge variant="outline">{benchmarkGame.totalPlies} plies</Badge>
+          <Badge variant="outline">{ANALYSIS_BENCHMARK_REPETITIONS} repetitions per scenario</Badge>
         </div>
       </div>
 
-      <div className="config-notice">
-        <strong>Interpretation note</strong>
-        <p className="muted">This single benchmark game is useful for calibrating short-game runtime expectations. It is not sufficient on its own to retune long-game sampling thresholds.</p>
-      </div>
+      <Card>
+        <CardContent className="p-4">
+          <p className="text-sm text-muted-foreground"><strong className="text-foreground">Interpretation note:</strong> This single benchmark game is useful for calibrating short-game runtime expectations. It is not sufficient on its own to retune long-game sampling thresholds.</p>
+        </CardContent>
+      </Card>
 
-      <section className="config-section">
-        <div className="config-section-header">
-          <h3>Tweakable Runtime Knobs</h3>
-          <p className="muted">Only settings that are wired into the shipped worker path are included in this benchmark.</p>
-        </div>
-
-        <div className="config-grid">
-          {benchmarkKnobs.map((field) => (
-            <label key={field.key} className="config-field">
-              <span className="config-label">{field.label}</span>
-              <input className="config-input" value={field.value} readOnly aria-readonly="true" />
-              <span className="muted config-help">{field.help}</span>
-            </label>
-          ))}
-        </div>
-      </section>
-
-      <section className="config-section">
-        <div className="config-section-header">
-          <h3>Not Benchmarkable Yet</h3>
-          <p className="muted">These knobs are intentionally excluded until the runtime actually applies them.</p>
-        </div>
-
-        <div className="config-grid">
-          {blockedKnobs.map((field) => (
-            <label key={field.key} className="config-field">
-              <span className="config-label">{field.label}</span>
-              <input className="config-input" value="Not supported in v1" readOnly aria-readonly="true" />
-              <span className="muted config-help">{field.reason}</span>
-            </label>
-          ))}
-        </div>
-      </section>
-
-      <section className="config-section">
-        <div className="config-section-header">
-          <h3>Standard Sweep</h3>
-          <p className="muted">Fixed v1 scenario set for movetime-first runtime comparison.</p>
-        </div>
-
-        <div className="benchmark-scenario-grid">
-          {scenarioCards.map((scenario) => (
-            <article key={scenario.id} className="benchmark-scenario-card">
-              <strong>{scenario.title}</strong>
-              <p className="muted">{scenario.description}</p>
-              <p className="muted">{scenario.settingsSummary}</p>
-              {scenario.comparisonNote ? <p className="muted">{scenario.comparisonNote}</p> : null}
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <div className="stack-gap">
-        <div className="inline-actions">
-          <button className="action-button" onClick={() => void onRunBenchmark()} disabled={running}>
-            {running ? "Running benchmark..." : "Run benchmark"}
-          </button>
-        </div>
-
-        <p>{status}</p>
-        {summary ? <p className="muted">{summary}</p> : null}
-        {failure ? (
-          <div className="config-notice">
-            <strong>Failure details</strong>
-            <p className="muted">Scenario: {failure.scenarioLabel} · Run: {failure.repetition || "n/a"} · Step: {failure.failedStep}</p>
-            <p>{failure.message}</p>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Tweakable Runtime Knobs</CardTitle>
+          <p className="text-sm text-muted-foreground">Only settings that are wired into the shipped worker path are included in this benchmark.</p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5">
+            {benchmarkKnobs.map((field) => (
+              <Label key={field.key} className="flex flex-col gap-2">
+                <span className="text-sm font-semibold">{field.label}</span>
+                <Input value={field.value} readOnly aria-readonly="true" />
+                <span className="text-xs text-muted-foreground leading-snug">{field.help}</span>
+              </Label>
+            ))}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Not Benchmarkable Yet</CardTitle>
+          <p className="text-sm text-muted-foreground">These knobs are intentionally excluded until the runtime actually applies them.</p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5">
+            {blockedKnobs.map((field) => (
+              <Label key={field.key} className="flex flex-col gap-2">
+                <span className="text-sm font-semibold">{field.label}</span>
+                <Input value="Not supported in v1" readOnly aria-readonly="true" />
+                <span className="text-xs text-muted-foreground leading-snug">{field.reason}</span>
+              </Label>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Standard Sweep</CardTitle>
+          <p className="text-sm text-muted-foreground">Fixed v1 scenario set for movetime-first runtime comparison.</p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3.5 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
+            {scenarioCards.map((scenario) => (
+              <div key={scenario.id} className="rounded-xl border border-border p-3.5 bg-card space-y-1">
+                <strong className="text-sm">{scenario.title}</strong>
+                <p className="text-xs text-muted-foreground">{scenario.description}</p>
+                <p className="text-xs text-muted-foreground">{scenario.settingsSummary}</p>
+                {scenario.comparisonNote ? <p className="text-xs text-muted-foreground">{scenario.comparisonNote}</p> : null}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-3">
+        <Button onClick={() => void onRunBenchmark()} disabled={running}>
+          {running ? "Running benchmark..." : "Run benchmark"}
+        </Button>
+
+        <p className="text-sm">{status}</p>
+        {summary ? <p className="text-sm text-muted-foreground">{summary}</p> : null}
+        {failure ? (
+          <Card className="border-destructive/40">
+            <CardContent className="p-4 space-y-1">
+              <strong className="text-sm">Failure details</strong>
+              <p className="text-xs text-muted-foreground">Scenario: {failure.scenarioLabel} | Run: {failure.repetition || "n/a"} | Step: {failure.failedStep}</p>
+              <p className="text-sm text-destructive">{failure.message}</p>
+            </CardContent>
+          </Card>
         ) : null}
         {showLoader ? <InlineLoader inline label="Running benchmark" detail="Executing repeated analysis runs through the worker pipeline." /> : null}
       </div>
 
-      <section className="config-section">
-        <div className="config-section-header">
-          <h3>Results</h3>
-          <p className="muted">Use these values to compare scenario cost, project full-run runtime, and size a safer derived budget for similar short games.</p>
-        </div>
-
-        {results.length === 0 ? (
-          <p className="muted">No benchmark results yet.</p>
-        ) : (
-          <div className="benchmark-table-wrap">
-            <table className="benchmark-table">
-              <thead>
-                <tr>
-                  <th>Scenario</th>
-                  <th>Runs</th>
-                  <th>Avg run ms</th>
-                  <th>P95 run ms</th>
-                  <th>Avg ply ms</th>
-                  <th>P95 ply ms</th>
-                  <th>Avg analyzed plies</th>
-                  <th>Retries/run</th>
-                  <th>Safety stops</th>
-                  <th>Projected full run</th>
-                  <th>Recommended safety budget</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.map((row) => (
-                  <tr key={row.id}>
-                    <td>{row.scenario}</td>
-                    <td>{row.runsCompleted}</td>
-                    <td>{row.avgRunMs}</td>
-                    <td>{row.p95RunMs}</td>
-                    <td>{row.avgPlyMs}</td>
-                    <td>{row.p95PlyMs}</td>
-                    <td>{row.avgAnalyzedPlies}</td>
-                    <td>{row.retriesPerRun}</td>
-                    <td>{row.safetyStops}</td>
-                    <td>{row.projectedFullRunMs}</td>
-                    <td>{row.recommendedSafetyBudgetMs}</td>
-                    <td>{row.statusText}</td>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Results</CardTitle>
+          <p className="text-sm text-muted-foreground">Use these values to compare scenario cost, project full-run runtime, and size a safer derived budget for similar short games.</p>
+        </CardHeader>
+        <CardContent>
+          {results.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No benchmark results yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[980px] border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left">
+                    <th className="p-2.5 font-semibold text-xs">Scenario</th>
+                    <th className="p-2.5 font-semibold text-xs">Runs</th>
+                    <th className="p-2.5 font-semibold text-xs">Avg run ms</th>
+                    <th className="p-2.5 font-semibold text-xs">P95 run ms</th>
+                    <th className="p-2.5 font-semibold text-xs">Avg ply ms</th>
+                    <th className="p-2.5 font-semibold text-xs">P95 ply ms</th>
+                    <th className="p-2.5 font-semibold text-xs">Avg analyzed plies</th>
+                    <th className="p-2.5 font-semibold text-xs">Retries/run</th>
+                    <th className="p-2.5 font-semibold text-xs">Safety stops</th>
+                    <th className="p-2.5 font-semibold text-xs">Projected full run</th>
+                    <th className="p-2.5 font-semibold text-xs">Recommended safety budget</th>
+                    <th className="p-2.5 font-semibold text-xs">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+                </thead>
+                <tbody>
+                  {results.map((row) => (
+                    <tr key={row.id} className="border-b border-border/50">
+                      <td className="p-2.5">{row.scenario}</td>
+                      <td className="p-2.5">{row.runsCompleted}</td>
+                      <td className="p-2.5">{row.avgRunMs}</td>
+                      <td className="p-2.5">{row.p95RunMs}</td>
+                      <td className="p-2.5">{row.avgPlyMs}</td>
+                      <td className="p-2.5">{row.p95PlyMs}</td>
+                      <td className="p-2.5">{row.avgAnalyzedPlies}</td>
+                      <td className="p-2.5">{row.retriesPerRun}</td>
+                      <td className="p-2.5">{row.safetyStops}</td>
+                      <td className="p-2.5">{row.projectedFullRunMs}</td>
+                      <td className="p-2.5">{row.recommendedSafetyBudgetMs}</td>
+                      <td className="p-2.5">{row.statusText}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </section>
   );
 }

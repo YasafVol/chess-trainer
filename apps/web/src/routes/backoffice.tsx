@@ -1,5 +1,10 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { sharedAnalysisCoordinator } from "../application/analysisCoordinator";
 import { sharedChessComSyncCoordinator } from "../application/chessComSyncCoordinator";
 import {
@@ -143,49 +148,50 @@ export function BackofficePage() {
   }
 
   return (
-    <section className="page stack-gap">
+    <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-5">
       <div>
-        <h2>Backoffice</h2>
-        <p className="muted">Review the analysis and puzzle-classification constants currently shipped with the web app.</p>
+        <h2 className="text-lg font-semibold">Backoffice</h2>
+        <p className="text-sm text-muted-foreground">Review the analysis and puzzle-classification constants currently shipped with the web app.</p>
       </div>
 
-      <div className="config-notice">
-        <strong>Lazy library analysis</strong>
-        <p className="muted">Control whether the app automatically scans the library for unanalyzed games in the background. Foreground analysis from the game page still works even when this is disabled.</p>
-        <div className="config-grid">
-          <label className="config-field">
-            <span className="config-label">Enabled</span>
-            <input
-              className="config-checkbox"
-              type="checkbox"
-              checked={enabled}
-              onChange={(event) => setEnabled(event.target.checked)}
-            />
-            <span className="muted config-help">Turns background library analysis on or off without affecting explicit user-triggered analysis.</span>
-          </label>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Lazy library analysis</CardTitle>
+          <p className="text-sm text-muted-foreground">Control whether the app automatically scans the library for unanalyzed games in the background. Foreground analysis from the game page still works even when this is disabled.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5">
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-semibold">Enabled</span>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={enabled}
+                  onCheckedChange={(checked) => setEnabled(checked === true)}
+                />
+                <span className="text-xs text-muted-foreground leading-snug">Turns background library analysis on or off without affecting explicit user-triggered analysis.</span>
+              </div>
+            </div>
 
-          <label className="config-field">
-            <span className="config-label">Check interval (seconds)</span>
-            <input
-              className="config-input"
-              type="number"
-              min={ANALYSIS_COORDINATOR_INTERVAL_MIN_SECONDS}
-              max={ANALYSIS_COORDINATOR_INTERVAL_MAX_SECONDS}
-              step={1}
-              value={intervalSeconds}
-              onChange={(event) => setIntervalSeconds(event.target.value)}
-            />
-            <span className="muted config-help">Clamped to {ANALYSIS_COORDINATOR_INTERVAL_MIN_SECONDS}s - {ANALYSIS_COORDINATOR_INTERVAL_MAX_SECONDS}s and applied to the next scan cycle.</span>
-          </label>
-        </div>
-        <div className="inline-actions">
-          <button type="button" className="action-button" onClick={() => void saveRuntimeSettings()} disabled={!session.canMutate || saving}>
+            <Label className="flex flex-col gap-2">
+              <span className="text-sm font-semibold">Check interval (seconds)</span>
+              <Input
+                type="number"
+                min={ANALYSIS_COORDINATOR_INTERVAL_MIN_SECONDS}
+                max={ANALYSIS_COORDINATOR_INTERVAL_MAX_SECONDS}
+                step={1}
+                value={intervalSeconds}
+                onChange={(event) => setIntervalSeconds(event.target.value)}
+              />
+              <span className="text-xs text-muted-foreground leading-snug">Clamped to {ANALYSIS_COORDINATOR_INTERVAL_MIN_SECONDS}s - {ANALYSIS_COORDINATOR_INTERVAL_MAX_SECONDS}s and applied to the next scan cycle.</span>
+            </Label>
+          </div>
+          <Button size="sm" onClick={() => void saveRuntimeSettings()} disabled={!session.canMutate || saving}>
             {saving ? "Saving..." : "Save lazy-analysis settings"}
-          </button>
-        </div>
-        <p className="muted">Current runtime status: {coordinator.status}</p>
-        {saveStatus ? <p className="muted">{saveStatus}</p> : null}
-      </div>
+          </Button>
+          <p className="text-sm text-muted-foreground">Current runtime status: {coordinator.status}</p>
+          {saveStatus ? <p className="text-sm text-muted-foreground">{saveStatus}</p> : null}
+        </CardContent>
+      </Card>
 
       <ChessComSyncSettings
         config={{
@@ -204,72 +210,83 @@ export function BackofficePage() {
         onSave={() => void saveChessComSettings()}
       />
 
-      <div className="config-notice">
-        <strong>Puzzle playback</strong>
-        <p className="muted">Control the animation speed used when the puzzle board reveals or continues the stored solution line.</p>
-        <div className="config-grid">
-          <label className="config-field">
-            <span className="config-label">Playback step (ms)</span>
-            <input
-              className="config-input"
-              type="number"
-              min={PUZZLE_PLAYBACK_STEP_MIN_MS}
-              max={PUZZLE_PLAYBACK_STEP_MAX_MS}
-              step={25}
-              value={puzzlePlaybackStepMs}
-              onChange={(event) => setPuzzlePlaybackStepMs(event.target.value)}
-            />
-            <span className="muted config-help">Clamped to {PUZZLE_PLAYBACK_STEP_MIN_MS}ms - {PUZZLE_PLAYBACK_STEP_MAX_MS}ms. The shipped default is {PUZZLE_PLAYBACK_CONFIG_DEFAULTS.stepMs}ms.</span>
-          </label>
-        </div>
-        <div className="inline-actions">
-          <button type="button" className="action-button" onClick={() => void savePuzzlePlaybackSettings()} disabled={!session.canMutate || savingPuzzlePlayback}>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Puzzle playback</CardTitle>
+          <p className="text-sm text-muted-foreground">Control the animation speed used when the puzzle board reveals or continues the stored solution line.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5">
+            <Label className="flex flex-col gap-2">
+              <span className="text-sm font-semibold">Playback step (ms)</span>
+              <Input
+                type="number"
+                min={PUZZLE_PLAYBACK_STEP_MIN_MS}
+                max={PUZZLE_PLAYBACK_STEP_MAX_MS}
+                step={25}
+                value={puzzlePlaybackStepMs}
+                onChange={(event) => setPuzzlePlaybackStepMs(event.target.value)}
+              />
+              <span className="text-xs text-muted-foreground leading-snug">Clamped to {PUZZLE_PLAYBACK_STEP_MIN_MS}ms - {PUZZLE_PLAYBACK_STEP_MAX_MS}ms. The shipped default is {PUZZLE_PLAYBACK_CONFIG_DEFAULTS.stepMs}ms.</span>
+            </Label>
+          </div>
+          <Button size="sm" onClick={() => void savePuzzlePlaybackSettings()} disabled={!session.canMutate || savingPuzzlePlayback}>
             {savingPuzzlePlayback ? "Saving..." : "Save puzzle playback settings"}
-          </button>
-        </div>
-        {puzzlePlaybackSaveStatus ? <p className="muted">{puzzlePlaybackSaveStatus}</p> : null}
-      </div>
+          </Button>
+          {puzzlePlaybackSaveStatus ? <p className="text-sm text-muted-foreground">{puzzlePlaybackSaveStatus}</p> : null}
+        </CardContent>
+      </Card>
 
-      <div className="config-notice">
-        <strong>FITL explorer</strong>
-        <p className="muted">Open the FITL explorer to start from a global feature map, then deepen into architecture or implementation for the selected vertical or tool.</p>
-        <div className="inline-actions">
-          <Link to="/backoffice/fitl-map" className="action-button">Open FITL map</Link>
-        </div>
-      </div>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">FITL explorer</CardTitle>
+          <p className="text-sm text-muted-foreground">Open the FITL explorer to start from a global feature map, then deepen into architecture or implementation for the selected vertical or tool.</p>
+        </CardHeader>
+        <CardContent>
+          <Button variant="outline" asChild>
+            <Link to="/backoffice/fitl-map">Open FITL map</Link>
+          </Button>
+        </CardContent>
+      </Card>
 
-      <div className="config-notice">
-        <strong>Benchmark tools</strong>
-        <p className="muted">Run the bundled `single.pgn` benchmark to compare movetime-driven runtime cost across the currently supported worker knobs.</p>
-        <div className="inline-actions">
-          <Link to="/backoffice/analysis-benchmark" className="action-button">Open analysis benchmark</Link>
-        </div>
-      </div>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Benchmark tools</CardTitle>
+          <p className="text-sm text-muted-foreground">Run the bundled `single.pgn` benchmark to compare movetime-driven runtime cost across the currently supported worker knobs.</p>
+        </CardHeader>
+        <CardContent>
+          <Button variant="outline" asChild>
+            <Link to="/backoffice/analysis-benchmark">Open analysis benchmark</Link>
+          </Button>
+        </CardContent>
+      </Card>
 
-      <div className="config-notice">
-        <strong>Hardcoded config</strong>
-        <p className="muted">These sections remain read-only and come directly from source constants.</p>
-        <p className="muted">The lazy-analysis runtime control above is persisted separately through local backoffice state.</p>
-      </div>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Hardcoded config</CardTitle>
+          <p className="text-sm text-muted-foreground">These sections remain read-only and come directly from source constants. The lazy-analysis runtime control above is persisted separately through local backoffice state.</p>
+        </CardHeader>
+      </Card>
 
-      <div className="config-sections">
+      <div className="space-y-4">
         {sections.map((section) => (
-          <section key={section.id} className="config-section">
-            <div className="config-section-header">
-              <h3>{section.title}</h3>
-              <p className="muted">{section.description}</p>
-            </div>
-
-            <div className="config-grid">
-              {section.fields.map((field) => (
-                <label key={field.key} className="config-field">
-                  <span className="config-label">{field.label}</span>
-                  <input className="config-input" value={field.value} readOnly aria-readonly="true" />
-                  <span className="muted config-help">{field.help}</span>
-                </label>
-              ))}
-            </div>
-          </section>
+          <Card key={section.id}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">{section.title}</CardTitle>
+              <p className="text-sm text-muted-foreground">{section.description}</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5">
+                {section.fields.map((field) => (
+                  <Label key={field.key} className="flex flex-col gap-2">
+                    <span className="text-sm font-semibold">{field.label}</span>
+                    <Input value={field.value} readOnly aria-readonly="true" />
+                    <span className="text-xs text-muted-foreground leading-snug">{field.help}</span>
+                  </Label>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </section>
