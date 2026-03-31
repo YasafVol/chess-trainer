@@ -3,20 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.18.2",
   "engines": {
     "node": "20.x",
     "npm": "10.x"
   },
   "scripts": {
     "generate:fitl-graph": "node ./scripts/generate-fitl-graph.mjs",
-    "dev": "node ./scripts/generate-fitl-graph.mjs && npx vite",
-    "build": "node ./scripts/generate-fitl-graph.mjs && npx tsc -b && npx vite build",
-    "preview": "npx vite preview",
-    "typecheck": "node ./scripts/generate-fitl-graph.mjs && npx tsc -b --pretty false",
+    "dev": "node ./scripts/generate-fitl-graph.mjs && pnpm exec vite",
+    "build": "node ./scripts/generate-fitl-graph.mjs && pnpm exec tsc -b && pnpm exec vite build",
+    "preview": "pnpm exec vite preview",
+    "typecheck": "node ./scripts/generate-fitl-graph.mjs && pnpm exec tsc -b --pretty false",
     "test:tdd": "node ./scripts/generate-fitl-graph.mjs && node ./scripts/compile-tests.mjs && node ./scripts/run-node-tests.mjs",
-    "test:tdd:one": "node ./scripts/generate-fitl-graph.mjs && npx tsc -p tsconfig.test.json --pretty false && node --test --test-name-pattern \"$TEST_NAME\" .tmp-test-build/src/**/*.test.js",
-    "convex:dev": "npx convex dev",
-    "convex:deploy": "npx convex deploy"
+    "test:tdd:one": "node ./scripts/generate-fitl-graph.mjs && pnpm exec tsc -p tsconfig.test.json --pretty false && node --test --test-name-pattern \"$TEST_NAME\" .tmp-test-build/src/**/*.test.js",
+    "convex:dev": "pnpm exec convex dev",
+    "convex:deploy": "pnpm exec convex deploy"
   },
   "dependencies": {
     "@auth/core": "^0.37.4",

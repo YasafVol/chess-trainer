@@ -15,11 +15,11 @@ This is the active Chess Trainer product: a standalone React + Vite + TanStack R
 ## Commands
 
 ```bash
-npm install
-npm run dev
-npm run typecheck
-npm run test:tdd
-npm run build
+pnpm install
+pnpm run dev
+pnpm run typecheck
+pnpm run test:tdd
+pnpm run build
 ```
 
 ## Local run
@@ -27,9 +27,9 @@ npm run build
 Convex and Google auth must be configured for the active runtime.
 
 ```bash
-npm install
-npm run convex:dev
-npm run dev
+pnpm install
+pnpm run convex:dev
+pnpm run dev
 ```
 
 ## Environment
@@ -45,9 +45,9 @@ npm run dev
 
 ## Deployment
 
-Vercel uses the repo-level [`vercel.json`](../../vercel.json). Production builds should deploy Convex and the frontend together through `npx convex deploy --cmd 'npm run build'`.
+Vercel uses the repo-level [`vercel.json`](../../vercel.json). Production builds deploy Convex and the frontend together through `pnpm --dir apps/web exec convex deploy --cmd 'pnpm run build'`.
 Set `CONVEX_DEPLOY_KEY` in the Vercel project before the first production deployment.
-Vercel installs dependencies from `apps/web/package-lock.json` instead of the repo workspace root because the workspace-level npm install path has been unstable in Vercel builds.
+Vercel installs dependencies from the repo root pnpm workspace.
 
 ## Notes
 
