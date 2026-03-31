@@ -1,6 +1,6 @@
 {
   "framework": "vite",
-  "installCommand": "npm install --workspaces --include-workspace-root --no-audit --no-fund",
+  "installCommand": "npm ci --workspaces --include-workspace-root --no-audit --no-fund",
   "buildCommand": "cd apps/web && npx convex deploy --cmd 'npm run build'",
   "outputDirectory": "apps/web/dist"
 }
