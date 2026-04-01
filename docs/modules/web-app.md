@@ -82,4 +82,4 @@ Standalone web runtime under `apps/web`.
 - FITL explorer data is generated at dev/build/test startup from canonical FITL markdown plus `apps/web/fitl-tooling.manifest.json`; the browser runtime reads only the generated snapshot.
 - Benchmark analysis data is intentionally written to a separate IndexedDB database so repeated experiments do not pollute normal game analysis history or depend on Convex.
 - Offline support is intentionally read-only: cached data can be viewed offline, but writes require an authenticated online session.
-- Vercel production installs intentionally run from the repo root pnpm workspace, and the deploy command executes `convex deploy` from `apps/web` via `pnpm --dir apps/web exec`.
+- Vercel production installs intentionally run from the repo root pnpm workspace with pnpm pinned through Corepack, and the deploy command executes `convex deploy` from `apps/web` via `pnpm --dir apps/web exec`.
