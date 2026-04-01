@@ -1,6 +1,6 @@
 {
   "framework": "vite",
-  "installCommand": "corepack enable && corepack prepare pnpm@10.18.2 --activate && pnpm install --ignore-scripts",
-  "buildCommand": "corepack enable && corepack prepare pnpm@10.18.2 --activate && pnpm --dir apps/web exec convex deploy --cmd 'pnpm run build'",
+  "installCommand": "corepack enable && corepack prepare pnpm@10.18.2 --activate && cd apps/web && pnpm install --ignore-workspace --ignore-scripts",
+  "buildCommand": "corepack enable && corepack prepare pnpm@10.18.2 --activate && cd apps/web && ./node_modules/.bin/convex deploy --cmd 'node ./scripts/generate-fitl-graph.mjs && ./node_modules/.bin/tsc -b && ./node_modules/.bin/vite build'",
   "outputDirectory": "apps/web/dist"
 }
