@@ -83,4 +83,4 @@ Standalone web runtime under `apps/web`.
 - Benchmark analysis data is intentionally written to a separate IndexedDB database so repeated experiments do not pollute normal game analysis history or depend on Convex.
 - Offline support is intentionally read-only: cached data can be viewed offline, but writes require an authenticated online session.
 - The shadcn Tailwind helper layer is vendored under `apps/web/src/shadcn-tailwind.css`; the `shadcn` CLI is expected to run via `npx` only when generating new UI primitives.
-- Vercel production installs intentionally run from `apps/web` with `npm ci` against the app-local lockfile, and the deploy command uses the app-local `convex`, `tsc`, and `vite` binaries directly.
+- Vercel production installs intentionally run from `apps/web` with `npm install --ignore-scripts` against the app-local lockfile, and the deploy command uses the app-local `convex`, `tsc`, and `vite` binaries directly.
