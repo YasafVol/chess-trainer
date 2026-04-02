@@ -45,9 +45,9 @@ pnpm run dev
 
 ## Deployment
 
-Vercel uses the repo-level [`vercel.json`](../../vercel.json). Production builds install from `apps/web` with `npm ci --ignore-scripts`, then deploy Convex and the frontend together through the app-local `convex`, `tsc`, and `vite` binaries.
+Vercel uses the repo-level [`vercel.json`](../../vercel.json). Production builds pin pnpm through Corepack, install from `apps/web` with `--ignore-workspace`, then deploy Convex and the frontend together through the app-local `convex`, `tsc`, and `vite` binaries.
 Set `CONVEX_DEPLOY_KEY` in the Vercel project before the first production deployment.
-Vercel installs dependencies from the app-local `package-lock.json` to avoid live package-manager resolution during deploys.
+Vercel installs dependencies from `apps/web` with pnpm workspace detection disabled for the install step.
 
 ## Notes
 
