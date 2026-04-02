@@ -1,6 +1,6 @@
 {
   "framework": "vite",
-  "installCommand": "cd apps/web && npm install --no-audit --no-fund --ignore-scripts",
+  "installCommand": "cd apps/web && npm ci --no-audit --no-fund --ignore-scripts",
   "buildCommand": "cd apps/web && ./node_modules/.bin/convex deploy --cmd 'node ./scripts/generate-fitl-graph.mjs && ./node_modules/.bin/tsc -b && ./node_modules/.bin/vite build'",
   "outputDirectory": "apps/web/dist"
 }
