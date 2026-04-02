@@ -2,15 +2,18 @@
   "name": "chess-trainer",
   "version": "0.2.6",
   "private": true,
-  "packageManager": "pnpm@10.18.2",
   "description": "Chess Trainer web app for PGN import, analysis, and puzzle review.",
+  "workspaces": [
+    "apps/web",
+    "packages/chess-core"
+  ],
   "scripts": {
-    "dev": "pnpm --dir apps/web run dev",
-    "build": "pnpm --dir apps/web run build",
-    "typecheck": "pnpm --dir apps/web run typecheck",
-    "test": "pnpm --dir apps/web run test:tdd",
-    "convex:dev": "pnpm --dir apps/web run convex:dev",
-    "convex:deploy": "pnpm --dir apps/web run convex:deploy",
+    "dev": "npm --prefix apps/web run dev",
+    "build": "npm --prefix apps/web run build",
+    "typecheck": "npm --prefix apps/web run typecheck",
+    "test": "npm --prefix apps/web run test:tdd",
+    "convex:dev": "npm --prefix apps/web run convex:dev",
+    "convex:deploy": "npm --prefix apps/web run convex:deploy",
     "vercel:whoami": "vercel whoami",
     "vercel:login": "vercel login",
     "vercel:link": "vercel link",
@@ -19,8 +22,8 @@
     "vercel:build": "vercel build",
     "vercel:deploy": "vercel deploy",
     "vercel:deploy:prod": "vercel deploy --prod",
-    "web:dev": "pnpm --dir apps/web run dev",
-    "web:build": "pnpm --dir apps/web run build"
+    "web:dev": "npm --prefix apps/web run dev",
+    "web:build": "npm --prefix apps/web run build"
   },
   "keywords": [
     "chess",

@@ -1,6 +1,6 @@
 {
   "framework": "vite",
-  "installCommand": "pnpm install --ignore-scripts",
-  "buildCommand": "pnpm --dir apps/web exec convex deploy --cmd 'pnpm run build'",
+  "installCommand": "cd apps/web && npm ci --no-audit --no-fund --ignore-scripts",
+  "buildCommand": "cd apps/web && npx convex deploy --cmd 'npm run build'",
   "outputDirectory": "apps/web/dist"
 }
