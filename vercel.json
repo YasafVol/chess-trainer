@@ -1,6 +1,6 @@
 {
   "framework": "vite",
-  "installCommand": "corepack enable && corepack prepare pnpm@10.18.2 --activate && pnpm install --ignore-scripts",
-  "buildCommand": "corepack enable && corepack prepare pnpm@10.18.2 --activate && pnpm --dir apps/web exec convex deploy --cmd 'pnpm run build'",
+  "installCommand": "pnpm install --ignore-scripts",
+  "buildCommand": "pnpm --dir apps/web exec convex deploy --cmd 'pnpm run build'",
   "outputDirectory": "apps/web/dist"
 }

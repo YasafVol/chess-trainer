@@ -45,7 +45,7 @@ pnpm run dev
 
 ## Deployment
 
-Vercel uses the repo-level [`vercel.json`](../../vercel.json). Production builds pin pnpm through Corepack, then deploy Convex and the frontend together through `pnpm --dir apps/web exec convex deploy --cmd 'pnpm run build'`.
+Vercel uses the repo-level [`vercel.json`](../../vercel.json). Production builds deploy Convex and the frontend together through `pnpm --dir apps/web exec convex deploy --cmd 'pnpm run build'`.
 Set `CONVEX_DEPLOY_KEY` in the Vercel project before the first production deployment.
 Vercel installs dependencies from the repo root pnpm workspace.
 
