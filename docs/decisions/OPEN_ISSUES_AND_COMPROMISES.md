@@ -15,7 +15,6 @@
 2. Route-level UI tests are still missing.
 3. Deployment smoke automation is still missing.
 4. IndexedDB migration coverage is still shallow.
-5. Production SPA deep links are not yet verified to resolve through the hosting layer; Stage 2 found valid non-root routes such as `/library` returning Vercel `404: NOT_FOUND` instead of the SPA shell.
 
 ## Current Compromises
 
@@ -23,7 +22,6 @@
 2. Manual browser smoke checks are still a primary quality gate for several high-risk paths.
 3. Offline support is intentionally read-only; write queueing/sync remains out of scope.
 4. Benchmark persistence remains local-only even though product data now lives in Convex.
-5. The current production deploy is reachable at `/`, but direct SPA route entry is not yet safe to assume until hosting-level fallback behavior is corrected and reverified.
 
 ## Deferred Items
 
@@ -41,4 +39,3 @@
 4. Expand cache- and schema-alignment tests for the Convex-backed persistence path.
 5. Continue extracting route orchestration into shared application/runtime services.
 6. Use [`REINSTATEMENT_ROLLOUT_PLAN.md`](../../REINSTATEMENT_ROLLOUT_PLAN.md) as the gating document for staged deploy verification and later feature reinstatement.
-7. Restore production SPA deep-link handling, then rerun Stage 2 verification from route load through authenticated import/library/game smoke coverage.
