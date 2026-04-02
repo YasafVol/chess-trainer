@@ -2,7 +2,7 @@ import type { FitlGraphSnapshot } from "../domain/fitlGraphTypes.js";
 
 export const fitlGraphSnapshot: FitlGraphSnapshot = {
   "version": 1,
-  "generatedAt": "2026-03-30T13:48:33.156Z",
+  "generatedAt": "2026-04-01T09:36:42.288Z",
   "sourceDocs": [
     "apps/web/README.md",
     "apps/web/fitl-tooling.manifest.json",
@@ -1343,6 +1343,24 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "references": [
         {
           "type": "file",
+          "label": "apps/web/src/shadcn-tailwind.css",
+          "path": "apps/web/src/shadcn-tailwind.css"
+        }
+      ],
+      "tags": [
+        "css"
+      ],
+      "id": "file:apps/web/src/shadcn-tailwind.css",
+      "kind": "file",
+      "label": "shadcn-tailwind.css",
+      "summary": "apps/web/src/shadcn-tailwind.css",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
           "label": "apps/web/src/styles.css",
           "path": "apps/web/src/styles.css"
         }
@@ -1829,6 +1847,11 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
           "type": "file",
           "label": "apps/web/src/index.css",
           "path": "apps/web/src/index.css"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/shadcn-tailwind.css",
+          "path": "apps/web/src/shadcn-tailwind.css"
         },
         {
           "type": "file",
@@ -3268,6 +3291,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "touches"
     },
     {
+      "id": "file:apps/web/src/shadcn-tailwind.css->touches->layer:presentation",
+      "from": "file:apps/web/src/shadcn-tailwind.css",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
       "id": "file:apps/web/src/styles.css->touches->layer:design-system",
       "from": "file:apps/web/src/styles.css",
       "to": "layer:design-system",
@@ -3835,6 +3864,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "id": "module:web-app->implemented_by->file:apps/web/src/routes/root.tsx",
       "from": "module:web-app",
       "to": "file:apps/web/src/routes/root.tsx",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/shadcn-tailwind.css",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/shadcn-tailwind.css",
       "kind": "implemented_by"
     },
     {

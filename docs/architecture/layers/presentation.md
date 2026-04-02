@@ -30,6 +30,7 @@ The presentation layer uses Tailwind CSS v4 with shadcn/ui as the component foun
 
 - **Color tokens** are defined in oklch color space with semantic names (`primary`, `accent`, `destructive`, `muted`, etc.) and support light/dark modes via CSS custom properties.
 - **shadcn/ui components** live in `apps/web/src/components/ui/` and use the `cn()` helper from `apps/web/src/lib/utils.ts` for conditional class merging.
+- The shared shadcn Tailwind utility layer is vendored in `apps/web/src/shadcn-tailwind.css` so production installs do not depend on the `shadcn` CLI package.
 - **Domain-specific CSS** in `styles.css` is reserved for cases where Tailwind utilities are impractical: SVG `vector-effect`, absolute-positioned canvas nodes, and complex gradient eval bar tracks.
 - **No `tailwind.config.js`** — Tailwind v4 uses CSS-first configuration via `@theme` blocks in `index.css`.
 - **Icons** are sourced from `lucide-react`.
@@ -44,7 +45,8 @@ Then convert the generated `@/lib/utils` import to `../../lib/utils.js` so the N
 
 ## Key Files
 
-- `apps/web/src/index.css` (Tailwind theme + shadcn base)
+- `apps/web/src/index.css` (Tailwind theme + local shadcn base import)
+- `apps/web/src/shadcn-tailwind.css` (vendored shadcn Tailwind utility layer)
 - `apps/web/src/styles.css` (domain-specific: eval bar, eval graph, FITL canvas, board host)
 - `apps/web/src/lib/utils.ts` (`cn()` class merge utility)
 - `apps/web/src/components/ui/*.tsx` (shadcn/ui component library)
