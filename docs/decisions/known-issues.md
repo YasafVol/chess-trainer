@@ -32,6 +32,13 @@ Last updated: 2026-04-03
 - Scope: analysis policy and puzzle-definition administration
 - Summary: lazy background-analysis settings are now persisted locally, but the broader analysis and puzzle-definition constants exposed in backoffice are still hardcoded in source and need validated admin editing before they can move out of code.
 
+### 5. Preview deployments lack Convex build credentials
+
+- Status: open
+- Severity: high
+- Scope: Stage 3 rollout verification and non-production Vercel deploys
+- Summary: production deploys succeed, but preview deploys fail before app boot because the preview environment does not expose the Convex deployment configuration required by `npx convex deploy --cmd 'npm run build'`.
+
 ## Related docs
 
 - `OPEN_ISSUES_AND_COMPROMISES.md`

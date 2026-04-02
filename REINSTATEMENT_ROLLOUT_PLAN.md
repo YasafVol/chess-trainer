@@ -101,13 +101,25 @@ Exit criteria:
 
 Status:
 
-- Batch 1 in progress on 2026-04-03.
+- Batch 1 implementation and local verification completed on 2026-04-03.
+- Stage 3 preview verification is currently blocked because Vercel preview builds do not have Convex deployment configuration, even though production builds do.
 
 Batch 1 scope:
 
 - Rework the shared signed-out shell into a route-aware auth gate for `/`, `/library`, `/puzzles`, `/backoffice`, and `/game/$gameId`.
 - Keep the slice limited to presentation/composition-adjacent UI, copy, and tests.
 - Do not change dependencies, lockfiles, routes, backend behavior, or deployment config.
+
+Batch 1 evidence:
+
+- Local verification passed with `npm run typecheck`, `npm run test`, and `npm run build`.
+- Preview deployment `dpl_GEq7xy18eiVCjMPJF8RdhB2Z1vN8` was created for branch `codex-stage3-auth-gate` and commit `fc8da75074ec430324f045f41ad03cb126bfa766`.
+- The preview build stayed on Node `20.x` and used the root `vercel.json` install command.
+- The preview build failed before app boot because `cd apps/web && npx convex deploy --cmd 'npm run build'` exited with `✖ Vercel build environment detected but no Convex deployment configuration found.`
+
+Next action:
+
+- Add the required Convex deployment configuration to the Vercel preview environment, then rerun Stage 3 preview verification against the same route-aware auth-gate slice.
 
 ### Stage 4: Production promotion
 

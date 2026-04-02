@@ -15,6 +15,7 @@
 2. Route-level UI tests are still missing.
 3. Deployment smoke automation is still missing.
 4. IndexedDB migration coverage is still shallow.
+5. Preview Vercel deployments do not currently have Convex deployment configuration parity with production.
 
 ## Current Compromises
 
@@ -30,6 +31,7 @@
 3. Targeted deeper `MultiPV=3` puzzle extraction
 4. Deployment smoke automation
 5. Broader route-level UI coverage
+6. Preview environment parity for Convex-backed builds
 
 ## Mitigation Plan
 
@@ -39,3 +41,4 @@
 4. Expand cache- and schema-alignment tests for the Convex-backed persistence path.
 5. Continue extracting route orchestration into shared application/runtime services.
 6. Use [`REINSTATEMENT_ROLLOUT_PLAN.md`](../../REINSTATEMENT_ROLLOUT_PLAN.md) as the gating document for staged deploy verification and later feature reinstatement.
+7. Align Vercel preview environment variables with the Convex-backed production build requirements before treating Stage 3 preview deploys as a reliable gate.
