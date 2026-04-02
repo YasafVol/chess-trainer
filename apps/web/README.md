@@ -47,7 +47,6 @@ npm run dev
 
 Vercel uses the repo-level [`vercel.json`](../../vercel.json). Production builds should deploy Convex and the frontend together through `npx convex deploy --cmd 'npm run build'`.
 Set `CONVEX_DEPLOY_KEY` in the Vercel project before the first production deployment.
-Vercel installs dependencies from `apps/web/package-lock.json` instead of the repo workspace root because the workspace-level npm install path has been unstable in Vercel builds.
 
 ## Notes
 
