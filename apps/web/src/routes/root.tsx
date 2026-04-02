@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, Outlet } from "@tanstack/react-router";
+import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { sharedAnalysisCoordinator } from "../application/analysisCoordinator";
 import { sharedChessComSyncCoordinator } from "../application/chessComSyncCoordinator";
 import { useRuntimeSession } from "../lib/runtimeGateway";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { AuthGateView } from "../presentation/AuthGateView";
+import { buildAuthGateViewModel } from "../presentation/authGateModel";
 
 export function RootLayout() {
   const session = useRuntimeSession();
@@ -58,8 +60,12 @@ export function RootLayout() {
 
 function SignedOutLayout() {
   const { signIn } = useAuthActions();
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname
+  });
   const [signInError, setSignInError] = useState<string | null>(null);
   const [signingIn, setSigningIn] = useState(false);
+  const model = buildAuthGateViewModel(pathname);
 
   async function startGoogleSignIn() {
     setSigningIn(true);
@@ -83,16 +89,12 @@ function SignedOutLayout() {
         </div>
       </header>
       <main>
-        <section className="page stack-gap">
-          <h2>Sign in required</h2>
-          <p className="muted">Remote persistence is active. Sign in with Google to access your library, analysis, and puzzles.</p>
-          <div className="inline-actions">
-            <button type="button" className="action-button" onClick={() => void startGoogleSignIn()} disabled={signingIn}>
-              {signingIn ? "Connecting..." : "Continue with Google"}
-            </button>
-          </div>
-          {signInError ? <p className="muted">{signInError}</p> : null}
-        </section>
+        <AuthGateView
+          model={model}
+          signingIn={signingIn}
+          signInError={signInError}
+          onSignIn={startGoogleSignIn}
+        />
       </main>
     </div>
   );

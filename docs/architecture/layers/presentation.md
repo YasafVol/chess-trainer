@@ -11,6 +11,7 @@ Render user interfaces, collect user intents, and display system state.
 - Read-only admin config inspection for analysis depths, limits, and classification definitions
 - Board controls, SAN/NAG-style move annotations, late-mounted board-host wiring, and keyboard interactions
 - TanStack Router links, params, and route-driven screen composition
+- Shared signed-out auth-gate messaging that keeps deep-linked entry routes contextual before Google sign-in
 
 ## Key Files
 
@@ -21,6 +22,8 @@ Render user interfaces, collect user intents, and display system state.
 - `apps/web/src/routes/puzzles.tsx`
 - `apps/web/src/routes/puzzle.tsx`
 - `apps/web/src/routes/backoffice.tsx`
+- `apps/web/src/presentation/AuthGateView.tsx`
+- `apps/web/src/presentation/authGateModel.ts`
 - `apps/web/src/presentation/analysisView.ts`
 - `apps/web/src/presentation/backofficeView.ts`
 - `apps/web/src/styles.css`

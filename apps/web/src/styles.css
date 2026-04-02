@@ -97,6 +97,115 @@ textarea {
   box-shadow: 0 16px 44px rgba(15, 23, 42, 0.08);
 }
 
+.auth-gate {
+  overflow: hidden;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(180, 83, 9, 0.12), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(15, 118, 110, 0.1), transparent 30%),
+    rgba(255, 255, 255, 0.94);
+}
+
+.auth-gate-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.9fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.auth-gate-copy {
+  min-width: 0;
+}
+
+.auth-gate-eyebrow-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.auth-gate-eyebrow,
+.auth-gate-route,
+.auth-gate-panel-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-gate-eyebrow {
+  background: rgba(15, 23, 42, 0.08);
+  color: #334155;
+}
+
+.auth-gate-route {
+  background: rgba(146, 64, 14, 0.12);
+  color: #9a3412;
+}
+
+.auth-gate-summary,
+.auth-gate-hint,
+.auth-gate-error {
+  max-width: 62ch;
+}
+
+.auth-gate-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.auth-gate-hint,
+.auth-gate-error {
+  margin: 0;
+}
+
+.auth-gate-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.auth-gate-panel-label {
+  align-self: flex-start;
+  margin: 0;
+  background: rgba(15, 118, 110, 0.12);
+  color: #0f766e;
+}
+
+.auth-gate-feature-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-gate-feature-card {
+  padding: 14px 15px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.auth-gate-feature-card h3,
+.auth-gate-feature-card p {
+  margin: 0;
+}
+
+.auth-gate-feature-card p {
+  margin-top: 6px;
+}
+
 .empty-state {
   border: 1px dashed #9ca3af;
   border-radius: 18px;
@@ -1097,6 +1206,14 @@ textarea {
   .fitl-search-results {
     position: static;
     width: 100%;
+  }
+
+  .auth-gate {
+    padding: 22px;
+  }
+
+  .auth-gate-hero {
+    grid-template-columns: 1fr;
   }
 
   .fitl-pane.mobile-hidden,

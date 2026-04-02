@@ -2,7 +2,7 @@ import type { FitlGraphSnapshot } from "../domain/fitlGraphTypes.js";
 
 export const fitlGraphSnapshot: FitlGraphSnapshot = {
   "version": 1,
-  "generatedAt": "2026-04-02T23:14:04.840Z",
+  "generatedAt": "2026-04-02T23:25:52.243Z",
   "sourceDocs": [
     "apps/web/README.md",
     "apps/web/fitl-tooling.manifest.json",
@@ -1073,6 +1073,42 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "references": [
         {
           "type": "file",
+          "label": "apps/web/src/presentation/authGateModel.ts",
+          "path": "apps/web/src/presentation/authGateModel.ts"
+        }
+      ],
+      "tags": [
+        "ts"
+      ],
+      "id": "file:apps/web/src/presentation/authGateModel.ts",
+      "kind": "file",
+      "label": "authGateModel.ts",
+      "summary": "apps/web/src/presentation/authGateModel.ts",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/AuthGateView.tsx",
+          "path": "apps/web/src/presentation/AuthGateView.tsx"
+        }
+      ],
+      "tags": [
+        "tsx"
+      ],
+      "id": "file:apps/web/src/presentation/AuthGateView.tsx",
+      "kind": "file",
+      "label": "AuthGateView.tsx",
+      "summary": "apps/web/src/presentation/AuthGateView.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "file",
           "label": "apps/web/src/presentation/backofficeView.ts",
           "path": "apps/web/src/presentation/backofficeView.ts"
         }
@@ -1805,6 +1841,16 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
           "type": "file",
           "label": "apps/web/src/routes/backoffice.tsx",
           "path": "apps/web/src/routes/backoffice.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/AuthGateView.tsx",
+          "path": "apps/web/src/presentation/AuthGateView.tsx"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/presentation/authGateModel.ts",
+          "path": "apps/web/src/presentation/authGateModel.ts"
         },
         {
           "type": "file",
@@ -3043,6 +3089,18 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "touches"
     },
     {
+      "id": "file:apps/web/src/presentation/authGateModel.ts->touches->layer:presentation",
+      "from": "file:apps/web/src/presentation/authGateModel.ts",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
+      "id": "file:apps/web/src/presentation/AuthGateView.tsx->touches->layer:presentation",
+      "from": "file:apps/web/src/presentation/AuthGateView.tsx",
+      "to": "layer:presentation",
+      "kind": "touches"
+    },
+    {
       "id": "file:apps/web/src/presentation/backofficeView.ts->touches->layer:presentation",
       "from": "file:apps/web/src/presentation/backofficeView.ts",
       "to": "layer:presentation",
@@ -3652,6 +3710,18 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "id": "module:web-app->implemented_by->file:apps/web/src/presentation/analysisView.ts",
       "from": "module:web-app",
       "to": "file:apps/web/src/presentation/analysisView.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/presentation/authGateModel.ts",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/presentation/authGateModel.ts",
+      "kind": "implemented_by"
+    },
+    {
+      "id": "module:web-app->implemented_by->file:apps/web/src/presentation/AuthGateView.tsx",
+      "from": "module:web-app",
+      "to": "file:apps/web/src/presentation/AuthGateView.tsx",
       "kind": "implemented_by"
     },
     {

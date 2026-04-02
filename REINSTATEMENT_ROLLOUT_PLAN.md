@@ -99,6 +99,16 @@ Exit criteria:
 - Each reinstated slice passes repo checks and preview verification.
 - Deployment behavior remains anchored to the Stage 2 baseline path.
 
+Status:
+
+- Batch 1 in progress on 2026-04-03.
+
+Batch 1 scope:
+
+- Rework the shared signed-out shell into a route-aware auth gate for `/`, `/library`, `/puzzles`, `/backoffice`, and `/game/$gameId`.
+- Keep the slice limited to presentation/composition-adjacent UI, copy, and tests.
+- Do not change dependencies, lockfiles, routes, backend behavior, or deployment config.
+
 ### Stage 4: Production promotion
 
 Scope:
