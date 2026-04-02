@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-29T15:52:15.406Z",
+  "generatedAt": "2026-04-02T23:11:38.398Z",
   "sourceDocs": [
     "apps/web/README.md",
     "apps/web/fitl-tooling.manifest.json",
@@ -2020,6 +2020,42 @@
       "tags": [
         "risk"
       ],
+      "id": "risk:production-spa-deep-links-are-not-yet-verified-to-resolve-through-the-hosting-layer-stage-2-found-valid-non-root-routes-such-as-library-returning-vercel-404-not-found-instead-of-the-spa-shell",
+      "kind": "risk",
+      "label": "Production SPA deep links are not yet verified to resolve through the hosting layer; Stage 2 found valid non-root routes such as `/library` returning Vercel `404: NOT_FOUND` instead of the SPA shell.",
+      "summary": "Production SPA deep links are not yet verified to resolve through the hosting layer; Stage 2 found valid non-root routes such as `/library` returning Vercel `404: NOT_FOUND` instead of the SPA shell.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/known-issues.md",
+          "path": "docs/decisions/known-issues.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:production-spa-deep-links-return-host-level-404s",
+      "kind": "risk",
+      "label": "Production SPA deep links return host-level 404s",
+      "summary": "Stage 2 verification on 2026-04-03 confirmed that the deployed root URL loads, but direct requests to valid non-root routes such as `/library` and `/backoffice` return Vercel `404: NOT_FOUND` before the TanStack Router SPA can boot. Production deep-link handling must be fixed before authenticated smoke verification can continue.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md",
+          "path": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
       "id": "risk:route-level-ui-tests-are-still-missing",
       "kind": "risk",
       "label": "Route-level UI tests are still missing.",
@@ -3893,6 +3929,18 @@
       "kind": "constrained_by"
     },
     {
+      "id": "project:web-app->constrained_by->risk:production-spa-deep-links-are-not-yet-verified-to-resolve-through-the-hosting-layer-stage-2-found-valid-non-root-routes-such-as-library-returning-vercel-404-not-found-instead-of-the-spa-shell",
+      "from": "project:web-app",
+      "to": "risk:production-spa-deep-links-are-not-yet-verified-to-resolve-through-the-hosting-layer-stage-2-found-valid-non-root-routes-such-as-library-returning-vercel-404-not-found-instead-of-the-spa-shell",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->risk:production-spa-deep-links-return-host-level-404s",
+      "from": "project:web-app",
+      "to": "risk:production-spa-deep-links-return-host-level-404s",
+      "kind": "constrained_by"
+    },
+    {
       "id": "project:web-app->constrained_by->risk:route-level-ui-tests-are-still-missing",
       "from": "project:web-app",
       "to": "risk:route-level-ui-tests-are-still-missing",
@@ -4589,6 +4637,18 @@
       "kind": "constrained_by"
     },
     {
+      "id": "vertical:v4-library-and-game-lifecycle->constrained_by->risk:production-spa-deep-links-are-not-yet-verified-to-resolve-through-the-hosting-layer-stage-2-found-valid-non-root-routes-such-as-library-returning-vercel-404-not-found-instead-of-the-spa-shell",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "risk:production-spa-deep-links-are-not-yet-verified-to-resolve-through-the-hosting-layer-stage-2-found-valid-non-root-routes-such-as-library-returning-vercel-404-not-found-instead-of-the-spa-shell",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v4-library-and-game-lifecycle->constrained_by->risk:production-spa-deep-links-return-host-level-404s",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "risk:production-spa-deep-links-return-host-level-404s",
+      "kind": "constrained_by"
+    },
+    {
       "id": "vertical:v4-library-and-game-lifecycle->constrained_by->risk:route-local-orchestration-increases-regression-risk",
       "from": "vertical:v4-library-and-game-lifecycle",
       "to": "risk:route-local-orchestration-increases-regression-risk",
@@ -4901,6 +4961,18 @@
       "kind": "constrained_by"
     },
     {
+      "id": "vertical:v6-game-view-and-analysis-workbench->constrained_by->risk:production-spa-deep-links-are-not-yet-verified-to-resolve-through-the-hosting-layer-stage-2-found-valid-non-root-routes-such-as-library-returning-vercel-404-not-found-instead-of-the-spa-shell",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "risk:production-spa-deep-links-are-not-yet-verified-to-resolve-through-the-hosting-layer-stage-2-found-valid-non-root-routes-such-as-library-returning-vercel-404-not-found-instead-of-the-spa-shell",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v6-game-view-and-analysis-workbench->constrained_by->risk:production-spa-deep-links-return-host-level-404s",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "risk:production-spa-deep-links-return-host-level-404s",
+      "kind": "constrained_by"
+    },
+    {
       "id": "vertical:v6-game-view-and-analysis-workbench->constrained_by->risk:route-local-orchestration-increases-regression-risk",
       "from": "vertical:v6-game-view-and-analysis-workbench",
       "to": "risk:route-local-orchestration-increases-regression-risk",
@@ -5066,6 +5138,18 @@
       "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:move-pane-focus-and-scroll-consistency",
       "from": "vertical:v7-backoffice-and-benchmarking",
       "to": "risk:move-pane-focus-and-scroll-consistency",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:production-spa-deep-links-are-not-yet-verified-to-resolve-through-the-hosting-layer-stage-2-found-valid-non-root-routes-such-as-library-returning-vercel-404-not-found-instead-of-the-spa-shell",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "risk:production-spa-deep-links-are-not-yet-verified-to-resolve-through-the-hosting-layer-stage-2-found-valid-non-root-routes-such-as-library-returning-vercel-404-not-found-instead-of-the-spa-shell",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:production-spa-deep-links-return-host-level-404s",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "risk:production-spa-deep-links-return-host-level-404s",
       "kind": "constrained_by"
     },
     {

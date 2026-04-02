@@ -15,7 +15,7 @@
 2. Route-level UI tests are still missing.
 3. Deployment smoke automation is still missing.
 4. IndexedDB migration coverage is still shallow.
-5. Production SPA deep links are not yet verified to resolve through the hosting layer; Stage 2 found `/import` returning Vercel `404: NOT_FOUND` instead of the SPA shell.
+5. Production SPA deep links are not yet verified to resolve through the hosting layer; Stage 2 found valid non-root routes such as `/library` returning Vercel `404: NOT_FOUND` instead of the SPA shell.
 
 ## Current Compromises
 

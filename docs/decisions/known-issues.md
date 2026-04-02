@@ -37,7 +37,7 @@ Last updated: 2026-04-03
 - Status: open
 - Severity: high
 - Scope: production routing and deployment verification
-- Summary: Stage 2 verification on 2026-04-03 confirmed that the deployed root URL loads, but a direct request to `/import` returns Vercel `404: NOT_FOUND` before the TanStack Router SPA can boot. Production deep-link handling must be fixed before authenticated smoke verification can continue.
+- Summary: Stage 2 verification on 2026-04-03 confirmed that the deployed root URL loads, but direct requests to valid non-root routes such as `/library` and `/backoffice` return Vercel `404: NOT_FOUND` before the TanStack Router SPA can boot. Production deep-link handling must be fixed before authenticated smoke verification can continue.
 
 ## Related docs
 

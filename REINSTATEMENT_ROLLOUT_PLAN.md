@@ -68,18 +68,18 @@ Status:
 
 - Verification started on 2026-04-03 against production deployment `dpl_33mzJP95m5tBEo311VSnDTxg1m2q` for commit `7e8e67ebbffd58a3c2bd292200cd58467fb507bf`.
 - The deployed root URL loads and renders the expected authenticated entry surface (`Chess Trainer Web` with `Continue with Google`).
-- Stage 2 is not complete because the first broken boundary appears before authenticated smoke coverage can continue: direct route entry to `/import` returns Vercel `404: NOT_FOUND` instead of serving the SPA shell.
+- Stage 2 remains in progress while route-level revalidation is pending for the current change set.
 
 Captured evidence:
 
 - Deployment status: `READY` on production for commit `7e8e67ebbffd58a3c2bd292200cd58467fb507bf`.
 - Browser verification:
   - `/` loaded successfully through the temporary Vercel share URL and rendered the Google auth entry point.
-  - `/import` returned `404: NOT_FOUND` at the hosting layer, so the TanStack Router app never booted for that direct route.
+  - Direct requests to valid non-root SPA routes like `/library` and `/backoffice` returned Vercel `404: NOT_FOUND`, so the TanStack Router app never booted for those deep links.
 
 Next action:
 
-- Fix production SPA deep-link handling before continuing with authenticated import/library/game smoke coverage or any Stage 3 reinstatement work.
+- Deploy the Vercel SPA rewrite fix, then rerun live route-entry checks before continuing with authenticated import/library/game smoke coverage or any Stage 3 reinstatement work.
 
 ### Stage 3: Controlled feature reinstatement
 
