@@ -5,19 +5,19 @@
   "type": "module",
   "packageManager": "pnpm@10.18.2",
   "engines": {
-    "node": "22.x",
+    "node": "20.x",
     "npm": "10.x"
   },
   "scripts": {
     "generate:fitl-graph": "node ./scripts/generate-fitl-graph.mjs",
-    "dev": "node ./scripts/generate-fitl-graph.mjs && ./node_modules/.bin/vite",
-    "build": "node ./scripts/generate-fitl-graph.mjs && ./node_modules/.bin/tsc -b && ./node_modules/.bin/vite build",
-    "preview": "./node_modules/.bin/vite preview",
-    "typecheck": "node ./scripts/generate-fitl-graph.mjs && ./node_modules/.bin/tsc -b --pretty false",
+    "dev": "node ./scripts/generate-fitl-graph.mjs && pnpm exec vite",
+    "build": "node ./scripts/generate-fitl-graph.mjs && pnpm exec tsc -b && pnpm exec vite build",
+    "preview": "pnpm exec vite preview",
+    "typecheck": "node ./scripts/generate-fitl-graph.mjs && pnpm exec tsc -b --pretty false",
     "test:tdd": "node ./scripts/generate-fitl-graph.mjs && node ./scripts/compile-tests.mjs && node ./scripts/run-node-tests.mjs",
-    "test:tdd:one": "node ./scripts/generate-fitl-graph.mjs && ./node_modules/.bin/tsc -p tsconfig.test.json --pretty false && node --test --test-name-pattern \"$TEST_NAME\" .tmp-test-build/src/**/*.test.js",
-    "convex:dev": "./node_modules/.bin/convex dev",
-    "convex:deploy": "./node_modules/.bin/convex deploy"
+    "test:tdd:one": "node ./scripts/generate-fitl-graph.mjs && pnpm exec tsc -p tsconfig.test.json --pretty false && node --test --test-name-pattern \"$TEST_NAME\" .tmp-test-build/src/**/*.test.js",
+    "convex:dev": "pnpm exec convex dev",
+    "convex:deploy": "pnpm exec convex deploy"
   },
   "dependencies": {
     "@auth/core": "^0.37.4",
@@ -41,6 +41,7 @@
     "lucide-react": "^0.577.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "shadcn": "^4.0.8",
     "stockfish": "^18.0.5",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.1",

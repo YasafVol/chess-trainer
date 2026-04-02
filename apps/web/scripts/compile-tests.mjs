@@ -7,6 +7,6 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
 await rm(join(root, ".tmp-test-build"), { recursive: true, force: true });
 
-const args = ["./node_modules/.bin/tsc", "-p", "tsconfig.test.json", "--pretty", "false"];
+const args = ["./node_modules/typescript/bin/tsc", "-p", "tsconfig.test.json", "--pretty", "false"];
 const child = spawn(process.execPath, args, { cwd: root, stdio: "inherit" });
 child.on("exit", (code) => process.exit(code ?? 1));

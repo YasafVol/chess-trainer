@@ -55,5 +55,4 @@ Vercel installs dependencies from `apps/web` with pnpm workspace detection disab
 - Active routing lives in [`apps/web/src/router.tsx`](src/router.tsx).
 - Active runtime composition flows through [`apps/web/src/lib/runtimeGateway.tsx`](src/lib/runtimeGateway.tsx).
 - Typed Convex function references live in [`apps/web/src/lib/convex.ts`](src/lib/convex.ts).
-- The shadcn utility stylesheet is vendored in [`apps/web/src/shadcn-tailwind.css`](src/shadcn-tailwind.css); add new shadcn components with `npx shadcn@latest add ...` instead of relying on the `shadcn` package as an app dependency.
 - The current puzzle extraction flow uses the persisted primary PV from analysis. Targeted deeper `MultiPV=3` extraction is the next extension point.
