@@ -1,6 +1,6 @@
 # Known Issues
 
-Last updated: 2026-03-19
+Last updated: 2026-04-03
 
 ## Active issues
 
@@ -31,6 +31,13 @@ Last updated: 2026-03-19
 - Severity: low
 - Scope: analysis policy and puzzle-definition administration
 - Summary: lazy background-analysis settings are now persisted locally, but the broader analysis and puzzle-definition constants exposed in backoffice are still hardcoded in source and need validated admin editing before they can move out of code.
+
+### 5. Production SPA deep links return host-level 404s
+
+- Status: open
+- Severity: high
+- Scope: production routing and deployment verification
+- Summary: Stage 2 verification on 2026-04-03 confirmed that the deployed root URL loads, but a direct request to `/import` returns Vercel `404: NOT_FOUND` before the TanStack Router SPA can boot. Production deep-link handling must be fixed before authenticated smoke verification can continue.
 
 ## Related docs
 
