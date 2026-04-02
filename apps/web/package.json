@@ -4,17 +4,17 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "20.x",
+    "node": "22.x",
     "npm": "10.x"
   },
   "scripts": {
     "generate:fitl-graph": "node ./scripts/generate-fitl-graph.mjs",
     "dev": "node ./scripts/generate-fitl-graph.mjs && npx vite",
-    "build": "node ./scripts/generate-fitl-graph.mjs && npx tsc -b && npx vite build",
+    "build": "node ./scripts/generate-fitl-graph.mjs && node ./node_modules/typescript/bin/tsc -b && npx vite build",
     "preview": "npx vite preview",
-    "typecheck": "node ./scripts/generate-fitl-graph.mjs && npx tsc -b --pretty false",
+    "typecheck": "node ./scripts/generate-fitl-graph.mjs && node ./node_modules/typescript/bin/tsc -b --pretty false",
     "test:tdd": "node ./scripts/generate-fitl-graph.mjs && node ./scripts/compile-tests.mjs && node ./scripts/run-node-tests.mjs",
-    "test:tdd:one": "node ./scripts/generate-fitl-graph.mjs && npx tsc -p tsconfig.test.json --pretty false && node --test --test-name-pattern \"$TEST_NAME\" .tmp-test-build/src/**/*.test.js",
+    "test:tdd:one": "node ./scripts/generate-fitl-graph.mjs && node ./node_modules/typescript/bin/tsc -p tsconfig.test.json --pretty false && node --test --test-name-pattern \"$TEST_NAME\" .tmp-test-build/src/**/*.test.js",
     "convex:dev": "npx convex dev",
     "convex:deploy": "npx convex deploy"
   },
