@@ -48,8 +48,7 @@ Legend:
   - `apps/web/src/board/ChessboardElementAdapter.ts`
 - Presentation:
   - `apps/web/src/routes/game.tsx`
-  - `apps/web/src/styles.css` (eval bar, eval graph SVG, board host sizing)
-  - `apps/web/src/components/ui/*.tsx` (Button, Card, Badge)
+  - `apps/web/src/styles.css`
 - Composition:
   - `apps/web/src/router.tsx`
 

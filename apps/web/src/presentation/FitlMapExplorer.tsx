@@ -1,10 +1,4 @@
 import { startTransition, useMemo, useState, useTransition } from "react";
-import { Button } from "../components/ui/button.js";
-import { Badge } from "../components/ui/badge.js";
-import { Card, CardContent } from "../components/ui/card.js";
-import { Input } from "../components/ui/input.js";
-import { Checkbox } from "../components/ui/checkbox.js";
-import { cn } from "../lib/utils.js";
 import { buildFitlExplorerModel, buildFitlRouteSearchString, listFitlNodeKinds, normalizeFitlRouteSearch } from "../domain/fitlGraph.js";
 import type {
   FitlDepth,
@@ -102,125 +96,118 @@ export function FitlMapExplorer(props: {
   }
 
   return (
-    <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-5">
-      <div className="space-y-3">
-        <Button variant="outline" size="sm" asChild>
-          <a href="/backoffice">Back to backoffice</a>
-        </Button>
+    <section className="page stack-gap">
+      <div className="stack-gap">
+        <div className="inline-actions">
+          <a href="/backoffice" className="action-button">Back to backoffice</a>
+        </div>
 
         <div>
-          <h2 className="text-lg font-semibold">FITL Explorer</h2>
-          <p className="text-sm text-muted-foreground">Start from a feature or tool, then deepen into architecture or implementation only when the current focus justifies it.</p>
+          <h2>FITL Explorer</h2>
+          <p className="muted">Start from a feature or tool, then deepen into architecture or implementation only when the current focus justifies it.</p>
         </div>
       </div>
 
-      <Card className="p-4">
-        <div className="flex flex-wrap items-start justify-between gap-3.5">
-          <div className="relative flex min-w-[min(100%,360px)] flex-col gap-2.5">
-            <label className="flex flex-col gap-2">
-              <span className="text-[0.74rem] font-extrabold uppercase tracking-wider text-muted-foreground">Search</span>
-              <Input
-                type="search"
-                value={props.routeState.q ?? ""}
-                onChange={(event) => updateRouteState({ q: event.target.value || undefined })}
-                placeholder="Search features, intents, tools..."
-              />
-            </label>
-            {(props.routeState.q ?? "").length > 0 ? (
-              <div className="absolute top-full left-0 z-10 mt-2 flex w-full max-w-[420px] flex-col gap-2 rounded-2xl border border-border/30 bg-card p-2.5 shadow-xl">
-                {explorerModel.searchResults.length > 0 ? (
-                  explorerModel.searchResults.map((result) => (
-                    <button
-                      key={result.id}
-                      type="button"
-                      className="flex flex-col items-start gap-1 rounded-xl border border-border/20 bg-muted/40 p-3 text-left transition-colors hover:border-accent/30 hover:bg-accent/5 cursor-pointer"
-                      onClick={() => {
-                        applyFocus(result.id);
-                        setActivePane("details");
-                      }}
-                    >
-                      <Badge variant="outline" className="text-[0.7rem]">{result.kind}</Badge>
-                      <strong className="text-sm">{result.label}</strong>
-                      <span className="text-xs text-muted-foreground">{result.summary}</span>
-                    </button>
-                  ))
-                ) : (
-                  <div className="flex flex-col gap-1 rounded-xl border border-border/20 bg-muted/40 p-3">
-                    <strong className="text-sm">No focused entry points match this query.</strong>
-                    <span className="text-xs text-muted-foreground">Search targets project, intent, vertical, and tool nodes.</span>
-                  </div>
-                )}
-              </div>
-            ) : null}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="text-[0.74rem] font-extrabold uppercase tracking-wider text-muted-foreground">Depth</span>
-            {(["summary", "architecture", "implementation"] as const).map((depth) => {
-              const disabled =
-                depth === "implementation" &&
-                !explorerModel.canInspectImplementation &&
-                props.routeState.depth !== "implementation";
-              return (
-                <button
-                  key={depth}
-                  type="button"
-                  className={cn(
-                    "rounded-full border px-3 py-1.5 text-sm font-medium transition-all cursor-pointer",
-                    props.routeState.depth === depth
-                      ? "border-accent bg-accent text-accent-foreground"
-                      : "border-border bg-card text-foreground hover:bg-muted",
-                    disabled && "opacity-45 cursor-not-allowed"
-                  )}
-                  onClick={() => setDepth(depth)}
-                  disabled={disabled}
-                  title={disabled ? "Select a vertical or tool first." : undefined}
-                >
-                  {depth}
-                </button>
-              );
-            })}
-          </div>
-
-          <label className="inline-flex min-h-[44px] items-center gap-2.5">
-            <Checkbox
-              checked={props.routeState.includeDeferred}
-              onCheckedChange={(checked) => updateRouteState({ includeDeferred: checked === true })}
+      <div className="fitl-toolbar fitl-toolbar-primary">
+        <div className="fitl-search-group">
+          <label className="fitl-search-field">
+            <span className="fitl-toolbar-label">Search</span>
+            <input
+              className="config-input"
+              type="search"
+              value={props.routeState.q ?? ""}
+              onChange={(event) => updateRouteState({ q: event.target.value || undefined })}
+              placeholder="Search features, intents, tools..."
             />
-            <span className="text-sm">Include deferred surfaces</span>
           </label>
-
-          <Button variant="outline" size="sm" onClick={resetView}>
-            Reset view
-          </Button>
+          {(props.routeState.q ?? "").length > 0 ? (
+            <div className="fitl-search-results">
+              {explorerModel.searchResults.length > 0 ? (
+                explorerModel.searchResults.map((result) => (
+                  <button
+                    key={result.id}
+                    type="button"
+                    className="fitl-search-result"
+                    onClick={() => {
+                      applyFocus(result.id);
+                      setActivePane("details");
+                    }}
+                  >
+                    <span className="fitl-search-result-kind">{result.kind}</span>
+                    <strong>{result.label}</strong>
+                    <span className="muted">{result.summary}</span>
+                  </button>
+                ))
+              ) : (
+                <div className="fitl-search-empty">
+                  <strong>No focused entry points match this query.</strong>
+                  <span className="muted">Search targets project, intent, vertical, and tool nodes.</span>
+                </div>
+              )}
+            </div>
+          ) : null}
         </div>
-      </Card>
 
-      <div className="hidden gap-2.5 max-[900px]:flex" role="tablist" aria-label="FITL explorer panes">
-        {(["map", "details"] as const).map((pane) => (
-          <button
-            key={pane}
-            type="button"
-            className={cn(
-              "rounded-full border px-3 py-1.5 text-sm font-medium transition-all cursor-pointer",
-              activePane === pane
-                ? "border-accent bg-accent text-accent-foreground"
-                : "border-border bg-card text-foreground hover:bg-muted"
-            )}
-            onClick={() => setActivePane(pane)}
-          >
-            {pane.charAt(0).toUpperCase() + pane.slice(1)}
-          </button>
-        ))}
+        <div className="fitl-toolbar-group">
+          <span className="fitl-toolbar-label">Depth</span>
+          {(["summary", "architecture", "implementation"] as const).map((depth) => {
+            const disabled =
+              depth === "implementation" &&
+              !explorerModel.canInspectImplementation &&
+              props.routeState.depth !== "implementation";
+            return (
+              <button
+                key={depth}
+                type="button"
+                className={`fitl-toggle${props.routeState.depth === depth ? " selected" : ""}`}
+                onClick={() => setDepth(depth)}
+                disabled={disabled}
+                title={disabled ? "Select a vertical or tool first." : undefined}
+              >
+                {depth}
+              </button>
+            );
+          })}
+        </div>
+
+        <label className="fitl-inline-field">
+          <input
+            type="checkbox"
+            checked={props.routeState.includeDeferred}
+            onChange={(event) => updateRouteState({ includeDeferred: event.target.checked })}
+          />
+          <span>Include deferred surfaces</span>
+        </label>
+
+        <button type="button" className="action-button" onClick={resetView}>
+          Reset view
+        </button>
       </div>
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.95fr)]">
-        <section className={cn("min-w-0", activePane === "details" && "hidden lg:block")}>
+      <div className="fitl-pane-tabs" role="tablist" aria-label="FITL explorer panes">
+        <button
+          type="button"
+          className={`fitl-pane-tab${activePane === "map" ? " selected" : ""}`}
+          onClick={() => setActivePane("map")}
+        >
+          Map
+        </button>
+        <button
+          type="button"
+          className={`fitl-pane-tab${activePane === "details" ? " selected" : ""}`}
+          onClick={() => setActivePane("details")}
+        >
+          Details
+        </button>
+      </div>
+
+      <div className="fitl-layout">
+        <section className={`fitl-pane fitl-graph-column${activePane === "details" ? " mobile-hidden" : ""}`}>
           {explorerModel.blockedMessage ? (
-            <Card className="mb-3.5 border-amber-300/30 bg-amber-50/50 p-3.5">
-              <strong className="text-sm">{explorerModel.blockedMessage}</strong>
-              <p className="text-sm text-muted-foreground">Stay in summary or architecture until you pick a vertical or tool.</p>
-            </Card>
+            <div className="fitl-blocked-state">
+              <strong>{explorerModel.blockedMessage}</strong>
+              <p className="muted">Stay in summary or architecture until you pick a vertical or tool.</p>
+            </div>
           ) : null}
 
           <FitlMapCanvas
@@ -234,21 +221,16 @@ export function FitlMapExplorer(props: {
             }}
           />
 
-          <details className="mt-3.5 rounded-2xl border border-border/20 bg-card/80">
-            <summary className="cursor-pointer p-3.5 font-bold text-sm">Advanced filters</summary>
-            <div className="flex flex-col gap-3 px-4 pb-4">
-              <p className="text-sm text-muted-foreground">These filters only affect the map. The dossier keeps the full FITL neighborhood for the current focus.</p>
-              <div className="flex flex-wrap gap-2">
+          <details className="fitl-advanced-filters">
+            <summary>Advanced filters</summary>
+            <div className="fitl-advanced-body">
+              <p className="muted">These filters only affect the map. The dossier keeps the full FITL neighborhood for the current focus.</p>
+              <div className="chip-row">
                 {allKinds.map((kind) => (
                   <button
                     key={kind}
                     type="button"
-                    className={cn(
-                      "rounded-full border px-2.5 py-1 text-xs font-medium transition-all cursor-pointer",
-                      selectedKinds.includes(kind)
-                        ? "border-accent bg-accent text-accent-foreground"
-                        : "border-border bg-card text-foreground hover:bg-muted"
-                    )}
+                    className={`fitl-chip-button${selectedKinds.includes(kind) ? " selected" : ""}`}
                     onClick={() => toggleKind(kind)}
                   >
                     {kind.replace("_", " ")} ({explorerModel.neighborhoodKindCounts.get(kind) ?? 0})
@@ -259,78 +241,76 @@ export function FitlMapExplorer(props: {
           </details>
         </section>
 
-        <aside className={cn("min-w-0 flex flex-col gap-4 rounded-2xl border border-border/20 bg-card p-4.5", activePane === "map" && "hidden lg:flex")}>
-          <div className="sticky top-4 z-10 bg-card/95 pb-2">
-            <div className="flex items-start justify-between gap-3.5">
-              <div className="space-y-2">
-                <nav className="flex flex-wrap gap-2" aria-label="FITL breadcrumbs">
-                  {explorerModel.dossier.breadcrumbs.map((crumb) => (
-                    <button
-                      key={crumb.id}
-                      type="button"
-                      className="rounded-full border border-border/40 bg-card px-2.5 py-1 text-xs font-medium transition-colors hover:bg-muted cursor-pointer"
-                      onClick={() => {
-                        if (crumb.nodeId) {
-                          applyFocus(crumb.nodeId === "project:web-app" ? undefined : crumb.nodeId);
-                        }
-                      }}
-                    >
-                      {crumb.label}
-                    </button>
-                  ))}
-                </nav>
-                <div>
-                  <h3 className="fitl-selection-title text-base font-semibold">{explorerModel.dossier.title}</h3>
-                  <p className="text-sm text-muted-foreground">{explorerModel.dossier.subtitle}</p>
-                </div>
+        <aside className={`fitl-details${activePane === "map" ? " mobile-hidden-details" : ""}`}>
+          <div className="fitl-details-header fitl-details-sticky">
+            <div className="stack-gap-sm">
+              <nav className="fitl-breadcrumbs" aria-label="FITL breadcrumbs">
+                {explorerModel.dossier.breadcrumbs.map((crumb) => (
+                  <button
+                    key={crumb.id}
+                    type="button"
+                    className="fitl-breadcrumb"
+                    onClick={() => {
+                      if (crumb.nodeId) {
+                        applyFocus(crumb.nodeId === "project:web-app" ? undefined : crumb.nodeId);
+                      }
+                    }}
+                  >
+                    {crumb.label}
+                  </button>
+                ))}
+              </nav>
+              <div>
+                <h3 className="fitl-selection-title">{explorerModel.dossier.title}</h3>
+                <p className="muted">{explorerModel.dossier.subtitle}</p>
               </div>
-
-              <Button variant="outline" size="sm" onClick={() => void copyAiBrief()}>
-                Copy AI change brief
-              </Button>
             </div>
+
+            <button type="button" className="action-button" onClick={() => void copyAiBrief()}>
+              Copy AI change brief
+            </button>
           </div>
 
-          <p className="text-sm">{explorerModel.dossier.description}</p>
-          {copyStatus ? <p className="text-sm text-muted-foreground">{copyStatus}</p> : null}
+          <p>{explorerModel.dossier.description}</p>
+          {copyStatus ? <p className="muted">{copyStatus}</p> : null}
 
           {explorerModel.dossier.sections.map((section) => (
-            <section key={section.id} className="flex flex-col gap-2">
-              <strong className="text-sm">{section.title}</strong>
+            <section key={section.id} className="fitl-details-section">
+              <strong>{section.title}</strong>
               {section.items.length > 0 ? (
-                <ul className="space-y-2.5">
+                <ul className="list fitl-details-list">
                   {section.items.map((item) => (
-                    <li key={item.id} className="flex flex-col gap-1.5 rounded-xl border border-border/40 bg-muted/30 p-3">
+                    <li key={item.id}>
                       {renderItem(item)}
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-muted-foreground">{section.emptyMessage}</p>
+                <p className="muted">{section.emptyMessage}</p>
               )}
             </section>
           ))}
 
-          <section className="flex flex-col gap-2">
-            <strong className="text-sm">References</strong>
-            <ul className="space-y-2.5">
+          <section className="fitl-details-section">
+            <strong>References</strong>
+            <ul className="list fitl-details-list">
               {explorerModel.dossier.references.map((reference) => (
-                <li key={`${reference.type}:${reference.path}`} className="flex flex-col gap-1.5 rounded-xl border border-border/40 bg-muted/30 p-3">
-                  <span className="text-sm font-bold">{reference.label}</span>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className="text-[0.7rem]">{reference.type}</Badge>
-                    <code className="text-xs text-muted-foreground">{reference.path}</code>
+                <li key={`${reference.type}:${reference.path}`}>
+                  <span className="fitl-item-label">{reference.label}</span>
+                  <div className="fitl-target">
+                    <span className="fitl-target-label">{reference.type}</span>
+                    <code>{reference.path}</code>
                   </div>
                 </li>
               ))}
             </ul>
           </section>
 
-          <section className="flex flex-col gap-2">
-            <strong className="text-sm">Shareable URL</strong>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="text-[0.7rem]">Route</Badge>
-              <code className="text-xs text-muted-foreground">/backoffice/fitl-map{buildFitlRouteSearchString(props.routeState) ? `?${buildFitlRouteSearchString(props.routeState)}` : ""}</code>
+          <section className="fitl-details-section">
+            <strong>Shareable URL</strong>
+            <div className="fitl-target">
+              <span className="fitl-target-label">Route</span>
+              <code>/backoffice/fitl-map{buildFitlRouteSearchString(props.routeState) ? `?${buildFitlRouteSearchString(props.routeState)}` : ""}</code>
             </div>
           </section>
         </aside>
@@ -342,12 +322,12 @@ export function FitlMapExplorer(props: {
 function renderItem(item: FitlDossierItem) {
   return (
     <>
-      <span className="text-sm font-bold">{item.label}</span>
-      {item.description ? <span className="text-xs text-muted-foreground">{item.description}</span> : null}
+      <span className="fitl-item-label">{item.label}</span>
+      {item.description ? <span className="muted">{item.description}</span> : null}
       {item.target ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="text-[0.7rem]">{item.target.type}</Badge>
-          <code className="text-xs text-muted-foreground">{item.target.path}</code>
+        <div className="fitl-target">
+          <span className="fitl-target-label">{item.target.type}</span>
+          <code>{item.target.path}</code>
         </div>
       ) : null}
     </>

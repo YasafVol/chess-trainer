@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useParams } from "@tanstack/react-router";
 import { Chess } from "chess.js";
-import { ChevronLeft, ChevronRight, FlipHorizontal, Pause, Play, RotateCcw, Undo2, Zap, XCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { ChessboardElementAdapter } from "../board/ChessboardElementAdapter";
 import type { BoardAdapter } from "../board/BoardAdapter";
 import { startBoardResizeSync } from "../board/boardResize";
@@ -299,11 +294,11 @@ export function GamePage() {
   }
 
   if (game === undefined || snapshot === undefined) {
-    return <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm"><p className="text-muted-foreground">Loading game...</p></section>;
+    return <section className="page"><p>Loading game...</p></section>;
   }
 
   if (!game) {
-    return <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm"><p className="text-muted-foreground">Game not found.</p></section>;
+    return <section className="page"><p>Game not found.</p></section>;
   }
 
   const analysisProgress = activeGameIsRunning ? analysisCoordinator.progress : null;
@@ -322,23 +317,23 @@ export function GamePage() {
         : "idle";
 
   return (
-    <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold">{game.headers.White ?? "White"} vs {game.headers.Black ?? "Black"}</h2>
-        <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Game details">
-          {gameMetaChips.map((chip) => (
-            <Badge key={chip.id} variant="outline">{chip.text}</Badge>
-          ))}
-        </div>
+    <section className="page">
+      <h2>{game.headers.White ?? "White"} vs {game.headers.Black ?? "Black"}</h2>
+      <div className="chip-row" aria-label="Game details">
+        {gameMetaChips.map((chip) => (
+          <span key={chip.id} className="chip">
+            {chip.text}
+          </span>
+        ))}
       </div>
-      {parseError ? <p className="text-sm text-destructive">{parseError}</p> : null}
+      {parseError ? <p>{parseError}</p> : null}
 
       {replayData ? (
-        <div className="grid gap-4 lg:grid-cols-[minmax(280px,560px)_1fr]">
+        <div className="game-layout">
           <div>
-            <div className="space-y-3">
-              <div className="grid grid-cols-[44px_minmax(0,1fr)] items-stretch gap-3">
-                <div className="eval-bar-panel">
+            <div className="board-analysis-stack">
+              <div className="board-row">
+                <div className="eval-bar-panel" aria-label="Evaluation bar">
                   <div className="eval-bar-label eval-bar-label-top">W</div>
                   <div className="eval-bar-track" role="img" aria-label={`Current evaluation ${evalBarState.scoreText}`}>
                     <div className="eval-bar-segment eval-bar-segment-white" style={{ height: `${evalBarState.whitePercent}%` }} />
@@ -355,10 +350,10 @@ export function GamePage() {
               </div>
 
               {evalGraphState.isReady ? (
-                <Card className="p-3">
-                  <div className="flex items-baseline justify-between gap-3 mb-2">
-                    <strong className="text-sm">Eval graph</strong>
-                    <span className="text-xs text-muted-foreground">
+                <section className="eval-graph-panel" aria-label="Game evaluation graph">
+                  <div className="eval-graph-header">
+                    <strong>Eval graph</strong>
+                    <span className="muted">
                       {evalGraphState.selectedPoint
                         ? `Ply ${evalGraphState.selectedPoint.ply}: ${evalGraphState.selectedPoint.scoreText}`
                         : "Select a saved point to jump to that position."}
@@ -408,96 +403,81 @@ export function GamePage() {
                       />
                     ) : null}
                   </svg>
-                </Card>
+                </section>
               ) : null}
             </div>
 
-            {boardError ? <p className="mt-2 text-sm text-destructive">{boardError}</p> : null}
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => jumpToPly(currentPly - 1)}><ChevronLeft className="size-4" /></Button>
-              <Button variant="outline" size="sm" onClick={() => jumpToPly(currentPly + 1)}><ChevronRight className="size-4" /></Button>
-              <Button variant="outline" size="sm" onClick={() => jumpToPly(0)}><RotateCcw className="size-3.5" /></Button>
-              <Button variant="outline" size="sm" onClick={() => { setManualFen(null); setIsPlaying((playing) => !playing); }}>
-                {isPlaying ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setFlipped((value) => !value)}><FlipHorizontal className="size-3.5" /></Button>
+            {boardError ? <p>{boardError}</p> : null}
+            <div className="controls">
+              <button className="action-button" onClick={() => jumpToPly(currentPly - 1)}>Prev</button>
+              <button className="action-button" onClick={() => jumpToPly(currentPly + 1)}>Next</button>
+              <button className="action-button" onClick={() => jumpToPly(0)}>Reset</button>
+              <button className="action-button" onClick={() => { setManualFen(null); setIsPlaying((playing) => !playing); }}>{isPlaying ? "Pause" : "Play"}</button>
+              <button className="action-button" onClick={() => setFlipped((value) => !value)}>Flip</button>
               {!activeGameIsRunning ? (
-                <Button
-                  size="sm"
+                <button
+                  className="action-button"
                   onClick={() => void runAnalysis()}
                   disabled={!session.canMutate || !analysisCoordinator.engineReady}
                 >
-                  <Zap className="size-3.5" />
-                  Analyze
-                </Button>
+                  Analyze game
+                </button>
               ) : (
-                <Button variant="destructive" size="sm" onClick={() => void cancelAnalysis()}>
-                  <XCircle className="size-3.5" />
-                  Cancel
-                </Button>
+                <button className="action-button" onClick={() => void cancelAnalysis()}>Cancel analysis</button>
               )}
-              {manualFen ? <Button variant="ghost" size="sm" onClick={() => setManualFen(null)}><Undo2 className="size-3.5" />Back to line</Button> : null}
-              <span className="text-xs text-muted-foreground">Position {currentPly}/{totalPlies}</span>
+              {manualFen ? <button className="action-button" onClick={() => setManualFen(null)}>Back to line</button> : null}
+              <span className="muted">Position {currentPly}/{totalPlies}</span>
             </div>
 
-            <Card className="mt-3">
-              <CardContent className="p-3 space-y-1 text-sm">
-                {!session.canMutate ? <p className="text-muted-foreground">Analysis writes are disabled while offline or signed out.</p> : null}
-                {showAnalysisLoader ? (
-                  <InlineLoader
-                    inline
-                    label={analysisCoordinator.mode === "background" ? "Background analysis" : "Analyzing game"}
-                    detail="Running Stockfish and saving per-position evaluations."
-                  />
-                ) : null}
-                {analysisProgress ? <p className="text-muted-foreground">Analysis progress: ply {analysisProgress.lastCompletedPly ?? 0}/{analysisProgress.totalPlies}</p> : null}
-                {analysisError ? <p className="text-destructive">{analysisError}</p> : null}
-                <p className="text-muted-foreground">Engine: {engineStatus}</p>
-                {currentAnalysis ? (
-                  <>
-                    <p>Current eval: <strong>{formatEval(currentAnalysis.evaluationType, currentAnalysis.evaluation)}</strong></p>
-                    <p className="text-muted-foreground">Best move: {currentAnalysis.bestMoveUci ?? "n/a"} - Depth {currentAnalysis.depth}</p>
-                    {currentAnalysis.pvUci.length > 0 ? <p className="text-muted-foreground font-mono text-xs">PV: {currentAnalysis.pvUci.join(" ")}</p> : null}
-                  </>
-                ) : (
-                  <p className="text-muted-foreground">No eval at current ply.</p>
-                )}
-              </CardContent>
-            </Card>
+            <div className="analysis-inline">
+              {!session.canMutate ? <p className="muted">Analysis writes are disabled while offline or signed out.</p> : null}
+              {showAnalysisLoader ? (
+                <InlineLoader
+                  inline
+                  label={analysisCoordinator.mode === "background" ? "Background analysis" : "Analyzing game"}
+                  detail="Running Stockfish and saving per-position evaluations."
+                />
+              ) : null}
+              {analysisProgress ? <p className="muted">Analysis progress: ply {analysisProgress.lastCompletedPly ?? 0}/{analysisProgress.totalPlies}</p> : null}
+              {analysisError ? <p>{analysisError}</p> : null}
+              <p className="muted">Engine: {engineStatus}</p>
+              {currentAnalysis ? (
+                <>
+                  <p>Current eval: <strong>{formatEval(currentAnalysis.evaluationType, currentAnalysis.evaluation)}</strong></p>
+                  <p className="muted">Best move: {currentAnalysis.bestMoveUci ?? "n/a"} - Depth {currentAnalysis.depth}</p>
+                  {currentAnalysis.pvUci.length > 0 ? <p className="muted">PV: {currentAnalysis.pvUci.join(" ")}</p> : null}
+                </>
+              ) : (
+                <p className="muted">No eval at current ply.</p>
+              )}
+            </div>
           </div>
 
-          <Card className="max-h-[560px] overflow-y-auto" role="region" aria-label="Moves list">
-            <CardContent className="p-3">
-              <ul className="space-y-0.5">
-                {replayPositionItems.map((item) => {
-                  const moveEval = analysisByPlyMap.get(item.analysisPly);
-                  const moveAnnotation = buildMoveAnnotation(moveEval);
-                  return (
-                    <li key={item.key}>
-                      <button
-                        className={cn(
-                          "w-full text-left rounded-lg border border-transparent px-2 py-1.5 text-sm transition-colors cursor-pointer hover:bg-muted",
-                          item.isActive && "border-accent bg-accent/10 font-semibold text-foreground"
-                        )}
-                        title={moveAnnotation.label ? `${moveAnnotation.label}${moveAnnotation.lossCp ? ` (${Math.round(moveAnnotation.lossCp)}cp loss)` : ""}` : undefined}
-                        onClick={() => jumpToPly(item.ply)}
-                      >
-                        {item.label}
-                        {moveAnnotation.suffix}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </CardContent>
-          </Card>
+          <div className="moves-pane" role="region" aria-label="Moves list">
+            <ul className="list">
+              {replayPositionItems.map((item) => {
+                const moveEval = analysisByPlyMap.get(item.analysisPly);
+                const moveAnnotation = buildMoveAnnotation(moveEval);
+                return (
+                  <li key={item.key}>
+                    <button
+                      className={`move-btn ${item.isActive ? "active" : ""}`}
+                      title={moveAnnotation.label ? `${moveAnnotation.label}${moveAnnotation.lossCp ? ` (${Math.round(moveAnnotation.lossCp)}cp loss)` : ""}` : undefined}
+                      onClick={() => jumpToPly(item.ply)}
+                    >
+                      {item.label}
+                      {moveAnnotation.suffix}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
       ) : null}
 
-      <div>
-        <h3 className="text-sm font-semibold">Analysis status</h3>
-        <p className="text-sm text-muted-foreground">{analysisStatus}</p>
-      </div>
+      <h3>Analysis status</h3>
+      <p>{analysisStatus}</p>
     </section>
   );
 }

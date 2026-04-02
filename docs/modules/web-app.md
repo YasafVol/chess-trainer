@@ -53,8 +53,7 @@ Standalone web runtime under `apps/web`.
   - route components in `apps/web/src/routes/*.tsx`
   - Chess.com settings and import helpers in `apps/web/src/presentation/*`
   - replay presentation helpers in `apps/web/src/presentation/*`
-  - design system: Tailwind CSS v4 theme in `apps/web/src/index.css`, shadcn/ui components in `apps/web/src/components/ui/*.tsx`, `cn()` utility in `apps/web/src/lib/utils.ts`
-  - domain-specific CSS (eval bar, eval graph SVG, FITL canvas, board host) in `apps/web/src/styles.css`
+  - `apps/web/src/styles.css`
 - Composition:
   - `apps/web/src/main.tsx`
   - `apps/web/src/router.tsx`

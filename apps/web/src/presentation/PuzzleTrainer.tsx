@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Chess } from "chess.js";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.js";
 import { ChessboardElementAdapter } from "../board/ChessboardElementAdapter";
 import type { BoardAdapter } from "../board/BoardAdapter";
 import { startBoardResizeSync } from "../board/boardResize";
@@ -439,7 +438,7 @@ export function PuzzleTrainer({
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-[minmax(280px,560px)_1fr]">
+    <div className="game-layout">
       <div>
         {summary}
         <div ref={boardHostRef} className="board-host" />
@@ -471,33 +470,29 @@ export function PuzzleTrainer({
             restartPuzzleAttempt();
           }}
         />
-        <p className="mt-2 text-sm">{status}</p>
+        <p>{status}</p>
       </div>
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Puzzle details</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <p className="text-muted-foreground">{sideLabel(puzzle.sideToMove)}</p>
-          <p className="text-muted-foreground">Opponent last move: {lastOpponentMove ? formatIndexedMove(puzzle.source.ply - 1, lastOpponentMove.san) : "Starting position"}</p>
-          {originalBlunderLabel ? (
-            <details key={puzzle.id} className="mt-2">
-              <summary className="cursor-pointer font-semibold text-foreground">Show original blunder</summary>
-              <p className="mt-2 text-muted-foreground">{originalBlunderLabel}</p>
-            </details>
-          ) : null}
-          <p className="text-muted-foreground">Themes: {puzzle.themes.join(", ")}</p>
-          <p className="text-muted-foreground">Playback speed: {playbackStepMs}ms per move</p>
-          <details className="mt-2">
-            <summary className="cursor-pointer font-semibold text-foreground">Show solution line</summary>
-            <p className="mt-2 text-muted-foreground">{solutionSummary}</p>
+      <div className="moves-pane">
+        <h3>Puzzle details</h3>
+        <p className="muted">{sideLabel(puzzle.sideToMove)}</p>
+        <p className="muted">Opponent last move: {lastOpponentMove ? formatIndexedMove(puzzle.source.ply - 1, lastOpponentMove.san) : "Starting position"}</p>
+        {originalBlunderLabel ? (
+          <details key={puzzle.id} className="puzzle-disclosure">
+            <summary>Show original blunder</summary>
+            <p className="muted">{originalBlunderLabel}</p>
           </details>
-          <p className="text-muted-foreground">Eval swing: {puzzle.evalSwing}</p>
-          <p className="text-muted-foreground">Last reviewed: {puzzle.schedule.lastReviewedAt ? new Date(puzzle.schedule.lastReviewedAt).toLocaleString() : "never"}</p>
-          <p className="text-muted-foreground">Attempts: {stats?.attempts ?? attempts.length}</p>
-          <p className="text-muted-foreground">Success rate: {Math.round((stats?.overallSuccessRate ?? 0) * 100)}%</p>
-        </CardContent>
-      </Card>
+        ) : null}
+        <p className="muted">Themes: {puzzle.themes.join(", ")}</p>
+        <p className="muted">Playback speed: {playbackStepMs}ms per move</p>
+        <details className="puzzle-disclosure">
+          <summary>Show solution line</summary>
+          <p className="muted">{solutionSummary}</p>
+        </details>
+        <p className="muted">Eval swing: {puzzle.evalSwing}</p>
+        <p className="muted">Last reviewed: {puzzle.schedule.lastReviewedAt ? new Date(puzzle.schedule.lastReviewedAt).toLocaleString() : "never"}</p>
+        <p className="muted">Attempts: {stats?.attempts ?? attempts.length}</p>
+        <p className="muted">Success rate: {Math.round((stats?.overallSuccessRate ?? 0) * 100)}%</p>
+      </div>
     </div>
   );
 }

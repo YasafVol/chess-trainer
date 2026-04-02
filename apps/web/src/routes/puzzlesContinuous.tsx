@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   buildContinuousPuzzleQueue,
   removeContinuousPuzzle,
@@ -73,19 +71,17 @@ export function ContinuousPuzzlesPage() {
   const game = useGame(activePuzzle?.gameId ?? "");
 
   if (!bank || !session) {
-    return <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm"><p className="text-muted-foreground">Loading continuous puzzle mode...</p></section>;
+    return <section className="page"><p>Loading continuous puzzle mode...</p></section>;
   }
 
   if (session.totalCount === 0) {
     return (
-      <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-4">
+      <section className="page stack-gap">
         <div>
-          <h2 className="text-lg font-semibold">Continuous puzzle mode</h2>
-          <p className="text-sm text-muted-foreground">No eligible personal blunder or mistake puzzles are available yet. Analyze your games first so the app can generate your own training positions.</p>
+          <h2>Continuous puzzle mode</h2>
+          <p className="muted">No eligible personal blunder or mistake puzzles are available yet. Analyze your games first so the app can generate your own training positions.</p>
         </div>
-        <Button variant="outline" asChild>
-          <Link to="/puzzles">Back to puzzle bank</Link>
-        </Button>
+        <p><Link to="/puzzles">Back to puzzle bank</Link></p>
       </section>
     );
   }
@@ -133,19 +129,17 @@ export function ContinuousPuzzlesPage() {
 
   if (!activePuzzle || !activePhase) {
     return (
-      <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-4">
+      <section className="page stack-gap">
         <div>
-          <h2 className="text-lg font-semibold">Continuous puzzle mode</h2>
-          <p className="text-sm text-muted-foreground">Session complete. You cleared your current blunder-first personal queue.</p>
+          <h2>Continuous puzzle mode</h2>
+          <p className="muted">Session complete. You cleared your current blunder-first personal queue.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-muted/30 p-3.5">
-          <strong className="text-sm">Completed</strong>
-          <span className="text-sm text-muted-foreground">{session.completedCount} solved in this run</span>
-          <span className="text-sm text-muted-foreground">{session.queuedRetryIds.length} retries still pending in the discarded session state</span>
+        <div className="session-box continuous-session-box">
+          <strong>Completed</strong>
+          <span className="muted">{session.completedCount} solved in this run</span>
+          <span className="muted">{session.queuedRetryIds.length} retries still pending in the discarded session state</span>
         </div>
-        <Button variant="outline" asChild>
-          <Link to="/puzzles">Back to puzzle bank</Link>
-        </Button>
+        <p><Link to="/puzzles">Back to puzzle bank</Link></p>
       </section>
     );
   }
@@ -154,10 +148,10 @@ export function ContinuousPuzzlesPage() {
   const currentPosition = Math.min(session.totalCount, session.completedCount + 1);
 
   return (
-    <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-4">
+    <section className="page stack-gap">
       <div>
-        <h2 className="text-lg font-semibold">Continuous puzzle mode</h2>
-        <p className="text-sm text-muted-foreground">Train only your own puzzles, starting with blunders. Due puzzles come first, weaker spots repeat more often, and mistakes unlock only after the blunder queue is empty.</p>
+        <h2>Continuous puzzle mode</h2>
+        <p className="muted">Train only your own puzzles, starting with blunders. Due puzzles come first, weaker spots repeat more often, and mistakes unlock only after the blunder queue is empty.</p>
       </div>
       <PuzzleTrainer
         puzzle={activePuzzle}
@@ -166,15 +160,15 @@ export function ContinuousPuzzlesPage() {
         stats={activeStats}
         onAttemptResolved={handleAttemptResolved}
         summary={(
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-muted/30 p-3.5 mb-3">
-            <Badge>{phaseLabel(activePhase)}</Badge>
-            <span className="text-sm text-muted-foreground">Puzzle {currentPosition} of {session.totalCount}</span>
-            <span className="text-sm text-muted-foreground">Remaining in phase: {remainingInPhase}</span>
-            <span className="text-sm text-muted-foreground">Queued retries: {session.queuedRetryIds.length}</span>
+          <div className="session-box continuous-session-box">
+            <strong>{phaseLabel(activePhase)}</strong>
+            <span className="muted">Puzzle {currentPosition} of {session.totalCount}</span>
+            <span className="muted">Remaining in phase: {remainingInPhase}</span>
+            <span className="muted">Queued retries: {session.queuedRetryIds.length}</span>
           </div>
         )}
       />
-      <p className="text-sm text-muted-foreground">Current puzzle: {activePuzzle.classification.toUpperCase()} | Difficulty {activePuzzle.difficulty}/5</p>
+      <p className="muted">Current puzzle: {activePuzzle.classification.toUpperCase()} | Difficulty {activePuzzle.difficulty}/5</p>
     </section>
   );
 }

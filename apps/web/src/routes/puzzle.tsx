@@ -1,5 +1,4 @@
 import { useParams } from "@tanstack/react-router";
-import { Badge } from "@/components/ui/badge";
 import { useGame, usePuzzleDetails } from "../lib/runtimeGateway";
 import { PuzzleTrainer } from "../presentation/PuzzleTrainer";
 
@@ -10,19 +9,17 @@ export function PuzzlePage() {
   const game = useGame(puzzle?.gameId ?? "");
 
   if (puzzleData === undefined) {
-    return <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm"><p className="text-muted-foreground">Loading puzzle...</p></section>;
+    return <section className="page"><p>Loading puzzle...</p></section>;
   }
 
   if (!puzzle) {
-    return <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm"><p className="text-muted-foreground">Puzzle not found.</p></section>;
+    return <section className="page"><p>Puzzle not found.</p></section>;
   }
 
   return (
-    <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-3">
-      <div className="flex items-center gap-3">
-        <h2 className="text-lg font-semibold">{puzzle.classification.toUpperCase()} puzzle</h2>
-        <Badge variant="secondary">Difficulty {puzzle.difficulty}/5</Badge>
-      </div>
+    <section className="page">
+      <h2>{puzzle.classification.toUpperCase()} puzzle</h2>
+      <p className="muted">Difficulty {puzzle.difficulty}/5</p>
       <PuzzleTrainer
         puzzle={puzzle}
         game={game ?? null}
