@@ -7,6 +7,7 @@
 - The active shipment target is an authenticated Convex-backed web app with browser-side analysis and IndexedDB read caching.
 - TanStack Router remains the active routing layer for the standalone SPA runtime.
 - Auth and remote DB are active; cross-device sync conflict handling remains limited to server-last state.
+- The current rollout baseline stays pinned to Node `20.x`, npm workspaces, and the existing root `vercel.json` until the staged reinstatement plan explicitly advances those constraints.
 
 ## Open Issues
 
@@ -37,3 +38,4 @@
 3. Add deployment smoke coverage around the authenticated Convex runtime.
 4. Expand cache- and schema-alignment tests for the Convex-backed persistence path.
 5. Continue extracting route orchestration into shared application/runtime services.
+6. Use [`REINSTATEMENT_ROLLOUT_PLAN.md`](../../REINSTATEMENT_ROLLOUT_PLAN.md) as the gating document for staged deploy verification and later feature reinstatement.

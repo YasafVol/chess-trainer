@@ -51,6 +51,7 @@ This repository uses FITL Nav as the canonical documentation structure. Read doc
 - `reference/fitl-visualization.md`
 
 ## Product plans and transition specs
+- `../REINSTATEMENT_ROLLOUT_PLAN.md`
 - `../Spec/ROADMAP.md`
 - `../Spec/WEB_APP_TRANSITION_PLAN.md`
 - `../Spec/WEB_APP_BACKLOG.md`

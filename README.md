@@ -90,6 +90,7 @@ The current web app passes:
 
 ## Documentation
 
+- Reinstatement rollout plan: [`REINSTATEMENT_ROLLOUT_PLAN.md`](REINSTATEMENT_ROLLOUT_PLAN.md)
 - FITL docs index: [`docs/README.md`](docs/README.md)
 - Quality and verification docs: [`docs/quality/README.md`](docs/quality/README.md)
 - Decisions and known issues: [`docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md`](docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md)
