@@ -120,6 +120,7 @@ Batch 1 evidence:
 Next action:
 
 - Add the required Convex deployment configuration to the Vercel preview environment, then rerun Stage 3 preview verification against the same route-aware auth-gate slice.
+- Continue Stage 3 with a follow-on deploy-safety slice that keeps the engine-flavor abstraction but ships only the lite single-thread Stockfish asset in current prod/preview builds until a later dedicated engine-asset rollout is planned.
 
 ### Stage 4: Production promotion
 

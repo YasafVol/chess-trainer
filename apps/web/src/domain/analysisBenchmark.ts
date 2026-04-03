@@ -1,6 +1,10 @@
 import { ANALYSIS_POLICY } from "./analysisPolicy.js";
-
-export type AnalysisBenchmarkEngineFlavor = "stockfish-18-lite-single" | "stockfish-18-single" | "stockfish-18";
+import {
+  BUNDLED_ENGINE_FLAVORS,
+  PREPARED_ENGINE_FLAVORS,
+  SHIPPED_ENGINE_FLAVOR,
+  type EngineFlavor
+} from "../engine/engineFlavorConfig.js";
 
 export const ANALYSIS_BENCHMARK_REPETITIONS = 5;
 const ANALYSIS_BENCHMARK_HEADROOM = 1.15;
@@ -11,7 +15,7 @@ export type AnalysisBenchmarkScenario = {
   description: string;
   comparisonMode: "primary" | "secondary";
   settings: {
-    engineFlavor: AnalysisBenchmarkEngineFlavor;
+    engineFlavor: EngineFlavor;
     depth: number;
     movetimeMs: number;
     multiPV: number;
@@ -149,13 +153,13 @@ export function buildAnalysisBenchmarkScenarios(
   } = ANALYSIS_POLICY
 ): AnalysisBenchmarkScenario[] {
   const baselineSettings = {
-    engineFlavor: "stockfish-18-lite-single" as const,
+    engineFlavor: SHIPPED_ENGINE_FLAVOR,
     depth: policy.defaultDepth,
     movetimeMs: policy.softPerPositionMaxMs,
     multiPV: policy.defaultMultiPV
   };
 
-  return [
+  const scenarios: AnalysisBenchmarkScenario[] = [
     {
       id: "baseline",
       label: "Baseline",
@@ -197,15 +201,20 @@ export function buildAnalysisBenchmarkScenarios(
       description: "Request two lines and observe the cost increase over baseline.",
       comparisonMode: "primary",
       settings: { ...baselineSettings, multiPV: 2 }
-    },
-    {
+    }
+  ];
+
+  if ((BUNDLED_ENGINE_FLAVORS as readonly string[]).includes("stockfish-18-single")) {
+    scenarios.push({
       id: "engine-single",
       label: "Single Engine",
       description: "Use the heavier single-thread engine build if it initializes successfully.",
       comparisonMode: "primary",
       settings: { ...baselineSettings, engineFlavor: "stockfish-18-single" }
-    }
-  ];
+    });
+  }
+
+  return scenarios;
 }
 
 export function buildAnalysisBenchmarkKnobs(
@@ -218,12 +227,18 @@ export function buildAnalysisBenchmarkKnobs(
     emergencyHardCapMs: number;
   } = ANALYSIS_POLICY
 ): AnalysisBenchmarkKnob[] {
+  const preparedAlternatives = PREPARED_ENGINE_FLAVORS.filter(
+    (flavor) => !(BUNDLED_ENGINE_FLAVORS as readonly string[]).includes(flavor)
+  );
   return [
     {
       key: "engineFlavor",
       label: "Engine flavor",
-      value: "stockfish-18-lite-single (baseline), stockfish-18-single (comparison)",
-      help: "Worker engine asset bundle used for the run."
+      value: BUNDLED_ENGINE_FLAVORS.join(", "),
+      help:
+        preparedAlternatives.length > 0
+          ? `Worker engine asset bundle used for the run. Prepared but not bundled in this build: ${preparedAlternatives.join(", ")}.`
+          : "Worker engine asset bundle used for the run."
     },
     {
       key: "depth",

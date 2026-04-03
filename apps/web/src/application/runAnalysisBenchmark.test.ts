@@ -53,9 +53,21 @@ function createEngineFactory(args: {
 }
 
 test("runAnalysisBenchmark aggregates completed scenarios and skips unsupported engine flavor", async () => {
-  const scenarios = buildAnalysisBenchmarkScenarios().filter((scenario) =>
-    scenario.id === "baseline" || scenario.id === "engine-single"
-  );
+  const scenarios: AnalysisBenchmarkScenario[] = [
+    buildAnalysisBenchmarkScenarios()[0]!,
+    {
+      id: "engine-single",
+      label: "Single Engine",
+      description: "Use the heavier single-thread engine build if it initializes successfully.",
+      comparisonMode: "primary",
+      settings: {
+        engineFlavor: "stockfish-18-single",
+        depth: 16,
+        movetimeMs: 1200,
+        multiPV: 1
+      }
+    }
+  ];
   const savedPlies: PlyAnalysis[] = [];
   const savedRuns: AnalysisRun[] = [];
   const initCounter = { value: 0 };

@@ -2,7 +2,7 @@ import type { FitlGraphSnapshot } from "../domain/fitlGraphTypes.js";
 
 export const fitlGraphSnapshot: FitlGraphSnapshot = {
   "version": 1,
-  "generatedAt": "2026-04-02T23:25:52.243Z",
+  "generatedAt": "2026-04-03T14:25:58.709Z",
   "sourceDocs": [
     "apps/web/README.md",
     "apps/web/fitl-tooling.manifest.json",
@@ -2061,6 +2061,42 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "references": [
         {
           "type": "doc",
+          "label": "docs/decisions/known-issues.md",
+          "path": "docs/decisions/known-issues.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:preview-deployments-lack-convex-build-credentials",
+      "kind": "risk",
+      "label": "Preview deployments lack Convex build credentials",
+      "summary": "production deploys succeed, but preview deploys fail before app boot because the preview environment does not expose the Convex deployment configuration required by `npx convex deploy --cmd 'npm run build'`.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
+          "label": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md",
+          "path": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md"
+        }
+      ],
+      "tags": [
+        "risk"
+      ],
+      "id": "risk:preview-vercel-deployments-do-not-currently-have-convex-deployment-configuration-parity-with-production",
+      "kind": "risk",
+      "label": "Preview Vercel deployments do not currently have Convex deployment configuration parity with production.",
+      "summary": "Preview Vercel deployments do not currently have Convex deployment configuration parity with production.",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
+          "type": "doc",
           "label": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md",
           "path": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md"
         }
@@ -2660,7 +2696,7 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "vertical",
       "label": "V3 Engine Analysis and Annotations",
       "summary": "Provide actionable engine feedback per position so users can identify mistakes, inspect best lines, and revisit analyzed games without rerunning analysis unnecessarily.",
-      "description": "- The benchmark page loads the bundled `assets/icons/single.pgn` fixture through Vite raw import and parses it through the same replay pipeline used by imported games. - Benchmark runs call the real `runGameAnalysis` path and therefore include worker init, per-ply searches, played-move follow-up searches, retry handling, and IndexedDB write cost. - Benchmark writes are isolated from the main local library/history by using a separate IndexedDB database name for benchmark analysis stores. - Benchmarkable knobs in v1: - engine flavor - depth - movetime - MultiPV - per-ply multiplier - total budget buffer - emergency hard cap - The shipped policy is now movetime-first: total run budget is derived from `movetime * perPlyTimeMultiplier * totalPlies * totalBudgetBuffer`, then clamped by an emergency hard cap. - Depth scenarios remain in the benchmark as secondary diagnostics only; they are not the primary tuning path while movetime is active. - Explicitly excluded from v1 benchmark sweeps: - `Threads`, because the worker currently forces `Threads=1` - `Hash`, because the worker does not set the Stockfish `Hash` option yet",
+      "description": "- The benchmark page loads the bundled `assets/icons/single.pgn` fixture through Vite raw import and parses it through the same replay pipeline used by imported games. - Benchmark runs call the real `runGameAnalysis` path and therefore include worker init, per-ply searches, played-move follow-up searches, retry handling, and IndexedDB write cost. - Benchmark writes are isolated from the main local library/history by using a separate IndexedDB database name for benchmark analysis stores. - Benchmarkable knobs in v1: - engine flavor, but only among flavors bundled into the current build - depth - movetime - MultiPV - per-ply multiplier - total budget buffer - emergency hard cap - Current deployment policy bundles only `stockfish-18-lite-single` for both preview and production so the shipped web build avoids the 100MB+ single/full WASM assets while keeping the heavier flavors prepared in source for a later dedicated rollout. - The shipped policy is now movetime-first: total run budget is derived from `movetime * perPlyTimeMultiplier * totalPlies * totalBudgetBuffer`, then clamped by an emergency hard cap. - Depth scenarios remain in the benchmark as secondary diagnostics only; they are not the primary tuning path while movetime is active. - Explicitly excluded from v1 benchmark sweeps: - `Threads`, because the worker currently forces `Threads=1` - `Hash`, because the worker does not set the Stockfish `Hash` option yet",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -3965,6 +4001,18 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "constrained_by"
     },
     {
+      "id": "project:web-app->constrained_by->risk:preview-deployments-lack-convex-build-credentials",
+      "from": "project:web-app",
+      "to": "risk:preview-deployments-lack-convex-build-credentials",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "project:web-app->constrained_by->risk:preview-vercel-deployments-do-not-currently-have-convex-deployment-configuration-parity-with-production",
+      "from": "project:web-app",
+      "to": "risk:preview-vercel-deployments-do-not-currently-have-convex-deployment-configuration-parity-with-production",
+      "kind": "constrained_by"
+    },
+    {
       "id": "project:web-app->constrained_by->risk:route-level-ui-tests-are-still-missing",
       "from": "project:web-app",
       "to": "risk:route-level-ui-tests-are-still-missing",
@@ -5138,6 +5186,18 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:move-pane-focus-and-scroll-consistency",
       "from": "vertical:v7-backoffice-and-benchmarking",
       "to": "risk:move-pane-focus-and-scroll-consistency",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:preview-deployments-lack-convex-build-credentials",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "risk:preview-deployments-lack-convex-build-credentials",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:preview-vercel-deployments-do-not-currently-have-convex-deployment-configuration-parity-with-production",
+      "from": "vertical:v7-backoffice-and-benchmarking",
+      "to": "risk:preview-vercel-deployments-do-not-currently-have-convex-deployment-configuration-parity-with-production",
       "kind": "constrained_by"
     },
     {

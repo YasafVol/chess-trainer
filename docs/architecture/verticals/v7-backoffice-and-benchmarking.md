@@ -63,5 +63,6 @@ Give maintainers an operational surface for inspecting shipped analysis and puzz
 - Backoffice now persists lazy-analysis runtime settings locally, but the broader analysis and puzzle constants remain source-backed and read-only.
 - Chess.com sync remains browser-resident only; it checks for new archive months while the app is open and does not introduce server cron or remote persistence.
 - Benchmark coverage is intentionally narrow: one bundled short game and a fixed scenario sweep.
+- The current web deployment bundles only the lite single-thread Stockfish asset; heavier engine flavors remain prepared in code/config but are not part of the shipped bundle until a later deployment-focused rollout expands asset support.
 - Threads and Hash remain excluded from benchmark comparison until the worker runtime accepts and applies those options.
 - FITL explorer v2 is intentionally docs-driven and does not infer arbitrary code dependencies outside the curated FITL docs, module maps, layer matrix, and tooling manifest.

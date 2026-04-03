@@ -1,8 +1,10 @@
+import { describeBundledEngineFlavors, type EngineFlavor } from "./engineFlavorConfig.js";
+
 type EngineInitMessage = {
   type: "engine:init";
   requestId: string;
   payload: {
-    flavor: "stockfish-18-lite-single" | "stockfish-18-single" | "stockfish-18";
+    flavor: EngineFlavor;
   };
 };
 
@@ -85,10 +87,6 @@ const lineWaiters: Array<{
 
 import stockfishLiteSingleJsUrl from "stockfish/bin/stockfish-18-lite-single.js?url";
 import stockfishLiteSingleWasmUrl from "stockfish/bin/stockfish-18-lite-single.wasm?url";
-import stockfishSingleJsUrl from "stockfish/bin/stockfish-18-single.js?url";
-import stockfishSingleWasmUrl from "stockfish/bin/stockfish-18-single.wasm?url";
-import stockfishFullJsUrl from "stockfish/bin/stockfish-18.js?url";
-import stockfishFullWasmUrl from "stockfish/bin/stockfish-18.wasm?url";
 
 const UCI_MOVE_RE = /^[a-h][1-8][a-h][1-8][qrbn]?$/i;
 
@@ -161,14 +159,11 @@ function rejectAllWaiters(error: Error) {
   }
 }
 
-function selectEngineAssets(flavor: EngineInitMessage["payload"]["flavor"]): { jsUrl: string; wasmUrl: string } {
+function selectEngineAssets(flavor: EngineFlavor): { jsUrl: string; wasmUrl: string } {
   if (flavor === "stockfish-18-lite-single") {
     return { jsUrl: stockfishLiteSingleJsUrl, wasmUrl: stockfishLiteSingleWasmUrl };
   }
-  if (flavor === "stockfish-18-single") {
-    return { jsUrl: stockfishSingleJsUrl, wasmUrl: stockfishSingleWasmUrl };
-  }
-  return { jsUrl: stockfishFullJsUrl, wasmUrl: stockfishFullWasmUrl };
+  throw new Error(`Unsupported engine flavor for this build: ${flavor}. Bundled flavors: ${describeBundledEngineFlavors()}.`);
 }
 
 function sendEngineCommand(command: string): void {

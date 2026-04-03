@@ -12,10 +12,11 @@ test("analysis benchmark view exposes the fixed scenario cards and blocked knobs
   const knobs = buildAnalysisBenchmarkKnobRows();
   const blocked = buildAnalysisBenchmarkBlockedRows();
 
-  assert.equal(scenarios.length, 7);
+  assert.equal(scenarios.length, 6);
   assert.equal(scenarios[0]?.title, "Baseline");
   assert.equal(scenarios[1]?.comparisonNote, "Secondary diagnostic while movetime is active.");
   assert.equal(knobs[0]?.key, "engineFlavor");
+  assert.match(knobs[0]?.help ?? "", /Prepared but not bundled in this build/);
   assert.equal(blocked[0]?.key, "threads");
   assert.equal(blocked[1]?.key, "hashMb");
 });

@@ -1,4 +1,4 @@
-export type EngineFlavor = "stockfish-18-lite-single" | "stockfish-18-single" | "stockfish-18";
+import type { EngineFlavor } from "./engineFlavorConfig.js";
 
 type PendingResolver = {
   resolve: (value: EngineMessage) => void;

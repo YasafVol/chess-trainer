@@ -8,7 +8,7 @@ import {
   type AnalysisBenchmarkScenarioResult
 } from "../domain/analysisBenchmark.js";
 import type { AnalysisRun, GameRecord, PlyAnalysis } from "../domain/types.js";
-import type { EngineFlavor } from "../engine/engineClient.js";
+import type { EngineFlavor } from "../engine/engineFlavorConfig.js";
 import { formatUnknownError } from "../lib/formatUnknownError.js";
 import { runGameAnalysis, type AnalyzePositionInput, type AnalyzePositionResult } from "./runGameAnalysis.js";
 

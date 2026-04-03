@@ -4,7 +4,8 @@ import {
 } from "../domain/analysisCoordinatorConfig.js";
 import { buildReplayData } from "../domain/gameReplay.js";
 import type { AnalysisCoordinatorConfig, AnalysisRun, GameRecord, PlyAnalysis } from "../domain/types.js";
-import { EngineClient, type EngineFlavor } from "../engine/engineClient.js";
+import { EngineClient } from "../engine/engineClient.js";
+import { SHIPPED_ENGINE_FLAVOR, type EngineFlavor } from "../engine/engineFlavorConfig.js";
 import { formatUnknownError } from "../lib/formatUnknownError.js";
 import { runtimeGateway } from "../lib/runtimeGateway.js";
 import {
@@ -63,8 +64,8 @@ export type AnalysisCoordinatorDeps = {
 };
 
 function chooseEngineFlavor(): EngineFlavor {
-  // TODO: revisit flavor selection once the deployed app has reliable COOP/COEP and engine asset caching.
-  return "stockfish-18-lite-single";
+  // Future builds can expand bundled flavors, but current prod/preview deploys intentionally ship only the lite single-thread engine.
+  return SHIPPED_ENGINE_FLAVOR;
 }
 
 function formatBudgetLabel(budgetMs: number | undefined): string {

@@ -21,13 +21,14 @@ The active web runtime now also uses a shared background coordinator that opport
 - Benchmark runs call the real `runGameAnalysis` path and therefore include worker init, per-ply searches, played-move follow-up searches, retry handling, and IndexedDB write cost.
 - Benchmark writes are isolated from the main local library/history by using a separate IndexedDB database name for benchmark analysis stores.
 - Benchmarkable knobs in v1:
-  - engine flavor
+  - engine flavor, but only among flavors bundled into the current build
   - depth
   - movetime
   - MultiPV
   - per-ply multiplier
   - total budget buffer
   - emergency hard cap
+- Current deployment policy bundles only `stockfish-18-lite-single` for both preview and production so the shipped web build avoids the 100MB+ single/full WASM assets while keeping the heavier flavors prepared in source for a later dedicated rollout.
 - The shipped policy is now movetime-first: total run budget is derived from `movetime * perPlyTimeMultiplier * totalPlies * totalBudgetBuffer`, then clamped by an emergency hard cap.
 - Depth scenarios remain in the benchmark as secondary diagnostics only; they are not the primary tuning path while movetime is active.
 - Explicitly excluded from v1 benchmark sweeps:

@@ -8,12 +8,11 @@ test("buildAnalysisBenchmarkScenarios returns the fixed standard sweep", () => {
   assert.equal(ANALYSIS_BENCHMARK_REPETITIONS, 5);
   assert.deepEqual(
     scenarios.map((scenario) => scenario.id),
-    ["baseline", "depth-12", "depth-18", "movetime-800", "movetime-1600", "multipv-2", "engine-single"]
+    ["baseline", "depth-12", "depth-18", "movetime-800", "movetime-1600", "multipv-2"]
   );
   assert.equal(scenarios[0]?.settings.engineFlavor, "stockfish-18-lite-single");
   assert.equal(scenarios[1]?.comparisonMode, "secondary");
   assert.equal(scenarios[5]?.settings.multiPV, 2);
-  assert.equal(scenarios[6]?.settings.engineFlavor, "stockfish-18-single");
 });
 
 test("summarizeAnalysisBenchmarkScenario projects full-run runtime from per-ply timings", () => {
