@@ -1,6 +1,6 @@
 # Known Issues
 
-Last updated: 2026-04-03
+Last updated: 2026-04-04
 
 ## Active issues
 
@@ -32,12 +32,12 @@ Last updated: 2026-04-03
 - Scope: analysis policy and puzzle-definition administration
 - Summary: lazy background-analysis settings are now persisted locally, but the broader analysis and puzzle-definition constants exposed in backoffice are still hardcoded in source and need validated admin editing before they can move out of code.
 
-### 5. Preview deployments lack Convex build credentials
+### 5. Route-level UI coverage is still partial
 
 - Status: open
-- Severity: high
-- Scope: Stage 3 rollout verification and non-production Vercel deploys
-- Summary: production deploys succeed, but preview deploys fail before app boot because the preview environment does not expose the Convex deployment configuration required by `npx convex deploy --cmd 'npm run build'`.
+- Severity: medium
+- Scope: import, library, game, puzzle, and backoffice routes
+- Summary: the first route-level UI coverage now exists for the import route, but the remaining major routes still rely on lower-level view tests plus manual smoke coverage.
 
 ## Related docs
 

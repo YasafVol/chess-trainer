@@ -1,6 +1,6 @@
 # Testing Guide
 
-Last updated: 2026-03-27
+Last updated: 2026-04-04
 
 ## Automated checks
 
@@ -41,5 +41,6 @@ Verify:
 
 ## Gaps
 
-- No route-level UI tests for the web app yet.
+- Initial route-level UI coverage now exists for the import route.
+- Library, game, puzzle, and backoffice routes still need direct route-level UI coverage.
 - No deployment smoke automation yet; Vercel verification remains a manual release step.

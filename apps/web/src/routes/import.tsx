@@ -1,12 +1,12 @@
 import { ChangeEvent, FormEvent, useEffect, useState, useSyncExternalStore } from "react";
-import { InlineLoader } from "../components/InlineLoader";
-import { useDelayedBusy } from "../components/useDelayedBusy";
-import { discoverChessComArchiveMonths, importChessComArchiveRange } from "../application/chessComImport";
-import { sharedChessComSyncCoordinator } from "../application/chessComSyncCoordinator";
-import { buildImportPreviews, importSelectedPreviews } from "../application/importGames";
-import { ChessComImportPanel } from "../presentation/ChessComImportPanel";
-import type { ChessComArchiveMonth, GameRecord, ImportPreviewGame } from "../domain/types";
-import { useGames, useRuntimeSession } from "../lib/runtimeGateway";
+import { InlineLoader } from "../components/InlineLoader.js";
+import { useDelayedBusy } from "../components/useDelayedBusy.js";
+import { discoverChessComArchiveMonths, importChessComArchiveRange } from "../application/chessComImport.js";
+import { sharedChessComSyncCoordinator } from "../application/chessComSyncCoordinator.js";
+import { buildImportPreviews, importSelectedPreviews } from "../application/importGames.js";
+import { ChessComImportPanel } from "../presentation/ChessComImportPanel.js";
+import type { ChessComArchiveMonth, GameRecord, ImportPreviewGame } from "../domain/types.js";
+import { useGames, useRuntimeSession } from "../lib/runtimeGateway.js";
 
 const EMPTY_GAMES: GameRecord[] = [];
 

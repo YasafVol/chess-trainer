@@ -25,3 +25,5 @@ Allow a signed-in user to paste or upload PGN, or fetch bounded Chess.com archiv
   - `npm run typecheck`
   - `npm run test`
   - `npm run build`
+- Current route-level UI gate:
+  - `apps/web/src/routes/import.test.tsx`

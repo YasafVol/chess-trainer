@@ -2,7 +2,7 @@ import type { FitlGraphSnapshot } from "../domain/fitlGraphTypes.js";
 
 export const fitlGraphSnapshot: FitlGraphSnapshot = {
   "version": 1,
-  "generatedAt": "2026-04-03T14:25:58.709Z",
+  "generatedAt": "2026-04-04T18:01:59.377Z",
   "sourceDocs": [
     "apps/web/README.md",
     "apps/web/fitl-tooling.manifest.json",
@@ -2068,10 +2068,10 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "tags": [
         "risk"
       ],
-      "id": "risk:preview-deployments-lack-convex-build-credentials",
+      "id": "risk:route-level-ui-coverage-is-still-partial",
       "kind": "risk",
-      "label": "Preview deployments lack Convex build credentials",
-      "summary": "production deploys succeed, but preview deploys fail before app boot because the preview environment does not expose the Convex deployment configuration required by `npx convex deploy --cmd 'npm run build'`.",
+      "label": "Route-level UI coverage is still partial",
+      "summary": "the first route-level UI coverage now exists for the import route, but the remaining major routes still rely on lower-level view tests plus manual smoke coverage.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -2086,28 +2086,10 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "tags": [
         "risk"
       ],
-      "id": "risk:preview-vercel-deployments-do-not-currently-have-convex-deployment-configuration-parity-with-production",
+      "id": "risk:route-level-ui-coverage-is-still-partial-outside-the-import-route",
       "kind": "risk",
-      "label": "Preview Vercel deployments do not currently have Convex deployment configuration parity with production.",
-      "summary": "Preview Vercel deployments do not currently have Convex deployment configuration parity with production.",
-      "lifecycle": "active",
-      "system": "internal"
-    },
-    {
-      "references": [
-        {
-          "type": "doc",
-          "label": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md",
-          "path": "docs/decisions/OPEN_ISSUES_AND_COMPROMISES.md"
-        }
-      ],
-      "tags": [
-        "risk"
-      ],
-      "id": "risk:route-level-ui-tests-are-still-missing",
-      "kind": "risk",
-      "label": "Route-level UI tests are still missing.",
-      "summary": "Route-level UI tests are still missing.",
+      "label": "Route-level UI coverage is still partial outside the import route.",
+      "summary": "Route-level UI coverage is still partial outside the import route.",
       "lifecycle": "active",
       "system": "internal"
     },
@@ -2384,6 +2366,24 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
     {
       "references": [
         {
+          "type": "test",
+          "label": "apps/web/src/routes/import.test.tsx",
+          "path": "apps/web/src/routes/import.test.tsx"
+        }
+      ],
+      "tags": [
+        "test"
+      ],
+      "id": "test:apps-web-src-routes-import-test-tsx",
+      "kind": "test_gate",
+      "label": "import.test.tsx",
+      "summary": "apps/web/src/routes/import.test.tsx",
+      "lifecycle": "active",
+      "system": "internal"
+    },
+    {
+      "references": [
+        {
           "type": "command",
           "label": "npm run build",
           "path": "npm run build"
@@ -2614,6 +2614,11 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
           "type": "doc",
           "label": "docs/architecture/verticals/v1-import-and-persist-pgn.md",
           "path": "docs/architecture/verticals/v1-import-and-persist-pgn.md"
+        },
+        {
+          "type": "file",
+          "label": "apps/web/src/routes/import.test.tsx",
+          "path": "apps/web/src/routes/import.test.tsx"
         }
       ],
       "tags": [
@@ -4001,21 +4006,15 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "constrained_by"
     },
     {
-      "id": "project:web-app->constrained_by->risk:preview-deployments-lack-convex-build-credentials",
+      "id": "project:web-app->constrained_by->risk:route-level-ui-coverage-is-still-partial",
       "from": "project:web-app",
-      "to": "risk:preview-deployments-lack-convex-build-credentials",
+      "to": "risk:route-level-ui-coverage-is-still-partial",
       "kind": "constrained_by"
     },
     {
-      "id": "project:web-app->constrained_by->risk:preview-vercel-deployments-do-not-currently-have-convex-deployment-configuration-parity-with-production",
+      "id": "project:web-app->constrained_by->risk:route-level-ui-coverage-is-still-partial-outside-the-import-route",
       "from": "project:web-app",
-      "to": "risk:preview-vercel-deployments-do-not-currently-have-convex-deployment-configuration-parity-with-production",
-      "kind": "constrained_by"
-    },
-    {
-      "id": "project:web-app->constrained_by->risk:route-level-ui-tests-are-still-missing",
-      "from": "project:web-app",
-      "to": "risk:route-level-ui-tests-are-still-missing",
+      "to": "risk:route-level-ui-coverage-is-still-partial-outside-the-import-route",
       "kind": "constrained_by"
     },
     {
@@ -4241,6 +4240,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "validated_by"
     },
     {
+      "id": "project:web-app->validated_by->test:apps-web-src-routes-import-test-tsx",
+      "from": "project:web-app",
+      "to": "test:apps-web-src-routes-import-test-tsx",
+      "kind": "validated_by"
+    },
+    {
       "id": "project:web-app->validated_by->test:npm-run-build",
       "from": "project:web-app",
       "to": "test:npm-run-build",
@@ -4268,6 +4273,18 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "id": "vertical:v1-import-and-persist-pgn->constrained_by->risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
       "from": "vertical:v1-import-and-persist-pgn",
       "to": "risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->constrained_by->risk:route-level-ui-coverage-is-still-partial",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "risk:route-level-ui-coverage-is-still-partial",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->constrained_by->risk:route-level-ui-coverage-is-still-partial-outside-the-import-route",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "risk:route-level-ui-coverage-is-still-partial-outside-the-import-route",
       "kind": "constrained_by"
     },
     {
@@ -4401,6 +4418,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "from": "vertical:v1-import-and-persist-pgn",
       "to": "tool:tanstack-router",
       "kind": "uses"
+    },
+    {
+      "id": "vertical:v1-import-and-persist-pgn->validated_by->test:apps-web-src-routes-import-test-tsx",
+      "from": "vertical:v1-import-and-persist-pgn",
+      "to": "test:apps-web-src-routes-import-test-tsx",
+      "kind": "validated_by"
     },
     {
       "id": "vertical:v1-import-and-persist-pgn->validated_by->test:npm-run-build",
@@ -4709,6 +4732,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "constrained_by"
     },
     {
+      "id": "vertical:v4-library-and-game-lifecycle->constrained_by->risk:route-level-ui-coverage-is-still-partial",
+      "from": "vertical:v4-library-and-game-lifecycle",
+      "to": "risk:route-level-ui-coverage-is-still-partial",
+      "kind": "constrained_by"
+    },
+    {
       "id": "vertical:v4-library-and-game-lifecycle->constrained_by->risk:route-local-orchestration-increases-regression-risk",
       "from": "vertical:v4-library-and-game-lifecycle",
       "to": "risk:route-local-orchestration-increases-regression-risk",
@@ -4850,6 +4879,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "id": "vertical:v5-puzzle-generation-and-review->constrained_by->risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
       "from": "vertical:v5-puzzle-generation-and-review",
       "to": "risk:import-library-game-and-puzzle-routes-still-mix-presentation-and-application-orchestration",
+      "kind": "constrained_by"
+    },
+    {
+      "id": "vertical:v5-puzzle-generation-and-review->constrained_by->risk:route-level-ui-coverage-is-still-partial",
+      "from": "vertical:v5-puzzle-generation-and-review",
+      "to": "risk:route-level-ui-coverage-is-still-partial",
       "kind": "constrained_by"
     },
     {
@@ -5021,6 +5056,12 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "constrained_by"
     },
     {
+      "id": "vertical:v6-game-view-and-analysis-workbench->constrained_by->risk:route-level-ui-coverage-is-still-partial",
+      "from": "vertical:v6-game-view-and-analysis-workbench",
+      "to": "risk:route-level-ui-coverage-is-still-partial",
+      "kind": "constrained_by"
+    },
+    {
       "id": "vertical:v6-game-view-and-analysis-workbench->constrained_by->risk:route-local-orchestration-increases-regression-risk",
       "from": "vertical:v6-game-view-and-analysis-workbench",
       "to": "risk:route-local-orchestration-increases-regression-risk",
@@ -5189,15 +5230,9 @@ export const fitlGraphSnapshot: FitlGraphSnapshot = {
       "kind": "constrained_by"
     },
     {
-      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:preview-deployments-lack-convex-build-credentials",
+      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:route-level-ui-coverage-is-still-partial",
       "from": "vertical:v7-backoffice-and-benchmarking",
-      "to": "risk:preview-deployments-lack-convex-build-credentials",
-      "kind": "constrained_by"
-    },
-    {
-      "id": "vertical:v7-backoffice-and-benchmarking->constrained_by->risk:preview-vercel-deployments-do-not-currently-have-convex-deployment-configuration-parity-with-production",
-      "from": "vertical:v7-backoffice-and-benchmarking",
-      "to": "risk:preview-vercel-deployments-do-not-currently-have-convex-deployment-configuration-parity-with-production",
+      "to": "risk:route-level-ui-coverage-is-still-partial",
       "kind": "constrained_by"
     },
     {

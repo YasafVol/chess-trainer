@@ -1,6 +1,6 @@
 # Reinstatement Rollout Plan
 
-Last updated: 2026-04-03
+Last updated: 2026-04-04
 
 ## Objective
 
@@ -101,8 +101,8 @@ Exit criteria:
 
 Status:
 
-- Batch 1 implementation and local verification completed on 2026-04-03.
-- Stage 3 preview verification is currently blocked because Vercel preview builds do not have Convex deployment configuration, even though production builds do.
+- Batch 1 route-aware auth-gate rollout completed on 2026-04-03.
+- The follow-on deploy-safety slice that ships only the lite Stockfish bundle by default completed on 2026-04-03.
 
 Batch 1 scope:
 
@@ -115,12 +115,14 @@ Batch 1 evidence:
 - Local verification passed with `npm run typecheck`, `npm run test`, and `npm run build`.
 - Preview deployment `dpl_GEq7xy18eiVCjMPJF8RdhB2Z1vN8` was created for branch `codex-stage3-auth-gate` and commit `fc8da75074ec430324f045f41ad03cb126bfa766`.
 - The preview build stayed on Node `20.x` and used the root `vercel.json` install command.
-- The preview build failed before app boot because `cd apps/web && npx convex deploy --cmd 'npm run build'` exited with `✖ Vercel build environment detected but no Convex deployment configuration found.`
+- Preview environment parity was restored by adding `CONVEX_DEPLOY_KEY`, after which preview deploy `chess-trainer-iaqss83r0-yasafs-projects.vercel.app` reached `READY`.
+- Production deploy `chess-trainer-lemon.vercel.app` also reached `READY` from commit `5a59ca7297c0572a3f6dbd08ae863606c9c30322`.
+- The shipped build now bundles only `stockfish-18-lite-single`, avoiding the prior 100MB+ WASM assets while preserving a future engine-flavor expansion path in source.
 
 Next action:
 
-- Add the required Convex deployment configuration to the Vercel preview environment, then rerun Stage 3 preview verification against the same route-aware auth-gate slice.
-- Continue Stage 3 with a follow-on deploy-safety slice that keeps the engine-flavor abstraction but ships only the lite single-thread Stockfish asset in current prod/preview builds until a later dedicated engine-asset rollout is planned.
+- Start the next Stage 3 quality slice by adding route-level UI coverage, beginning with the import route and then extending to library, game, puzzle, and backoffice routes.
+- Continue extracting route-local orchestration into application-layer services once route-level coverage exists around the highest-risk flows.
 
 ### Stage 4: Production promotion
 
